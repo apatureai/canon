@@ -1,0 +1,12 @@
+{
+  "name": "@uidna/schema",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical UI DNA schema: tokens, components, distributions, anchors, exceptions — with per-field confidence + provenance, version metadata, and approval state.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "test": "vitest run" }
+}

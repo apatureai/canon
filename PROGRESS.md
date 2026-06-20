@@ -13,7 +13,7 @@ Boundary (PRD §11): this repo owns the **UI DNA schema, extraction pipeline, ve
 
 ## UD0 · Foundation & scaffold
 
-- [ ] #0 - Infra: monorepo scaffold + `@uidna/schema` package (the versioned DNA schema is the contract everything else fills) -> seed: pnpm workspace, strict TS (NodeNext ESM, `import type`, `.js` extensions), ESLint flat config (`eslint . --max-warnings=0`), Vitest, `tsc -b` project refs, CI. `@uidna/schema` carries the §5 DNA schema (identity/tokens/components/visual-distributions/anchors/exceptions + per-field confidence+provenance + version metadata + approval state). Mirror judgment-engine's scaffold conventions. (Create this GitHub issue if one doesn't exist.)
+- [x] #11 - Infra: monorepo scaffold + `@uidna/schema` package -> done: pnpm workspace + strict TS (NodeNext ESM, verbatimModuleSyntax, noUncheckedIndexedAccess, import type, .js extensions), ESLint flat config (`eslint . --max-warnings=0`), Vitest (`@uidna/schema` alias), `tsc -b` project refs, CI (lint·typecheck·test, least-priv contents:read). `@uidna/schema` carries the §5 DNA contract — `DnaSnapshot` (product identity / tokens / component conventions / visual distributions / rendered anchors / exceptions), every inferred field a `Fact<T>` with confidence + provenance (code/pixels/config/human/feedback), `DnaMetadata` (schema/dna/extraction/model versions + approval state) behind `SCHEMA_VERSION="1"`; `fact()`/`emptyDraft()`/`isApproved()`/`validateSnapshot()` pure helpers. Dependency-light, 6 tests, typecheck+lint green. (Was filed as #11; #0 placeholder.)
 
 ## UD1 · Code extraction (static tokens + components)
 
