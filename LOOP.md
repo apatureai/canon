@@ -19,10 +19,17 @@ apatureai/judgment-engine and apatureai/gate.
    issue genuinely needs LIVE infra (real capture, GPU, customer repos), mark it
    `[~]` and take the next unblocked one.
 5. Verify green: `pnpm install`, `pnpm typecheck`, `pnpm test`, `pnpm lint`.
-6. Flip `PROGRESS.md`, commit (plain message, **no AI attribution**), push, keep
-   ONE PR `agent/build -> main` titled "Apature UI DNA build (agent)" updated with
-   `Closes #<N>` lines (open a new PR if the current one is merged/closed). Don't
-   merge it; leave for human review.
+6. Flip `PROGRESS.md`, commit (plain message, **no AI attribution**), push.
+   **PR scope: one PR per milestone, not one ever-growing PR.** Keep a single
+   open build PR for the *current* milestone (UD0/UD1/…) titled for that
+   milestone with `Closes #<N>` per issue landed; when its issues are all done,
+   leave it for human review/merge and open a fresh PR for the next milestone
+   (base `main`). Don't merge it yourself. Milestone-sized PRs get reviewed and
+   merged, keeping `agent/build` close to `main`; a giant PR is unreviewable.
+   (Start this discipline now — judgment-engine/gate had to be split after the
+   fact on 2026-06-20.) Any post-hoc review branches must be cut from an
+   `agent/build` that has already merged latest `main`, or early snapshots
+   conflict on the lockfile.
 7. Comment 2-3 lines on the issue. Update this log before ending.
 
 ## Conventions (inherited; don't rediscover)
