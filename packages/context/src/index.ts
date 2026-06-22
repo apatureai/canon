@@ -17,3 +17,5 @@ export { extractTailwindV4Tokens } from "./tailwind-v4-dna.js";
 export type { ComponentLibrary, PackageJsonLike } from "./component-detection.js";
 export { detectComponentLibraries } from "./component-detection.js";
 export { extractComponentConventions } from "./component-detection-dna.js";
+export type { RouteConfig } from "./routes.js";
+export { pageFileToRoute, layoutFileToRoutes, mapDiffToRoutes } from "./routes.js";
