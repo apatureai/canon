@@ -50,3 +50,9 @@ Boundary (PRD §11): this repo owns the **UI DNA schema, extraction pipeline, ve
 ## UD6 · Security & residency (planned — research loop to file issues)
 
 - [ ] (file) Read-only repo access; screenshot retention per Apature tier; provenance without leaking private source into logs; enterprise self-hosted extraction path
+
+## Loop learnings
+
+- The UD1/UD2 context extractors (#1–#8, #10) are now ported from judgment-engine's `@engine/context` into `@uidna/context`, each split into a pure ported core + a thin `*-dna.ts` that maps outputs into `@uidna/schema` `Fact<T>`s. Provenance/confidence convention settled in practice: human-authored (`.designreview.yml`) 0.9 > config-declared (tokens.json / tailwind config) 0.8 > tailwind-v4 `@theme` 0.7 > raw css-vars 0.6 > dep-presence component detection 0.5; 1.0 stays reserved for human sign-off. Group classification is centralized in `token-groups.ts` (name-prefix), with stronger declared signals (W3C `$type`, Tailwind v4 namespace, Tailwind v3 category) preferred when present.
+- Determinism (PRD §7) is enforced by `context-block.ts`: it serializes only EXTRACTED content (not `metadata` version/approval stamps) so the content hash invalidates exactly when tokens/brand/components change. Follow-up for the engine: have `@engine/context` depend on `@uidna/context` (boundary convergence) instead of keeping its local copy.
+- **#9 (import-graph v1.5) is GATED, not skipped:** the #8 spike's go/no-go says build it only after measuring `assessImportGraphFeasibility` (≥0.9 internal-edge resolvability) on a real component-heavy repo — which needs live customer code, not fixtures. It is the only remaining UD1/UD2 issue and is correctly deferred to a measured-need run, so the codeable UD1/UD2 backlog is exhausted.
