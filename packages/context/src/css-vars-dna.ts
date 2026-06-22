@@ -1,6 +1,7 @@
 import type { DnaTokens, Fact } from "@uidna/schema";
 import { fact } from "@uidna/schema";
 import { extractCssCustomProperties } from "./css-vars.js";
+import { classifyTokenName, emptyTokens } from "./token-groups.js";
 
 /**
  * Map extracted CSS custom properties onto the canonical `DnaTokens` groups
@@ -13,37 +14,6 @@ import { extractCssCustomProperties } from "./css-vars.js";
  * dropped from the typed groups (they are surfaced raw elsewhere, not guessed).
  */
 const CODE_CONFIDENCE = 0.6;
-
-/** Token-name prefixes that map onto each canonical group. Order: first match wins. */
-const GROUP_PREFIXES: ReadonlyArray<readonly [keyof DnaTokens, readonly string[]]> = [
-  ["color", ["color", "clr", "bg", "background", "fg", "foreground", "accent", "border", "ring", "muted", "primary", "secondary", "destructive", "popover", "card"]],
-  ["typography", ["font", "text", "leading", "tracking", "line-height", "letter-spacing", "type"]],
-  ["spacing", ["space", "spacing", "gap", "inset", "size"]],
-  ["radii", ["radius", "rounded", "radii"]],
-  ["shadows", ["shadow", "elevation"]],
-  ["breakpoints", ["breakpoint", "screen", "bp"]],
-  ["motion", ["motion", "duration", "ease", "easing", "transition", "animate", "animation"]],
-];
-
-/** Strip the leading `--` and any vendor-ish wrapper, lowercased, for prefix matching. */
-function normalizeName(prop: string): string {
-  return prop.replace(/^--/, "").toLowerCase();
-}
-
-function classify(prop: string): keyof DnaTokens | null {
-  const name = normalizeName(prop);
-  for (const [group, prefixes] of GROUP_PREFIXES) {
-    for (const prefix of prefixes) {
-      // match prefix at a token boundary: `color-bg`, `color`, but not `colorize`
-      if (name === prefix || name.startsWith(`${prefix}-`)) return group;
-    }
-  }
-  return null;
-}
-
-function emptyTokens(): DnaTokens {
-  return { color: {}, typography: {}, spacing: {}, radii: {}, shadows: {}, breakpoints: {}, motion: {} };
-}
 
 /**
  * Extract CSS custom properties from a global stylesheet and classify them into
@@ -59,7 +29,7 @@ export function extractCssTokens(css: string): DnaTokens {
   const tokens = emptyTokens();
 
   const put = (key: string, prop: string, value: string): void => {
-    const group = classify(prop);
+    const group = classifyTokenName(prop);
     if (!group) return;
     (tokens[group] as Record<string, Fact<string>>)[key] = fact(value, CODE_CONFIDENCE, "code");
   };
