@@ -23,3 +23,10 @@ export type { TsconfigPaths, ImportKind, ResolvedImport, FeasibilityReport } fro
 export { resolveFileImports, assessImportGraphFeasibility } from "./import-graph-spike.js";
 export type { ContextBlock } from "./context-block.js";
 export { CONTEXT_VERSION, serializeContextBlock, buildContextBlock } from "./context-block.js";
+export type { ConfigLoader } from "./tailwind.js";
+export {
+  extractTailwindTokens,
+  resolveTailwindV3Tokens,
+  resolveTailwindV3FromFile,
+} from "./tailwind.js";
+export { extractTailwindV3Tokens, extractTailwindV3TokensFromFile } from "./tailwind-dna.js";
