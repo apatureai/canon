@@ -1,0 +1,52 @@
+# Apature UI DNA - Build Progress (loop source of truth)
+
+Deterministic checklist for the autonomous build loop. Work top-down by milestone (UD0 → UD6).
+
+How the loop uses it:
+- Pick the FIRST unchecked `[ ]` issue whose dependencies are already `[x]`.
+- When done (code + tests green, pushed): change `[ ]` to `[x]` and append ` -> done: <one line>`.
+- If blocked or it needs LIVE infra/keys (real browser/capture, GPU, customer repos), mark `[~]` and append ` -> skipped: <reason>`, then take the next unblocked issue. Stub the seam where possible and keep going.
+
+Boundary (PRD §11): this repo owns the **UI DNA schema, extraction pipeline, versioning, and downstream read contract** — the canonical design genome consumed by Gate, MCP Review, Entropy Engine, Source of Truth, and DNA Consultant. It does NOT own any customer-facing review surface, never writes customer code, and consumes Gate's capture engine for rendered evidence (mock it in tests).
+
+> **Reuse note (important):** `apatureai/judgment-engine` already implemented pure, tested equivalents of the UD1/UD2 context extractors in its `@engine/context` package (Tailwind v3 resolveConfig, Tailwind v4 `@theme`, CSS custom properties, tokens.json, component detection, brand block, diff→route, content-hashed context-block serialization). UI DNA is the canonical OWNER of that genome; the engine should ultimately consume it. The build loop should **port those proven modules here** (they were built as boundary-clean pure functions) rather than re-deriving them, and file a follow-up to have the engine depend on ui-dna instead of its local copy. This is the boundary-convergence the ECOSYSTEM intends.
+
+## UD0 · Foundation & scaffold
+
+- [x] #11 - Infra: monorepo scaffold + `@uidna/schema` package -> done: pnpm workspace + strict TS (NodeNext ESM, verbatimModuleSyntax, noUncheckedIndexedAccess, import type, .js extensions), ESLint flat config (`eslint . --max-warnings=0`), Vitest (`@uidna/schema` alias), `tsc -b` project refs, CI (lint·typecheck·test, least-priv contents:read). `@uidna/schema` carries the §5 DNA contract — `DnaSnapshot` (product identity / tokens / component conventions / visual distributions / rendered anchors / exceptions), every inferred field a `Fact<T>` with confidence + provenance (code/pixels/config/human/feedback), `DnaMetadata` (schema/dna/extraction/model versions + approval state) behind `SCHEMA_VERSION="1"`; `fact()`/`emptyDraft()`/`isApproved()`/`validateSnapshot()` pure helpers. Dependency-light, 6 tests, typecheck+lint green. (Was filed as #11; #0 placeholder.)
+
+## UD1 · Code extraction (static tokens + components)
+
+- [ ] #1 - Context: Tailwind v3 resolveConfig in sandboxed worker — deps: #0
+- [ ] #2 - Context: Tailwind v4 @theme/@config via PostCSS — deps: #0
+- [x] #3 - Context: CSS custom-properties extraction — deps: #0 -> done: ported judgment-engine's proven `@engine/context` css-vars extractor into new `@uidna/context` package (PostCSS-based, pure/deterministic) — collects `--*` from `:root`/`html` + theme-scoped `[data-theme]`/`.dark`/`@media prefers-color-scheme` blocks, ignores component-scoped props; `extractCssTokens()` classifies them into canonical `DnaTokens` groups (color/typography/spacing/radii/shadows/breakpoints/motion) as `Fact<string>` with provenance "code" (sub-1 confidence, theme tokens keyed `<theme>:--name`); 12 tests, full gate green.
+- [x] #4 - Context: tokens.json (W3C / Style Dictionary) parser — deps: #0 -> done: ported judgment-engine's proven `parseTokensJson` into `@uidna/context` (pure/deterministic, no IO); handles W3C `$value`/`$type` + classic Style Dictionary `value`, ignores `$`-metadata, serializes composite tokens deterministically. Added `parseTokensJsonTyped` surfacing each token's `$type` (with W3C group-level `$type` inheritance), and `extractTokensJson()` mapping into canonical `DnaTokens` as `Fact<string>` provenance "config" (conf 0.8) — grouping by W3C `$type` first, name-prefix fallback otherwise. Extracted shared `token-groups.ts` classifier (now used by css-vars + tokens.json). 16 new tests (34 total), full gate green.
+- [ ] #5 - Context: component-library detection -> rubric addenda (shadcn/Radix/MUI/Chakra/Mantine) — deps: #0
+
+## UD2 · Repo context & diff→route
+
+- [x] #6 - Context: .designreview.yml brand block extraction — deps: #0 -> done: ported judgment-engine's proven `extractBrandBlock`/`brandDimensionEnabled` into `@uidna/context` (pure/deterministic YAML, no IO) — normalizes `brand:` description/tone/audience/do/dont, accepts alternate don't spellings, returns null (suppresses the brand dimension) when absent/empty/invalid. Added `extractBrandIdentity()` mapping onto canonical `ProductIdentity` as `Fact<string>` provenance "human" (conf 0.9 — human-authored, sub-1; 1.0 reserved for sign-off); `name` left null (description is intent, not a product name). 9 new tests (43 total), full gate green.
+- [ ] #7 - Context: diff->route mapping MVP (framework page-files + config lists) — deps: #0
+- [ ] #8 - Context: SPIKE diff->route import-graph feasibility (madge + tsconfig aliases) — deps: #7
+- [ ] #9 - Context: diff->route v1.5 import-graph build (cap 5) — deps: #8
+- [ ] #10 - Context: deterministic context-block serialization + content-hash cache invalidation — deps: #1,#3,#4,#5,#6
+
+## UD3 · Render extraction & reconciliation (planned — research loop to file issues)
+
+- [ ] (file) Render extractor: sample rendered pages via Gate's capture engine (MOCK capture in tests) -> DOM geometry + screenshots
+- [ ] (file) Visual-distribution analysis: spacing intervals, type scale, density, color proportions, radius patterns
+- [ ] (file) Reconciler: merge code-level tokens with rendered reality; flag disagreements (drift hints)
+
+## UD4 · Confidence, provenance & versioning (planned — research loop to file issues)
+
+- [ ] (file) Confidence engine: mark inferred / observed / confirmed facts separately; per-field provenance (code/pixels/config/human/feedback)
+- [ ] (file) Versioned DNA snapshots per repo (deterministic: same repo state → same draft unless model/schema/extraction version changes)
+
+## UD5 · Sign-off & downstream contract (planned — research loop to file issues)
+
+- [ ] (file) Sign-off / structured-review workflow for canonical decisions (no customer-code writes)
+- [ ] (file) Downstream read API: serve versioned DNA snapshots to Gate / MCP Review / Entropy Engine / Source of Truth / DNA Consultant
+
+## UD6 · Security & residency (planned — research loop to file issues)
+
+- [ ] (file) Read-only repo access; screenshot retention per Apature tier; provenance without leaking private source into logs; enterprise self-hosted extraction path
