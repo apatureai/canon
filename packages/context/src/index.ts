@@ -7,3 +7,6 @@ export type { ParsedToken } from "./tokens-json.js";
 export { parseTokensJson, parseTokensJsonTyped } from "./tokens-json.js";
 export { extractTokensJson } from "./tokens-json-dna.js";
 export { classifyTokenName, emptyTokens } from "./token-groups.js";
+export type { BrandBlock } from "./brand.js";
+export { extractBrandBlock, brandDimensionEnabled } from "./brand.js";
+export { extractBrandIdentity } from "./brand-dna.js";

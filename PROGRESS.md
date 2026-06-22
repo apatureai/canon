@@ -25,7 +25,7 @@ Boundary (PRD §11): this repo owns the **UI DNA schema, extraction pipeline, ve
 
 ## UD2 · Repo context & diff→route
 
-- [ ] #6 - Context: .designreview.yml brand block extraction — deps: #0
+- [x] #6 - Context: .designreview.yml brand block extraction — deps: #0 -> done: ported judgment-engine's proven `extractBrandBlock`/`brandDimensionEnabled` into `@uidna/context` (pure/deterministic YAML, no IO) — normalizes `brand:` description/tone/audience/do/dont, accepts alternate don't spellings, returns null (suppresses the brand dimension) when absent/empty/invalid. Added `extractBrandIdentity()` mapping onto canonical `ProductIdentity` as `Fact<string>` provenance "human" (conf 0.9 — human-authored, sub-1; 1.0 reserved for sign-off); `name` left null (description is intent, not a product name). 9 new tests (43 total), full gate green.
 - [ ] #7 - Context: diff->route mapping MVP (framework page-files + config lists) — deps: #0
 - [ ] #8 - Context: SPIKE diff->route import-graph feasibility (madge + tsconfig aliases) — deps: #7
 - [ ] #9 - Context: diff->route v1.5 import-graph build (cap 5) — deps: #8

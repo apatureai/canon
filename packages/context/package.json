@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "UI DNA extraction pipeline: static design-token extractors (CSS custom properties, ...) that emit schema facts with confidence + provenance.",
+  "description": "UI DNA extraction pipeline: static design-token + brand extractors (CSS custom properties, tokens.json, .designreview.yml, ...) that emit schema facts with confidence + provenance.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
@@ -11,6 +11,7 @@
   "scripts": { "test": "vitest run" },
   "dependencies": {
     "@uidna/schema": "workspace:*",
-    "postcss": "^8.4.49"
+    "postcss": "^8.4.49",
+    "yaml": "^2.6.1"
   }
 }
