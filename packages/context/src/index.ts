@@ -10,3 +10,7 @@ export { classifyTokenName, emptyTokens } from "./token-groups.js";
 export type { BrandBlock } from "./brand.js";
 export { extractBrandBlock, brandDimensionEnabled } from "./brand.js";
 export { extractBrandIdentity } from "./brand-dna.js";
+export type { TailwindV4Result } from "./tailwind-v4.js";
+export { extractTailwindV4 } from "./tailwind-v4.js";
+export type { TailwindV4Tokens } from "./tailwind-v4-dna.js";
+export { extractTailwindV4Tokens } from "./tailwind-v4-dna.js";
