@@ -19,7 +19,7 @@ Boundary (PRD §11): this repo owns the **UI DNA schema, extraction pipeline, ve
 
 - [ ] #1 - Context: Tailwind v3 resolveConfig in sandboxed worker — deps: #0
 - [ ] #2 - Context: Tailwind v4 @theme/@config via PostCSS — deps: #0
-- [ ] #3 - Context: CSS custom-properties extraction — deps: #0
+- [x] #3 - Context: CSS custom-properties extraction — deps: #0 -> done: ported judgment-engine's proven `@engine/context` css-vars extractor into new `@uidna/context` package (PostCSS-based, pure/deterministic) — collects `--*` from `:root`/`html` + theme-scoped `[data-theme]`/`.dark`/`@media prefers-color-scheme` blocks, ignores component-scoped props; `extractCssTokens()` classifies them into canonical `DnaTokens` groups (color/typography/spacing/radii/shadows/breakpoints/motion) as `Fact<string>` with provenance "code" (sub-1 confidence, theme tokens keyed `<theme>:--name`); 12 tests, full gate green.
 - [ ] #4 - Context: tokens.json (W3C / Style Dictionary) parser — deps: #0
 - [ ] #5 - Context: component-library detection -> rubric addenda (shadcn/Radix/MUI/Chakra/Mantine) — deps: #0
 

@@ -27,6 +27,15 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.0)
 
+  packages/context:
+    dependencies:
+      '@uidna/schema':
+        specifier: workspace:*
+        version: link:../schema
+      postcss:
+        specifier: ^8.4.49
+        version: 8.5.15
+
   packages/schema: {}
 
 packages:

@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@uidna/schema": fromRoot("./packages/schema/src/index.ts"),
+      "@uidna/context": fromRoot("./packages/context/src/index.ts"),
     },
   },
   test: {
