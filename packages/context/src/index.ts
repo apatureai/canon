@@ -14,3 +14,6 @@ export type { TailwindV4Result } from "./tailwind-v4.js";
 export { extractTailwindV4 } from "./tailwind-v4.js";
 export type { TailwindV4Tokens } from "./tailwind-v4-dna.js";
 export { extractTailwindV4Tokens } from "./tailwind-v4-dna.js";
+export type { ComponentLibrary, PackageJsonLike } from "./component-detection.js";
+export { detectComponentLibraries } from "./component-detection.js";
+export { extractComponentConventions } from "./component-detection-dna.js";
