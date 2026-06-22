@@ -19,3 +19,5 @@ export { detectComponentLibraries } from "./component-detection.js";
 export { extractComponentConventions } from "./component-detection-dna.js";
 export type { RouteConfig } from "./routes.js";
 export { pageFileToRoute, layoutFileToRoutes, mapDiffToRoutes } from "./routes.js";
+export type { TsconfigPaths, ImportKind, ResolvedImport, FeasibilityReport } from "./import-graph-spike.js";
+export { resolveFileImports, assessImportGraphFeasibility } from "./import-graph-spike.js";
