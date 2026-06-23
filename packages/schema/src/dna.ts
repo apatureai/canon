@@ -24,6 +24,27 @@ export interface Fact<T> {
   provenance: Provenance;
 }
 
+/**
+ * A recorded reconciliation conflict (PRD §5/§7): two or more evidence sources
+ * disagreed on one logical field, and the reconciler kept the higher-trust
+ * value while surfacing the disagreement for sign-off / drift. The trail is the
+ * moat — downstream can show "code says X, pixels say Y" instead of silently
+ * picking one. Additive to the schema; produced by `@uidna/reconcile`.
+ */
+export interface Conflict {
+  /** Logical field this conflict is about, e.g. "tokens.color.--brand". */
+  field: string;
+  /** Every candidate value + its provenance + confidence that was considered. */
+  candidates: { value: string; provenance: Provenance; confidence: number }[];
+  /** Provenance of the candidate whose VALUE won. */
+  winner: Provenance;
+  /**
+   * Change in resolved confidence vs the winning candidate alone: positive when
+   * agreement reinforced it, negative when disagreement degraded it.
+   */
+  confidenceDelta: number;
+}
+
 /** Approval lifecycle for a snapshot (PRD §4: human sign-off workflow). */
 export type ApprovalState = "draft" | "in_review" | "approved";
 

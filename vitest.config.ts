@@ -9,6 +9,7 @@ export default defineConfig({
       "@uidna/schema": fromRoot("./packages/schema/src/index.ts"),
       "@uidna/context": fromRoot("./packages/context/src/index.ts"),
       "@uidna/render": fromRoot("./packages/render/src/index.ts"),
+      "@uidna/reconcile": fromRoot("./packages/reconcile/src/index.ts"),
     },
   },
   test: {
