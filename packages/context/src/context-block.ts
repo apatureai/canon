@@ -25,9 +25,25 @@ export interface ContextBlock {
   serialized: string;
 }
 
-/** Recursively sort object keys so serialization is insertion-order-independent. */
+/**
+ * Recursively canonicalize a value so serialization is order-independent: object
+ * keys are sorted, AND arrays are sorted by the stable stringification of their
+ * (already-canonicalized) elements. The extracted-content arrays here
+ * (components, anchors, exceptions, identity dos/donts, distribution sequences)
+ * are sets of facts, not positional data, so two snapshots that differ only in
+ * array order are semantically equal and must hash identically (#14) — extractor
+ * order today is stable, but the hash no longer depends on that.
+ */
 function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
+  if (Array.isArray(value)) {
+    return value
+      .map(canonicalize)
+      .sort((a, b) => {
+        const sa = JSON.stringify(a);
+        const sb = JSON.stringify(b);
+        return sa < sb ? -1 : sa > sb ? 1 : 0;
+      });
+  }
   if (value !== null && typeof value === "object") {
     const out: Record<string, unknown> = {};
     for (const key of Object.keys(value as Record<string, unknown>).sort()) {
