@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/schema" },
     { "path": "packages/context" },
-    { "path": "packages/render" }
+    { "path": "packages/render" },
+    { "path": "packages/reconcile" }
   ]
 }

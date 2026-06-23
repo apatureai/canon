@@ -2,6 +2,7 @@ export { SCHEMA_VERSION } from "./dna.js";
 export type {
   Provenance,
   Fact,
+  Conflict,
   ApprovalState,
   ProductIdentity,
   DnaTokens,
