@@ -2,6 +2,8 @@ export type { ReconcileResult } from "./reconcile-field.js";
 export { reconcileField } from "./reconcile-field.js";
 export type { ReconcileTokensResult } from "./reconcile-tokens.js";
 export { reconcileTokens } from "./reconcile-tokens.js";
+export type { ReconcileComponentsResult } from "./reconcile-components.js";
+export { reconcileComponents } from "./reconcile-components.js";
 export type { PixelsFactsByGroup, RenderBackedGroup } from "./pixels-facts.js";
 export {
   pixelsFactsFromDistributions,
