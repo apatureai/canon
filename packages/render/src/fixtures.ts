@@ -22,6 +22,11 @@ export function sampleCaptureEvidence(): CaptureEvidence {
         computedStyle: [
           { check: "contrast", selector: "button.cta", value: "4.8", violation: false },
           { check: "touch-target", selector: "button.cta", value: "44x44", violation: false },
+          { check: "font-size", selector: "main", value: "16px", violation: false },
+          { check: "font-size", selector: "button.cta", value: "14px", violation: false },
+          { check: "border-radius", selector: "button.cta", value: "8px", violation: false },
+          { check: "color", selector: "main", value: "#0a0a0a", violation: false },
+          { check: "background-color", selector: "main", value: "#ffffff", violation: false },
         ],
         phash: { hash: "f0e1d2c3b4a59687", bits: 64 },
       },
@@ -34,6 +39,9 @@ export function sampleCaptureEvidence(): CaptureEvidence {
         ],
         computedStyle: [
           { check: "overflow", selector: "section.tiers", value: "none", violation: false },
+          { check: "font-size", selector: "section.tiers", value: "16px", violation: false },
+          { check: "border-radius", selector: "section.tiers", value: "12px", violation: false },
+          { check: "color", selector: "section.tiers", value: "#0A0A0A", violation: false },
         ],
         phash: null,
       },
