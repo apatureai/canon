@@ -10,6 +10,7 @@ export default defineConfig({
       "@uidna/context": fromRoot("./packages/context/src/index.ts"),
       "@uidna/render": fromRoot("./packages/render/src/index.ts"),
       "@uidna/reconcile": fromRoot("./packages/reconcile/src/index.ts"),
+      "@uidna/store": fromRoot("./packages/store/src/index.ts"),
     },
   },
   test: {

@@ -1,0 +1,16 @@
+{
+  "name": "@uidna/store",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "UI DNA store: immutable, content-addressed versioned DnaSnapshots per repo, sign-off workflow, exceptions, and the versioned downstream read contract. ui-dna owns immutable versions (core #103 DECISION-3).",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "test": "vitest run" },
+  "dependencies": {
+    "@uidna/context": "workspace:*",
+    "@uidna/schema": "workspace:*"
+  }
+}
