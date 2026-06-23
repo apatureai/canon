@@ -64,6 +64,9 @@ importers:
       '@uidna/context':
         specifier: workspace:*
         version: link:../context
+      '@uidna/reconcile':
+        specifier: workspace:*
+        version: link:../reconcile
       '@uidna/schema':
         specifier: workspace:*
         version: link:../schema

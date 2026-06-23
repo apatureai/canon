@@ -10,3 +10,11 @@ export {
   applyReviewDecisions,
   approveSnapshot,
 } from "./sign-off.js";
+export type { AnnotatedDriftHint } from "./exceptions.js";
+export {
+  addException,
+  removeException,
+  isExcepted,
+  annotateDriftWithExceptions,
+  raisedDrift,
+} from "./exceptions.js";

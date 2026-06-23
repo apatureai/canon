@@ -31,6 +31,12 @@ export interface DriftHint {
   confidence: number;
   /** Human-readable summary, e.g. "config says #bada55 but pixels show #abcabc". */
   message: string;
+  /**
+   * Route this drift is scoped to, when a route-scoped reconciler produced it.
+   * Lets the store suppress drift on intentionally-excepted routes (#24). Token/
+   * component drifts are repo-wide and leave this undefined.
+   */
+  route?: string;
 }
 
 function describe(hint: Omit<DriftHint, "message">): string {
