@@ -12,6 +12,8 @@ export {
 } from "./sign-off.js";
 export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./read-api.js";
 export { getSnapshot } from "./read-api.js";
+export type { ChangeKind, FieldChange, SnapshotDiff } from "./diff.js";
+export { diffSnapshots } from "./diff.js";
 export type { AnnotatedDriftHint } from "./exceptions.js";
 export {
   addException,
