@@ -58,3 +58,40 @@ describe("serializeContextBlock", () => {
     );
   });
 });
+
+describe("serializeContextBlock — array order independence (#14)", () => {
+  const comp = (name: string) => ({
+    name,
+    variants: [],
+    props: [],
+    usageExamples: [],
+    confidence: 0.5 as const,
+    provenance: "code" as const,
+  });
+
+  it("hashes equal when component arrays differ only in order", () => {
+    const a = emptyDraft("apatureai", "ui-dna", "test");
+    const b = emptyDraft("apatureai", "ui-dna", "test");
+    a.components = [comp("mui"), comp("radix"), comp("shadcn/ui")];
+    b.components = [comp("shadcn/ui"), comp("mui"), comp("radix")]; // reordered, same set
+    expect(buildContextBlock(a).contentHash).toBe(buildContextBlock(b).contentHash);
+  });
+
+  it("hashes equal when identity dos/donts and distribution sequences are reordered", () => {
+    const a = emptyDraft("apatureai", "ui-dna", "test");
+    const b = emptyDraft("apatureai", "ui-dna", "test");
+    a.identity.dos = [fact("warm colors", 0.9, "human"), fact("legible numbers", 0.9, "human")];
+    b.identity.dos = [fact("legible numbers", 0.9, "human"), fact("warm colors", 0.9, "human")];
+    a.distributions.spacingIntervals = [4, 8, 16];
+    b.distributions.spacingIntervals = [16, 4, 8];
+    expect(buildContextBlock(a).contentHash).toBe(buildContextBlock(b).contentHash);
+  });
+
+  it("still hashes differently when the array CONTENT differs (not just order)", () => {
+    const a = emptyDraft("apatureai", "ui-dna", "test");
+    const b = emptyDraft("apatureai", "ui-dna", "test");
+    a.components = [comp("mui"), comp("radix")];
+    b.components = [comp("mui"), comp("chakra")]; // different member
+    expect(buildContextBlock(a).contentHash).not.toBe(buildContextBlock(b).contentHash);
+  });
+});
