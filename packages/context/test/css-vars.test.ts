@@ -43,6 +43,42 @@ describe("extractCssCustomProperties", () => {
     expect(result.themes).toEqual({});
   });
 
+  it("ignores theme tokens nested under a component selector (.dark .button)", () => {
+    const result = extractCssCustomProperties(`
+      .dark .button { --bg: #111; }
+      .light .card { --bg: #fff; }
+      :root { --real: 2px; }
+    `);
+    expect(result.base).toEqual({ "--real": "2px" });
+    expect(result.themes).toEqual({});
+  });
+
+  it("ignores theme tokens on a compound theme+component selector (.dark.fancy)", () => {
+    const result = extractCssCustomProperties(`.dark.fancy { --bg: #111; }`);
+    expect(result.themes).toEqual({});
+  });
+
+  it("ignores component-scoped custom props inside a prefers-color-scheme media query", () => {
+    const result = extractCssCustomProperties(`
+      @media (prefers-color-scheme: dark) { .button { --bg: #111; } }
+    `);
+    expect(result.themes).toEqual({});
+    expect(result.base).toEqual({});
+  });
+
+  it("still captures base-scoped .dark/:root and @media(...){ :root } (regression guard)", () => {
+    const result = extractCssCustomProperties(`
+      :root { --color-bg: #ffffff; }
+      .dark { --accent: #8b5cf6; }
+      @media (prefers-color-scheme: dark) { :root { --color-fg: #eeeeee; } }
+    `);
+    expect(result.base).toEqual({ "--color-bg": "#ffffff" });
+    expect(result.themes.dark).toEqual({
+      "--accent": "#8b5cf6",
+      "--color-fg": "#eeeeee",
+    });
+  });
+
   it("is deterministic and trims values", () => {
     const css = `:root { --x:  10px ; }`;
     expect(extractCssCustomProperties(css)).toEqual(extractCssCustomProperties(css));
