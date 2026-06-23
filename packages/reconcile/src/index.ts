@@ -4,6 +4,8 @@ export type { ReconcileTokensResult } from "./reconcile-tokens.js";
 export { reconcileTokens } from "./reconcile-tokens.js";
 export type { ReconcileComponentsResult } from "./reconcile-components.js";
 export { reconcileComponents } from "./reconcile-components.js";
+export type { DriftHint } from "./drift-hints.js";
+export { computeDriftHints } from "./drift-hints.js";
 export type { PixelsFactsByGroup, RenderBackedGroup } from "./pixels-facts.js";
 export {
   pixelsFactsFromDistributions,
