@@ -1,0 +1,70 @@
+{
+  "contract": {
+    "schemaVersion": "1",
+    "storeVersion": "1"
+  },
+  "repo": "apatureai/ui-dna",
+  "dnaVersion": "GOLDEN_DNA_VERSION",
+  "snapshot": {
+    "repository": {
+      "owner": "apatureai",
+      "name": "ui-dna"
+    },
+    "identity": {
+      "name": null,
+      "audience": null,
+      "tone": {
+        "value": "calm, precise",
+        "confidence": 1,
+        "provenance": "human"
+      },
+      "dos": [],
+      "donts": []
+    },
+    "tokens": {
+      "color": {
+        "--brand": {
+          "value": "#0a0a0a",
+          "confidence": 1,
+          "provenance": "human"
+        }
+      },
+      "typography": {},
+      "spacing": {
+        "--gap": {
+          "value": "8px",
+          "confidence": 0.75,
+          "provenance": "config"
+        }
+      },
+      "radii": {},
+      "shadows": {},
+      "breakpoints": {},
+      "motion": {}
+    },
+    "components": [],
+    "distributions": {
+      "spacingIntervals": [8, 16],
+      "typeScale": [14, 16],
+      "colorProportions": {
+        "#0a0a0a": 0.6
+      },
+      "radiusPatterns": [],
+      "density": 1.5
+    },
+    "anchors": [],
+    "exceptions": [
+      {
+        "route": "/promo",
+        "reason": "seasonal campaign, intentionally off-brand"
+      }
+    ],
+    "metadata": {
+      "schemaVersion": "1",
+      "dnaVersion": "GOLDEN_DNA_VERSION",
+      "extractionVersion": "extract-1",
+      "modelVersion": null,
+      "approvalState": "approved"
+    }
+  }
+}

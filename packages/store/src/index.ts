@@ -10,6 +10,8 @@ export {
   applyReviewDecisions,
   approveSnapshot,
 } from "./sign-off.js";
+export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./read-api.js";
+export { getSnapshot } from "./read-api.js";
 export type { AnnotatedDriftHint } from "./exceptions.js";
 export {
   addException,
