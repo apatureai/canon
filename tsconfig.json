@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "packages/schema" },
-    { "path": "packages/context" }
+    { "path": "packages/context" },
+    { "path": "packages/render" }
   ]
 }

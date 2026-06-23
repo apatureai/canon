@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       "@uidna/schema": fromRoot("./packages/schema/src/index.ts"),
       "@uidna/context": fromRoot("./packages/context/src/index.ts"),
+      "@uidna/render": fromRoot("./packages/render/src/index.ts"),
     },
   },
   test: {
