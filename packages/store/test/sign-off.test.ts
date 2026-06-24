@@ -13,6 +13,12 @@ function draft() {
   const d = emptyDraft("apatureai", "ui-dna", "extract-1");
   d.tokens.color["--brand"] = fact("#bada55", 0.7, "config");
   d.tokens.spacing["--gap"] = fact("8px", 0.6, "pixels");
+  d.identity.name = fact("Apature", 0.6, "code");
+  d.identity.tone = fact("playful", 0.5, "pixels");
+  d.identity.dos = [fact("use generous spacing", 0.6, "code")];
+  d.components = [
+    { name: "Button", variants: ["ghost"], props: ["size"], usageExamples: [], confidence: 0.5, provenance: "code" },
+  ];
   return d;
 }
 
@@ -58,6 +64,55 @@ describe("applyReviewDecisions — confirmed facts -> 1.0 human", () => {
     const reviewed = applyReviewDecisions(d, { decisions: [{ path: "tokens.color.--nope", action: "accept" }] });
     expect(reviewed.tokens.color["--brand"]?.confidence).toBe(0.7); // unchanged
     expect(d.tokens.color["--brand"]?.provenance).toBe("config"); // input pure
+  });
+});
+
+describe("applyReviewDecisions — identity + component coverage (#40)", () => {
+  it("promotes an accepted singular identity fact to 1.0 human", () => {
+    const reviewed = applyReviewDecisions(draft(), { decisions: [{ path: "identity.tone", action: "accept" }] });
+    expect(reviewed.identity.tone).toEqual({ value: "playful", confidence: 1, provenance: "human" });
+  });
+
+  it("records an identity EDIT as an overriding 1.0 human fact", () => {
+    const reviewed = applyReviewDecisions(draft(), {
+      decisions: [{ path: "identity.name", action: "edit", value: "Apature Systems" }],
+    });
+    expect(reviewed.identity.name).toEqual({ value: "Apature Systems", confidence: 1, provenance: "human" });
+  });
+
+  it("promotes a dos/donts entry by index", () => {
+    const reviewed = applyReviewDecisions(draft(), { decisions: [{ path: "identity.dos.0", action: "accept" }] });
+    expect(reviewed.identity.dos[0]).toEqual({ value: "use generous spacing", confidence: 1, provenance: "human" });
+  });
+
+  it("promotes a component convention to confidence 1.0 / provenance human on accept", () => {
+    const reviewed = applyReviewDecisions(draft(), { decisions: [{ path: "components.Button", action: "accept" }] });
+    const btn = reviewed.components.find((c) => c.name === "Button");
+    expect(btn?.confidence).toBe(1);
+    expect(btn?.provenance).toBe("human");
+    expect(btn?.variants).toEqual(["ghost"]); // convention body preserved
+  });
+
+  it("a component EDIT renames the convention and confirms it as human", () => {
+    const reviewed = applyReviewDecisions(draft(), {
+      decisions: [{ path: "components.Button", action: "edit", value: "PrimaryButton" }],
+    });
+    expect(reviewed.components.map((c) => c.name)).toContain("PrimaryButton");
+    expect(reviewed.components.find((c) => c.name === "PrimaryButton")?.provenance).toBe("human");
+  });
+
+  it("ignores out-of-range identity indices and unknown component names without mutating input", () => {
+    const d = draft();
+    const reviewed = applyReviewDecisions(d, {
+      decisions: [
+        { path: "identity.dos.9", action: "accept" },
+        { path: "components.Nope", action: "accept" },
+      ],
+    });
+    expect(reviewed.identity.dos[0]?.provenance).toBe("code"); // unchanged
+    expect(reviewed.components.find((c) => c.name === "Button")?.confidence).toBe(0.5); // unchanged
+    expect(d.identity.tone?.provenance).toBe("pixels"); // input pure
+    expect(d.components[0]?.provenance).toBe("code"); // input pure
   });
 });
 

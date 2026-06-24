@@ -105,6 +105,52 @@ function diffComponents(a: DnaSnapshot, b: DnaSnapshot, out: FieldChange[]): voi
   }
 }
 
+/** A non-fact scalar change (distributions carry no confidence/provenance). */
+function scalarChange(field: string, a: string | null, b: string | null): FieldChange | null {
+  if (a === b) return null;
+  return {
+    field,
+    kind: a === null ? "added" : b === null ? "removed" : "changed",
+    oldValue: a,
+    newValue: b,
+    oldConfidence: null,
+    newConfidence: null,
+    oldProvenance: null,
+    newProvenance: null,
+  };
+}
+
+function diffDistributions(a: DnaSnapshot, b: DnaSnapshot, out: FieldChange[]): void {
+  const da = a.distributions;
+  const db = b.distributions;
+
+  // Numeric-array signals: the ordered array IS the value (a reordering is a change).
+  for (const k of ["spacingIntervals", "typeScale", "radiusPatterns"] as const) {
+    const change = scalarChange(`distributions.${k}`, JSON.stringify(da[k]), JSON.stringify(db[k]));
+    if (change) out.push(change);
+  }
+
+  // density: a nullable scalar.
+  const density = scalarChange(
+    "distributions.density",
+    da.density === null ? null : String(da.density),
+    db.density === null ? null : String(db.density),
+  );
+  if (density) out.push(density);
+
+  // colorProportions: per-color proportion, keyed like a fact map (add/remove/change).
+  for (const color of new Set([...Object.keys(da.colorProportions), ...Object.keys(db.colorProportions)])) {
+    const av = da.colorProportions[color];
+    const bv = db.colorProportions[color];
+    const change = scalarChange(
+      `distributions.colorProportions.${color}`,
+      av === undefined ? null : String(av),
+      bv === undefined ? null : String(bv),
+    );
+    if (change) out.push(change);
+  }
+}
+
 /**
  * Diff two snapshots into a deterministic, field-sorted changeset. `metadataOnly`
  * is true when the resolved genome content is byte-identical (only metadata
@@ -116,6 +162,7 @@ export function diffSnapshots(a: DnaSnapshot, b: DnaSnapshot): SnapshotDiff {
   diffComponents(a, b, changes);
   diffIdentity(a, b, changes);
   diffExceptions(a, b, changes);
+  diffDistributions(a, b, changes);
 
   changes.sort((x, y) => (x.field < y.field ? -1 : x.field > y.field ? 1 : 0));
 

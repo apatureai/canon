@@ -48,3 +48,14 @@ export function clampConfidence(c: number): number {
   if (!Number.isFinite(c)) return 0;
   return Math.min(1, Math.max(0, c));
 }
+
+/**
+ * Clamp a `Conflict.confidenceDelta` into its valid range. A delta is the
+ * difference of two clamped confidences, so it lives in [-1, 1]; a non-finite
+ * delta (only reachable by bypassing the `fact()` constructor) collapses to 0.
+ * Defensive — the constructor already clamps NaN→0 upstream.
+ */
+export function clampDelta(d: number): number {
+  if (!Number.isFinite(d)) return 0;
+  return Math.min(1, Math.max(-1, d));
+}

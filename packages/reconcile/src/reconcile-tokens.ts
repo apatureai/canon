@@ -6,7 +6,7 @@ import {
   type PixelsFactsByGroup,
 } from "./pixels-facts.js";
 import { reconcileField } from "./reconcile-field.js";
-import { DISAGREEMENT_DEGRADE, MIN_DEGRADED_CONFIDENCE } from "./thresholds.js";
+import { clampDelta, DISAGREEMENT_DEGRADE, MIN_DEGRADED_CONFIDENCE } from "./thresholds.js";
 
 /**
  * Token reconciliation (#19): merge the code/config-extracted `DnaTokens`
@@ -54,7 +54,7 @@ function deadToken(
         { value: declared.value, provenance: declared.provenance, confidence: declared.confidence },
       ],
       winner: declared.provenance,
-      confidenceDelta: resolved.confidence - declared.confidence,
+      confidenceDelta: clampDelta(resolved.confidence - declared.confidence),
     },
   };
 }

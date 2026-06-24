@@ -1,5 +1,5 @@
 import { emptyDraft, validateSnapshot, type ComponentConvention } from "@uidna/schema";
-import { sampleCaptureEvidence, type CaptureEvidence } from "@uidna/render";
+import { sampleCaptureEvidence, type CaptureEvidence, type GeometryNode } from "@uidna/render";
 import { describe, expect, it } from "vitest";
 import { reconcileComponents } from "../src/index.js";
 
@@ -14,10 +14,41 @@ const emptyEvidence: CaptureEvidence = {
   captures: [],
 };
 
-describe("reconcileComponents — confirmed usage", () => {
-  it("lifts confidence and provenance when usage is observed on rendered routes", () => {
-    // sample fixture has a button.cta element (role 'button') -> matches shadcn/radix.
-    const { components, conflicts } = reconcileComponents([detected("radix")], sampleCaptureEvidence());
+/** One-route evidence whose geometry is the given nodes (for usage-signature tests). */
+function evidenceWith(geometry: GeometryNode[]): CaptureEvidence {
+  return {
+    captureVersion: "1",
+    engineCaptureVersion: "test-engine-0",
+    provenance: "pixels",
+    captures: [
+      {
+        route: "/",
+        viewport: { width: 1280, height: 800, deviceScaleFactor: 2, label: "desktop" },
+        screenshotRef: "s3://uidna-fixtures/x.png",
+        geometry,
+        computedStyle: [],
+        phash: null,
+      },
+    ],
+  };
+}
+
+/** A genuine Radix-family marker (data-radix/data-state), not a bare ARIA role. */
+const radixNode: GeometryNode = {
+  selector: "div[data-radix-popper-content-wrapper]",
+  role: "dialog",
+  rect: { x: 0, y: 0, width: 320, height: 200 },
+};
+/** A plain role=button element that appears on ANY site (must NOT confirm Radix/shadcn). */
+const bareButtonNode: GeometryNode = {
+  selector: "button.cta",
+  role: "button",
+  rect: { x: 32, y: 96, width: 160, height: 44 },
+};
+
+describe("reconcileComponents — confirmed usage (#38)", () => {
+  it("lifts confidence and provenance when a Radix-family marker is observed", () => {
+    const { components, conflicts } = reconcileComponents([detected("radix")], evidenceWith([radixNode]));
     const radix = components.find((c) => c.name === "radix");
     expect(radix?.confidence).toBeGreaterThan(0.5); // reinforced
     expect(radix?.provenance).toBe("pixels"); // lifted from code (dep-presence)
@@ -25,10 +56,18 @@ describe("reconcileComponents — confirmed usage", () => {
   });
 
   it("enriches the convention with observed roles and a usage example", () => {
-    const { components } = reconcileComponents([detected("shadcn/ui")], sampleCaptureEvidence());
+    const { components } = reconcileComponents([detected("shadcn/ui")], evidenceWith([radixNode]));
     const shadcn = components.find((c) => c.name === "shadcn/ui");
-    expect(shadcn?.variants).toContain("button"); // observed role
+    expect(shadcn?.variants).toContain("dialog"); // observed role on the matched node
     expect(shadcn?.usageExamples.some((e) => e.includes("observed on"))).toBe(true);
+  });
+
+  it("a bare role=button element does NOT confirm a declared-but-unused Radix/shadcn dep (#38)", () => {
+    const { components, conflicts } = reconcileComponents([detected("radix")], evidenceWith([bareButtonNode]));
+    const radix = components.find((c) => c.name === "radix");
+    expect(radix?.confidence).toBeLessThan(0.5); // degraded — not observed
+    expect(radix?.provenance).toBe("code"); // not lifted
+    expect(conflicts.some((c) => c.field === "components.radix")).toBe(true);
   });
 });
 

@@ -74,10 +74,41 @@ export function pixelsFactsFromDistributions(d: VisualDistributions): PixelsFact
 export const RENDER_BACKED_GROUPS = ["color", "typography", "spacing", "radii"] as const;
 export type RenderBackedGroup = (typeof RENDER_BACKED_GROUPS)[number];
 
+/** Root font size (px) used to normalize rem/em into px so they compare equal. */
+const ROOT_FONT_PX = 16;
+
+/**
+ * Expand a 3- or 4-digit hex shorthand to its 6-/8-digit form (`#fff` → `#ffffff`,
+ * `#abcd` → `#aabbccdd`) so shorthand and longhand don't read as a false
+ * disagreement. Non-shorthand hex (and non-hex) is returned trimmed/lowercased.
+ */
+function canonicalColor(value: string): string {
+  const v = value.trim().toLowerCase();
+  const m = /^#([0-9a-f]{3,4})$/.exec(v);
+  if (!m) return v;
+  return "#" + [...(m[1] as string)].map((ch) => ch + ch).join("");
+}
+
+/**
+ * Canonicalize a numeric token VALUE to a comparable px-number string. Pulls the
+ * leading number + optional unit; `rem`/`em` are scaled by the root font size so
+ * `1rem` ≡ `16` ≡ `16px` (the distributions are px-numeric). `px`/unitless keep
+ * the raw number; an unrecognized unit keeps the bare number (errs toward a
+ * conflict, never toward a false match). Trailing zeros are trimmed so
+ * `16` ≡ `16.0`.
+ */
+function canonicalNumeric(value: string): string {
+  const m = /(-?\d+(?:\.\d+)?)\s*(rem|em|px)?/.exec(value);
+  if (!m) return value.trim();
+  const n = Number(m[1]);
+  if (!Number.isFinite(n)) return (m[1] as string);
+  const px = m[2] === "rem" || m[2] === "em" ? n * ROOT_FONT_PX : n;
+  // Normalize the number form: integers print without a decimal, so "16" ≡ "16.0".
+  return String(px);
+}
+
 /** Canonicalize a declared token VALUE for matching against pixels facts. */
 export function canonicalTokenValue(group: keyof DnaTokens, value: string): string {
-  if (group === "color") return value.trim().toLowerCase();
-  // numeric groups: match on the leading number (e.g. "16px" -> "16").
-  const m = /-?\d+(?:\.\d+)?/.exec(value);
-  return m ? m[0] : value.trim();
+  if (group === "color") return canonicalColor(value);
+  return canonicalNumeric(value);
 }

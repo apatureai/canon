@@ -51,7 +51,14 @@ function genomeWithSecretIdentifiers(): DnaSnapshot {
   ];
   // Secret in an exception ROUTE / REASON.
   d.exceptions = [{ route: "/promo-sk-ABCDEF0123456789XYZ", reason: "contact founder@apature.dev" }];
+  // Secret in a colorProportions KEY (#43 — structurally non-secret, scrubbed for literal zero-egress).
+  d.distributions.colorProportions = { "sk-ABCDEF0123456789XYZ": 0.5 };
   return d;
+}
+
+/** A genome whose repository.owner/name carry a secret pattern (#43). */
+function genomeWithSecretRepo(): DnaSnapshot {
+  return emptyDraft("owner-sk-ABCDEF0123456789XYZ", "repo-ghp_ABCDEFGHIJKLMNOPQRST", "extract-1");
 }
 
 async function approvedStoreWith(snapshot: DnaSnapshot) {
@@ -114,11 +121,39 @@ describe("getResidentSnapshot — genome residency / security (#30)", () => {
     expect(e.reason).toBe("contact [redacted]");
   });
 
+  it("scrubs secret patterns from colorProportions KEYS (#43)", async () => {
+    const store = await approvedStoreWith(genomeWithSecretIdentifiers());
+    const res = await getResidentSnapshot(store, policy(), REPO);
+    expect(Object.keys(res!.snapshot.distributions.colorProportions)).toEqual(["[redacted]"]);
+    // The proportion value is preserved under the scrubbed key.
+    expect(res!.snapshot.distributions.colorProportions["[redacted]"]).toBe(0.5);
+  });
+
+  it("scrubs secret patterns from repository owner/name (#43)", async () => {
+    const snapshot = genomeWithSecretRepo();
+    const store = await approvedStoreWith(snapshot);
+    // The lookup key is the ORIGINAL (unscrubbed) repo id — entitle that.
+    const repo = "owner-sk-ABCDEF0123456789XYZ/repo-ghp_ABCDEFGHIJKLMNOPQRST";
+    const res = await getResidentSnapshot(store, policy({ entitledRepos: [repo] }), repo);
+    expect(res?.snapshot.repository).toEqual({ owner: "owner-[redacted]", name: "repo-[redacted]" });
+  });
+
   it("ZERO secret-pattern egress: no built-in pattern survives in ANY served field", async () => {
     const store = await approvedStoreWith(genomeWithSecretIdentifiers());
     const res = await getResidentSnapshot(store, policy({ retention: "retained" }), REPO);
     const serialized = JSON.stringify(res!.snapshot);
     for (const needle of ["sk-ABCDEF", "ghp_", "xoxb", "AKIA", "founder@apature.dev"]) {
+      expect(serialized).not.toContain(needle);
+    }
+  });
+
+  it("ZERO egress is LITERAL: repository + colorProportions keys included", async () => {
+    const repoSnap = genomeWithSecretRepo();
+    const repo = "owner-sk-ABCDEF0123456789XYZ/repo-ghp_ABCDEFGHIJKLMNOPQRST";
+    const store = await approvedStoreWith(repoSnap);
+    const res = await getResidentSnapshot(store, policy({ entitledRepos: [repo] }), repo);
+    const serialized = JSON.stringify(res!.snapshot);
+    for (const needle of ["sk-ABCDEF", "ghp_"]) {
       expect(serialized).not.toContain(needle);
     }
   });
