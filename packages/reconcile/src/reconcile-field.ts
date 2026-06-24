@@ -2,6 +2,7 @@ import type { Conflict, Fact, Provenance } from "@uidna/schema";
 import {
   AGREEMENT_REINFORCE,
   clampConfidence,
+  clampDelta,
   DISAGREEMENT_DEGRADE,
   HUMAN_RESOLVED_CONFIDENCE,
   MAX_REINFORCED_CONFIDENCE,
@@ -105,7 +106,7 @@ export function reconcileField<T>(field: string, candidates: Fact<T>[]): Reconci
             field,
             candidates: candidates.map(toCandidateRecord),
             winner: winner.provenance,
-            confidenceDelta: clampConfidence(confidence) - winner.confidence,
+            confidenceDelta: clampDelta(clampConfidence(confidence) - winner.confidence),
           },
         ]
       : [];

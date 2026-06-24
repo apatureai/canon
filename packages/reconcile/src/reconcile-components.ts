@@ -3,6 +3,7 @@ import type { CaptureEvidence, GeometryNode } from "@uidna/render";
 import {
   AGREEMENT_REINFORCE,
   clampConfidence,
+  clampDelta,
   DISAGREEMENT_DEGRADE,
   MAX_REINFORCED_CONFIDENCE,
   MIN_DEGRADED_CONFIDENCE,
@@ -102,7 +103,7 @@ export function reconcileComponents(
         field,
         candidates: [{ value: conv.name, provenance: conv.provenance, confidence: conv.confidence }],
         winner: conv.provenance,
-        confidenceDelta: confidence - conv.confidence,
+        confidenceDelta: clampDelta(confidence - conv.confidence),
       });
     }
   }

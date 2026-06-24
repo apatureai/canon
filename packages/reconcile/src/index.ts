@@ -20,4 +20,5 @@ export {
   DISAGREEMENT_DEGRADE,
   MIN_DEGRADED_CONFIDENCE,
   clampConfidence,
+  clampDelta,
 } from "./thresholds.js";
