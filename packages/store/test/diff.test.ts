@@ -57,6 +57,58 @@ describe("diffSnapshots — field changes across sections", () => {
   });
 });
 
+describe("diffSnapshots — distributions changes (#41)", () => {
+  it("enumerates a spacingIntervals change into changes[]", () => {
+    const a = base();
+    const b = base();
+    b.distributions.spacingIntervals = [8, 16];
+    const change = diffSnapshots(a, b).changes.find((c) => c.field === "distributions.spacingIntervals");
+    expect(change?.kind).toBe("changed"); // [] -> [8,16]
+    expect(change?.oldValue).toBe("[]");
+    expect(change?.newValue).toBe("[8,16]");
+  });
+
+  it("enumerates per-color colorProportions add/change", () => {
+    const a = base();
+    const b = base();
+    a.distributions.colorProportions = { "#0a0a0a": 0.4 };
+    b.distributions.colorProportions = { "#0a0a0a": 0.6, "#ffffff": 0.2 };
+    const fields = diffSnapshots(a, b).changes;
+    const changed = fields.find((c) => c.field === "distributions.colorProportions.#0a0a0a");
+    const added = fields.find((c) => c.field === "distributions.colorProportions.#ffffff");
+    expect(changed?.kind).toBe("changed");
+    expect(changed?.oldValue).toBe("0.4");
+    expect(changed?.newValue).toBe("0.6");
+    expect(added?.kind).toBe("added");
+  });
+
+  it("enumerates a density change (nullable scalar)", () => {
+    const a = base();
+    const b = base();
+    b.distributions.density = 1.5;
+    const change = diffSnapshots(a, b).changes.find((c) => c.field === "distributions.density");
+    expect(change?.kind).toBe("added"); // null -> 1.5
+    expect(change?.newValue).toBe("1.5");
+  });
+
+  it("a distributions-only change is NOT metadataOnly and now reports the change", () => {
+    const a = base();
+    const b = base();
+    b.distributions.typeScale = [14, 16];
+    const diff = diffSnapshots(a, b);
+    expect(diff.metadataOnly).toBe(false);
+    expect(diff.changes.map((c) => c.field)).toContain("distributions.typeScale");
+  });
+
+  it("identical distributions produce no distributions changes", () => {
+    const a = base();
+    const b = base();
+    a.distributions.spacingIntervals = [8];
+    b.distributions.spacingIntervals = [8];
+    expect(diffSnapshots(a, b).changes.filter((c) => c.field.startsWith("distributions."))).toEqual([]);
+  });
+});
+
 describe("diffSnapshots — metadata-only vs genome change", () => {
   it("flags metadataOnly when only approval/version stamps differ", () => {
     const a = base();
