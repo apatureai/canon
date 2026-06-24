@@ -28,13 +28,16 @@ export interface ReconcileComponentsResult {
 
 /**
  * DOM-signature fragments per detected library id (lowercased substring match
- * over `selector + role`). shadcn/Radix are primitive-driven, so their ARIA
- * roles (button/dialog/popover/menu/...) are the strongest usage signal; the
- * styled libraries carry class-name prefixes.
+ * over `selector + role`). shadcn/Radix are primitive-driven and emit
+ * Radix-family DOM markers (`data-radix-*`, `data-state`), so those — NOT bare
+ * ARIA roles — are the usage signal: a plain `role="button"` element appears on
+ * any site and would falsely confirm a declared-but-unused Radix/shadcn dep, so
+ * "observed usage" must reflect the actual library. The styled libraries carry
+ * class-name prefixes.
  */
 const USAGE_SIGNATURES: Record<string, string[]> = {
-  "shadcn/ui": ["data-radix", "data-state", "button", "dialog", "popover", "menu", "tooltip"],
-  radix: ["data-radix", "data-state", "button", "dialog", "popover", "menu", "tooltip"],
+  "shadcn/ui": ["data-radix", "data-state"],
+  radix: ["data-radix", "data-state"],
   mui: ["mui", "css-"], // emotion/MUI class prefixes
   chakra: ["chakra-", "css-"],
   mantine: ["mantine-", "m-"],
