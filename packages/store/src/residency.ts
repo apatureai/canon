@@ -135,6 +135,13 @@ function scrubString(value: string, s: Scrubber, count: { n: number }): string {
   return scrubbed;
 }
 
+/** Scrub the KEYS of a numeric map (e.g. colorProportions hex keys), values kept. */
+function scrubKeys(rec: Record<string, number>, s: Scrubber, count: { n: number }): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(rec)) out[scrubString(k, s, count)] = v;
+  return out;
+}
+
 /**
  * Scrub a token record's VALUES *and KEYS*: a token NAME (e.g. `--leak-sk-...`)
  * is served verbatim downstream, so a secret pattern in the key must be redacted
@@ -192,7 +199,13 @@ function scrubSnapshotWith(
 ): { snapshot: DnaSnapshot; redactedCount: number } {
   const count = { n: 0 };
   const scrubbed: DnaSnapshot = {
-    repository: { ...snapshot.repository },
+    // repository.owner/name is the caller-supplied lookup id (structurally non-
+    // secret) — scrubbed too so the "zero secret-pattern egress in ANY served
+    // field" guarantee is literal.
+    repository: {
+      owner: scrubString(snapshot.repository.owner, s, count),
+      name: scrubString(snapshot.repository.name, s, count),
+    },
     identity: scrubIdentity(snapshot.identity, s, count),
     tokens: {
       color: scrubRecord(snapshot.tokens.color, s, count),
@@ -216,7 +229,9 @@ function scrubSnapshotWith(
       ...snapshot.distributions,
       spacingIntervals: [...snapshot.distributions.spacingIntervals],
       typeScale: [...snapshot.distributions.typeScale],
-      colorProportions: { ...snapshot.distributions.colorProportions },
+      // colorProportions KEYS (hex-color strings) are served verbatim — scrub
+      // them too so the zero-egress guarantee covers every served string.
+      colorProportions: scrubKeys(snapshot.distributions.colorProportions, s, count),
       radiusPatterns: [...snapshot.distributions.radiusPatterns],
     },
     anchors: snapshot.anchors.map((a) => scrubAnchor(a, s, count)),
