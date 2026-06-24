@@ -59,6 +59,18 @@ importers:
 
   packages/schema: {}
 
+  packages/store:
+    dependencies:
+      '@uidna/context':
+        specifier: workspace:*
+        version: link:../context
+      '@uidna/reconcile':
+        specifier: workspace:*
+        version: link:../reconcile
+      '@uidna/schema':
+        specifier: workspace:*
+        version: link:../schema
+
 packages:
 
   '@alloc/quick-lru@5.2.0':

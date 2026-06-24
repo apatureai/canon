@@ -34,7 +34,7 @@ export interface ContextBlock {
  * array order are semantically equal and must hash identically (#14) — extractor
  * order today is stable, but the hash no longer depends on that.
  */
-function canonicalize(value: unknown): unknown {
+export function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value
       .map(canonicalize)
