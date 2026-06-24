@@ -5,6 +5,7 @@
     { "path": "packages/context" },
     { "path": "packages/render" },
     { "path": "packages/reconcile" },
-    { "path": "packages/store" }
+    { "path": "packages/store" },
+    { "path": "packages/eval" }
   ]
 }
