@@ -1,0 +1,16 @@
+{
+  "name": "@uidna/eval",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "UI DNA eval: reconciliation accuracy (resolved-fact precision/recall, conflict recall) + confidence calibration (ECE/Brier/reliability) over labeled genome fixtures, with a CI gate floor. Measures the precedence ladder instead of assuming it (#28, PRD §9).",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "test": "vitest run" },
+  "dependencies": {
+    "@uidna/reconcile": "workspace:*",
+    "@uidna/schema": "workspace:*"
+  }
+}

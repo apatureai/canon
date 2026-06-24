@@ -14,6 +14,21 @@ export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./re
 export { getSnapshot } from "./read-api.js";
 export type { ChangeKind, FieldChange, SnapshotDiff } from "./diff.js";
 export { diffSnapshots } from "./diff.js";
+export type {
+  GenomeQuery,
+  RetrieveOptions,
+  AnnotatedException,
+  GenomeSlice,
+} from "./retrieval.js";
+export { retrieveGenomeSlice, retrieveRawGenomeSlice } from "./retrieval.js";
+export type {
+  RetentionTier,
+  AccessLogger,
+  AccessLogEvent,
+  ResidencyPolicy,
+  ResidencyOptions,
+} from "./residency.js";
+export { isEntitled, getResidentSnapshot, scrubSnapshot } from "./residency.js";
 export type { AnnotatedDriftHint } from "./exceptions.js";
 export {
   addException,

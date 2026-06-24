@@ -11,6 +11,7 @@ export default defineConfig({
       "@uidna/render": fromRoot("./packages/render/src/index.ts"),
       "@uidna/reconcile": fromRoot("./packages/reconcile/src/index.ts"),
       "@uidna/store": fromRoot("./packages/store/src/index.ts"),
+      "@uidna/eval": fromRoot("./packages/eval/src/index.ts"),
     },
   },
   test: {
