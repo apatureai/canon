@@ -8,6 +8,7 @@ import type {
   RenderedAnchor,
 } from "@uidna/schema";
 import { getSnapshot, type ContractVersion } from "./read-api.js";
+import { scrubSnapshot } from "./residency.js";
 import type { SnapshotStore } from "./store.js";
 
 /**
@@ -48,6 +49,8 @@ export interface RetrieveOptions {
   maxAnchors?: number;
   /** Max component conventions returned (name-sorted, then capped). Default 20. */
   maxComponents?: number;
+  /** Extra customer redaction patterns applied on top of the built-in secret/PII set. */
+  redactPatterns?: RegExp[];
 }
 
 /** An exception in scope, surfaced so critique treats the route as intentional deviation, not drift. */
@@ -155,11 +158,30 @@ function buildSlice(
   };
 }
 
+/** Shared core: read approved snapshot, optionally scrub it, then cut the slice. */
+async function retrieve(
+  store: SnapshotStore,
+  repo: string,
+  query: GenomeQuery,
+  opts: RetrieveOptions,
+  scrub: boolean,
+): Promise<GenomeSlice | null> {
+  const response = await getSnapshot(store, repo, { version: opts.version });
+  if (!response) return null; // no approved snapshot — never serve a draft
+  const snapshot = scrub ? scrubSnapshot(response.snapshot, opts.redactPatterns) : response.snapshot;
+  return buildSlice(response.contract, response.repo, response.dnaVersion, snapshot, query, opts);
+}
+
 /**
- * Retrieve the bearing slice of a repo's APPROVED genome for one review context.
- * Reads the latest approved snapshot (or the pinned approved `version`) through
- * the #25 read contract — returns null when no approved snapshot matches, so a
- * draft is never served. Deterministic + bounded.
+ * Retrieve the bearing slice of a repo's APPROVED genome for one review context,
+ * SCRUBBED by default — the engine-facing grounding surface. The slice is cut
+ * from a secret/PII-scrubbed copy of the approved snapshot, so the genome never
+ * reaches the model carrying secrets (the trust boundary, PRD §8). Reads the
+ * latest approved snapshot (or the pinned approved `version`) through the #25
+ * read contract; returns null when no approved snapshot matches, so a draft is
+ * never served. Deterministic + bounded.
+ *
+ * For a genuinely trust-internal raw path, use `retrieveRawGenomeSlice`.
  */
 export async function retrieveGenomeSlice(
   store: SnapshotStore,
@@ -167,7 +189,20 @@ export async function retrieveGenomeSlice(
   query: GenomeQuery,
   opts: RetrieveOptions = {},
 ): Promise<GenomeSlice | null> {
-  const response = await getSnapshot(store, repo, { version: opts.version });
-  if (!response) return null; // no approved snapshot — never serve a draft
-  return buildSlice(response.contract, response.repo, response.dnaVersion, response.snapshot, query, opts);
+  return retrieve(store, repo, query, opts, true);
+}
+
+/**
+ * Explicit trust-INTERNAL raw retrieval: the same approved, version-pinned slice
+ * but WITHOUT secret/PII scrubbing. Use only inside the trust boundary (never on
+ * a path that reaches a model). The `isApproved` gate still applies — a draft is
+ * never served. The default engine-facing surface is `retrieveGenomeSlice`.
+ */
+export async function retrieveRawGenomeSlice(
+  store: SnapshotStore,
+  repo: string,
+  query: GenomeQuery,
+  opts: RetrieveOptions = {},
+): Promise<GenomeSlice | null> {
+  return retrieve(store, repo, query, opts, false);
 }

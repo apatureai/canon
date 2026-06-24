@@ -33,6 +33,33 @@ async function approvedStore() {
   return { store, dnaVersion: commit.dnaVersion };
 }
 
+/** A genome with secret patterns planted in IDENTIFIER / prose fields (keys, names, reasons). */
+function genomeWithSecretIdentifiers(): DnaSnapshot {
+  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  // Secret in a token KEY (not just the value).
+  d.tokens.color["--key-sk-ABCDEF0123456789XYZ"] = fact("#0a0a0a", 1, "config");
+  // Secret in a component NAME / variant / prop.
+  d.components = [
+    {
+      name: "Button-ghp_ABCDEFGHIJKLMNOPQRST",
+      variants: ["xoxb-1234567890-abcdef"],
+      props: ["AKIAABCDEFGHIJKLMNOP"],
+      usageExamples: [],
+      confidence: 0.9,
+      provenance: "pixels",
+    },
+  ];
+  // Secret in an exception ROUTE / REASON.
+  d.exceptions = [{ route: "/promo-sk-ABCDEF0123456789XYZ", reason: "contact founder@apature.dev" }];
+  return d;
+}
+
+async function approvedStoreWith(snapshot: DnaSnapshot) {
+  const store = inMemorySnapshotStore();
+  await approveSnapshot(store, requestReview(snapshot));
+  return store;
+}
+
 const REPO = "apatureai/ui-dna";
 
 function policy(over: Partial<ResidencyPolicy> = {}): ResidencyPolicy {
@@ -59,6 +86,41 @@ describe("getResidentSnapshot — genome residency / security (#30)", () => {
     const res = await getResidentSnapshot(store, policy(), REPO);
     expect(res?.snapshot.tokens.color["--leaked"]?.value).toBe("token [redacted] embedded");
     expect(res?.snapshot.identity.audience?.value).toBe("reach us at [redacted]");
+  });
+
+  it("scrubs secret patterns from token KEYS (not just values)", async () => {
+    const store = await approvedStoreWith(genomeWithSecretIdentifiers());
+    const res = await getResidentSnapshot(store, policy(), REPO);
+    const colorKeys = Object.keys(res!.snapshot.tokens.color);
+    expect(colorKeys).toContain("--key-[redacted]");
+    expect(colorKeys.some((k) => k.includes("sk-ABCDEF"))).toBe(false);
+  });
+
+  it("scrubs secret patterns from component name / variants / props", async () => {
+    const store = await approvedStoreWith(genomeWithSecretIdentifiers());
+    const res = await getResidentSnapshot(store, policy(), REPO);
+    const c = res!.snapshot.components[0]!;
+    expect(c.name).toBe("Button-[redacted]");
+    expect(c.variants).toEqual(["[redacted]"]);
+    expect(c.props).toEqual(["[redacted]"]);
+    expect(JSON.stringify(c)).not.toMatch(/ghp_|xox|AKIA/);
+  });
+
+  it("scrubs secret patterns from exception route / reason", async () => {
+    const store = await approvedStoreWith(genomeWithSecretIdentifiers());
+    const res = await getResidentSnapshot(store, policy(), REPO);
+    const e = res!.snapshot.exceptions[0]!;
+    expect(e.route).toBe("/promo-[redacted]");
+    expect(e.reason).toBe("contact [redacted]");
+  });
+
+  it("ZERO secret-pattern egress: no built-in pattern survives in ANY served field", async () => {
+    const store = await approvedStoreWith(genomeWithSecretIdentifiers());
+    const res = await getResidentSnapshot(store, policy({ retention: "retained" }), REPO);
+    const serialized = JSON.stringify(res!.snapshot);
+    for (const needle of ["sk-ABCDEF", "ghp_", "xoxb", "AKIA", "founder@apature.dev"]) {
+      expect(serialized).not.toContain(needle);
+    }
   });
 
   it("retention 'none' (default/free tier) serves no anchor refs", async () => {

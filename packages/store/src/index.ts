@@ -20,7 +20,7 @@ export type {
   AnnotatedException,
   GenomeSlice,
 } from "./retrieval.js";
-export { retrieveGenomeSlice } from "./retrieval.js";
+export { retrieveGenomeSlice, retrieveRawGenomeSlice } from "./retrieval.js";
 export type {
   RetentionTier,
   AccessLogger,
@@ -28,7 +28,7 @@ export type {
   ResidencyPolicy,
   ResidencyOptions,
 } from "./residency.js";
-export { isEntitled, getResidentSnapshot } from "./residency.js";
+export { isEntitled, getResidentSnapshot, scrubSnapshot } from "./residency.js";
 export type { AnnotatedDriftHint } from "./exceptions.js";
 export {
   addException,

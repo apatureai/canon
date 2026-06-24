@@ -128,13 +128,28 @@ function scrubFactOrNull(f: Fact<string> | null, s: Scrubber, count: { n: number
   return f === null ? null : scrubFact(f, s, count);
 }
 
+/** Scrub a bare string (identifier or prose), counting a redaction when it changed. */
+function scrubString(value: string, s: Scrubber, count: { n: number }): string {
+  const { value: scrubbed, redacted } = s.scrub(value);
+  if (redacted) count.n++;
+  return scrubbed;
+}
+
+/**
+ * Scrub a token record's VALUES *and KEYS*: a token NAME (e.g. `--leak-sk-...`)
+ * is served verbatim downstream, so a secret pattern in the key must be redacted
+ * too. Keys are re-collated after scrubbing (a collision after redaction keeps
+ * the last entry — deterministic over `Object.entries` order).
+ */
 function scrubRecord(
   rec: Record<string, Fact<string>>,
   s: Scrubber,
   count: { n: number },
 ): Record<string, Fact<string>> {
   const out: Record<string, Fact<string>> = {};
-  for (const [k, f] of Object.entries(rec)) out[k] = scrubFact(f, s, count);
+  for (const [k, f] of Object.entries(rec)) {
+    out[scrubString(k, s, count)] = scrubFact(f, s, count);
+  }
   return out;
 }
 
@@ -148,35 +163,35 @@ function scrubIdentity(id: ProductIdentity, s: Scrubber, count: { n: number }): 
   };
 }
 
-/** Retention + allow/deny applied to anchors, then descriptions scrubbed. */
-function residentAnchors(
-  anchors: RenderedAnchor[],
-  policy: ResidencyPolicy,
-  s: Scrubber,
-  count: { n: number },
-): RenderedAnchor[] {
-  if (policy.retention === "none") return []; // 0-retention tier serves no anchor refs
-  return anchors
-    .filter((a) => {
-      if (policy.allowRoutes && !policy.allowRoutes.includes(a.route)) return false;
-      if (policy.denyRoutes && policy.denyRoutes.includes(a.route)) return false;
-      return true;
-    })
-    .map((a) => {
-      const { value, redacted } = s.scrub(a.description);
-      if (redacted) count.n++;
-      return { ...a, description: value }; // always clone — served copy stays store-independent
-    });
+/** Scrub an anchor's description (every other field is an opaque ref/route). */
+function scrubAnchor(a: RenderedAnchor, s: Scrubber, count: { n: number }): RenderedAnchor {
+  return { ...a, route: scrubString(a.route, s, count), description: scrubString(a.description, s, count) };
 }
 
-/** Deep-clone + scrub a snapshot into a served copy that can't mutate the store. */
-function toResidentSnapshot(
+/** Retention + allow/deny applied to anchors (descriptions are scrubbed by the field scrub). */
+function retainAnchors(anchors: RenderedAnchor[], policy: ResidencyPolicy): RenderedAnchor[] {
+  if (policy.retention === "none") return []; // 0-retention tier serves no anchor refs
+  return anchors.filter((a) => {
+    if (policy.allowRoutes && !policy.allowRoutes.includes(a.route)) return false;
+    if (policy.denyRoutes && policy.denyRoutes.includes(a.route)) return false;
+    return true;
+  });
+}
+
+/**
+ * Field-level scrub of a whole snapshot into a deep-cloned, secret/PII-free copy
+ * — EVERY served-verbatim field (token keys + values, identity strings, component
+ * name/variants/props/usageExamples, anchor route/description, exception
+ * route/reason) is run through the scrubber. Tenant/retention/route policy is
+ * NOT applied here (that's residency-specific); this is the shared trust-boundary
+ * scrub both `getResidentSnapshot` and the engine-facing retrieval compose over.
+ */
+function scrubSnapshotWith(
   snapshot: DnaSnapshot,
-  policy: ResidencyPolicy,
   s: Scrubber,
 ): { snapshot: DnaSnapshot; redactedCount: number } {
   const count = { n: 0 };
-  const resident: DnaSnapshot = {
+  const scrubbed: DnaSnapshot = {
     repository: { ...snapshot.repository },
     identity: scrubIdentity(snapshot.identity, s, count),
     tokens: {
@@ -190,9 +205,12 @@ function toResidentSnapshot(
     },
     components: snapshot.components.map((c) => ({
       ...c,
-      variants: [...c.variants],
-      props: [...c.props],
-      usageExamples: c.usageExamples.map((u) => s.scrub(u).value),
+      // A component NAME / variant / prop / usage example is served verbatim, so
+      // a secret pattern in any of them must be scrubbed (not just usageExamples).
+      name: scrubString(c.name, s, count),
+      variants: c.variants.map((v) => scrubString(v, s, count)),
+      props: c.props.map((p) => scrubString(p, s, count)),
+      usageExamples: c.usageExamples.map((u) => scrubString(u, s, count)),
     })),
     distributions: {
       ...snapshot.distributions,
@@ -201,11 +219,36 @@ function toResidentSnapshot(
       colorProportions: { ...snapshot.distributions.colorProportions },
       radiusPatterns: [...snapshot.distributions.radiusPatterns],
     },
-    anchors: residentAnchors(snapshot.anchors, policy, s, count),
-    exceptions: snapshot.exceptions.map((e) => ({ ...e })),
+    anchors: snapshot.anchors.map((a) => scrubAnchor(a, s, count)),
+    // An exception route/reason is served verbatim — scrub both.
+    exceptions: snapshot.exceptions.map((e) => ({
+      route: scrubString(e.route, s, count),
+      reason: scrubString(e.reason, s, count),
+    })),
     metadata: { ...snapshot.metadata },
   };
-  return { snapshot: resident, redactedCount: count.n };
+  return { snapshot: scrubbed, redactedCount: count.n };
+}
+
+/**
+ * Public field-level scrub: deep-clone a snapshot with every served-verbatim
+ * field stripped of secret/PII patterns (built-in set + optional `extraPatterns`).
+ * Tenant/retention/route policy is the caller's concern. The engine-facing
+ * retrieval surface composes this so the genome never reaches a model unscrubbed.
+ */
+export function scrubSnapshot(snapshot: DnaSnapshot, extraPatterns: RegExp[] = []): DnaSnapshot {
+  return scrubSnapshotWith(snapshot, makeScrubber(extraPatterns)).snapshot;
+}
+
+/** Deep-clone + scrub + apply tenant retention/allow-deny into a served copy. */
+function toResidentSnapshot(
+  snapshot: DnaSnapshot,
+  policy: ResidencyPolicy,
+  s: Scrubber,
+): { snapshot: DnaSnapshot; redactedCount: number } {
+  const { snapshot: scrubbed, redactedCount } = scrubSnapshotWith(snapshot, s);
+  // Retention/allow-deny over the already-scrubbed anchors (filter only — never unredacts).
+  return { snapshot: { ...scrubbed, anchors: retainAnchors(scrubbed.anchors, policy) }, redactedCount };
 }
 
 /** Whether a tenant is entitled to read a repo. The only access gate besides approval. */

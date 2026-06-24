@@ -4,6 +4,7 @@ import {
   inMemorySnapshotStore,
   requestReview,
   retrieveGenomeSlice,
+  retrieveRawGenomeSlice,
   STORE_VERSION,
 } from "../src/index.js";
 import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
@@ -40,6 +41,21 @@ async function approvedStore() {
   const store = inMemorySnapshotStore();
   const { commit } = await approveSnapshot(store, requestReview(genome()));
   return { store, dnaVersion: commit.dnaVersion };
+}
+
+/** A genome carrying a secret in a token value + key, used to assert the trust boundary. */
+function genomeWithSecret(): DnaSnapshot {
+  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
+  d.tokens.color["--leaked"] = fact("token sk-ABCDEF0123456789XYZ embedded", 0.5, "config");
+  d.tokens.color["--key-sk-ABCDEF0123456789XYZ"] = fact("#fff", 0.5, "config");
+  return d;
+}
+
+async function approvedStoreWithSecret() {
+  const store = inMemorySnapshotStore();
+  await approveSnapshot(store, requestReview(genomeWithSecret()));
+  return store;
 }
 
 describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () => {
@@ -144,5 +160,30 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
     expect(slice!.anchors).toEqual([]);
     expect(slice!.exceptions).toEqual([]);
     expect(Object.keys(slice!.tokens.color)).toHaveLength(2);
+  });
+
+  it("SCRUBS by default: a secret-pattern value does NOT reach the engine-facing slice", async () => {
+    const store = await approvedStoreWithSecret();
+    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { tokenGroups: ["color"] });
+    // Secret in a value is redacted before the engine ever sees it.
+    expect(slice!.tokens.color["--leaked"]?.value).toBe("token [redacted] embedded");
+    // Secret in a token KEY is redacted too.
+    expect(Object.keys(slice!.tokens.color)).toContain("--key-[redacted]");
+    // ZERO egress: the secret pattern appears nowhere in the served slice.
+    expect(JSON.stringify(slice)).not.toContain("sk-ABCDEF");
+  });
+
+  it("retrieveRawGenomeSlice is the explicit trust-internal raw path (unscrubbed)", async () => {
+    const store = await approvedStoreWithSecret();
+    const raw = await retrieveRawGenomeSlice(store, "apatureai/ui-dna", { tokenGroups: ["color"] });
+    // The raw path intentionally preserves the original value (use inside the boundary only).
+    expect(raw!.tokens.color["--leaked"]?.value).toBe("token sk-ABCDEF0123456789XYZ embedded");
+  });
+
+  it("raw and scrubbed paths share the approved-only gate (no draft via either)", async () => {
+    const store = inMemorySnapshotStore();
+    await commitSnapshot(store, genomeWithSecret()); // draft
+    expect(await retrieveGenomeSlice(store, "apatureai/ui-dna", {})).toBeNull();
+    expect(await retrieveRawGenomeSlice(store, "apatureai/ui-dna", {})).toBeNull();
   });
 });
