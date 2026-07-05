@@ -52,11 +52,35 @@ describe("@uidna/schema contract (#11)", () => {
     if (!res.ok) expect(res.errors.some((e) => e.includes("schemaVersion"))).toBe(true);
   });
 
+  it("catches an anchor with an illegal provenance", () => {
+    const d = emptyDraft("acme", "web", "extract@1");
+    d.anchors.push({ ref: "s3://bucket/a.png", route: "/", description: "hero", provenance: "guess" as never });
+    const res = validateSnapshot(d);
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.errors.some((e) => e.includes("anchors[0]"))).toBe(true);
+  });
+
+  it("catches out-of-range color proportions and negative/non-finite measurements", () => {
+    const d = emptyDraft("acme", "web", "extract@1");
+    d.distributions.colorProportions = { "#0a0a0a": 1.4 }; // > 1
+    d.distributions.spacingIntervals = [-8]; // negative
+    d.distributions.density = Number.NaN; // non-finite
+    const res = validateSnapshot(d);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.errors.some((e) => e.includes("colorProportions"))).toBe(true);
+      expect(res.errors.some((e) => e.includes("spacingIntervals[0]"))).toBe(true);
+      expect(res.errors.some((e) => e.includes("distributions.density"))).toBe(true);
+    }
+  });
+
   it("accepts a well-formed populated snapshot", () => {
     const d = emptyDraft("acme", "web", "extract@1");
     d.identity.name = fact("Acme", 0.9, "config");
     d.tokens.spacing["4"] = fact("1rem", 1, "code");
     d.components.push({ name: "Button", variants: ["primary"], props: ["size"], usageExamples: [], confidence: 0.7, provenance: "code" });
+    d.anchors.push({ ref: "s3://bucket/hero.png", route: "/", description: "hero", provenance: "pixels" });
+    d.distributions = { spacingIntervals: [8, 16], typeScale: [14, 16], colorProportions: { "#0a0a0a": 0.6, "#ffffff": 0.4 }, radiusPatterns: [4], density: 120 };
     expect(validateSnapshot(d).ok).toBe(true);
   });
 });

@@ -47,6 +47,13 @@ function checkFact(path: string, f: Fact<unknown>, errors: string[]): void {
   if (!PROVENANCES.has(f.provenance)) errors.push(`${path}: invalid provenance "${String(f.provenance)}"`);
 }
 
+/** A distribution measurement (px gap, font size, radius, proportion) must be a finite, non-negative number. */
+function checkNonNegative(path: string, n: unknown, errors: string[]): void {
+  if (typeof n !== "number" || !Number.isFinite(n) || n < 0) {
+    errors.push(`${path}: must be a finite number >= 0`);
+  }
+}
+
 /**
  * Validate a snapshot's structural invariants: schema version, approval state,
  * and that every stamped fact has a legal confidence + provenance. Pure; the
@@ -79,6 +86,25 @@ export function validateSnapshot(snapshot: DnaSnapshot): ValidationResult {
     }
     if (!PROVENANCES.has(c.provenance)) errors.push(`components[${i}]: invalid provenance`);
   });
+
+  // Rendered anchors carry a provenance (always "pixels" from the render extractor,
+  // but a hand-built or wire-decoded snapshot could carry a bad one).
+  snapshot.anchors.forEach((a, i) => {
+    if (!PROVENANCES.has(a.provenance)) errors.push(`anchors[${i}]: invalid provenance "${String(a.provenance)}"`);
+  });
+
+  // Visual distributions are numeric observations (PRD §5): measurements are
+  // finite and non-negative, and color proportions are proportions in [0,1].
+  const d = snapshot.distributions;
+  d.spacingIntervals.forEach((n, i) => checkNonNegative(`distributions.spacingIntervals[${i}]`, n, errors));
+  d.typeScale.forEach((n, i) => checkNonNegative(`distributions.typeScale[${i}]`, n, errors));
+  d.radiusPatterns.forEach((n, i) => checkNonNegative(`distributions.radiusPatterns[${i}]`, n, errors));
+  for (const [k, v] of Object.entries(d.colorProportions)) {
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1) {
+      errors.push(`distributions.colorProportions["${k}"]: must be a proportion in [0,1]`);
+    }
+  }
+  if (d.density !== null) checkNonNegative("distributions.density", d.density, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }
