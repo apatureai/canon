@@ -38,9 +38,26 @@ function numericFacts(values: number[]): Record<string, Fact<string>> {
 }
 
 function colorFacts(proportions: Record<string, number>): Record<string, Fact<string>> {
-  const out: Record<string, Fact<string>> = {};
+  // Key by the SAME canonical form the declared-token side uses
+  // (`canonicalColor`, via `canonicalTokenValue`) so matching is symmetric — a
+  // rendered shorthand `#fff` and a declared `#ffffff` (or vice versa) resolve
+  // to one key instead of reading as a false disagreement / dead token. Keying
+  // by `color.toLowerCase()` alone only unified case, not shorthand, so an
+  // observed shorthand hex could never confirm a declared longhand token.
+  // A shorthand and its longhand form (and case variants) that collapse to the
+  // same canonical color are the same observation: sum their shares. The first
+  // observed raw string is kept as the candidate `value` (declared form still
+  // wins on a match; this only names a pixels-only candidate).
+  const agg = new Map<string, { value: string; share: number }>();
   for (const [color, proportion] of Object.entries(proportions)) {
-    out[color.toLowerCase()] = { value: color, confidence: scale(proportion), provenance: "pixels" };
+    const key = canonicalColor(color);
+    const existing = agg.get(key);
+    if (existing) existing.share += proportion;
+    else agg.set(key, { value: color, share: proportion });
+  }
+  const out: Record<string, Fact<string>> = {};
+  for (const [key, { value, share }] of agg) {
+    out[key] = { value, confidence: scale(share), provenance: "pixels" };
   }
   return out;
 }

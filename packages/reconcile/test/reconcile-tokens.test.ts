@@ -60,11 +60,15 @@ describe("reconcileTokens — pixels-only", () => {
     expect(candidate?.confidence).toBeGreaterThan(0);
   });
 
-  it("never silently drops observed render values", () => {
+  it("never silently drops observed render values (candidates keyed by canonical color)", () => {
     const tokens = emptyTokens();
     const dist = { ...emptyDist(), colorProportions: { "#fff": 0.5, "#000": 0.5 } };
     const { tokens: resolved } = reconcileTokens(tokens, dist);
-    expect(Object.keys(resolved.color)).toEqual(["pixels:#000", "pixels:#fff"]);
+    // Keys are the canonical (shorthand-expanded) color so they match the
+    // declared-token side; the observed raw form is preserved as the fact value.
+    expect(Object.keys(resolved.color)).toEqual(["pixels:#000000", "pixels:#ffffff"]);
+    expect(resolved.color["pixels:#000000"]?.value).toBe("#000");
+    expect(resolved.color["pixels:#ffffff"]?.value).toBe("#fff");
   });
 });
 
