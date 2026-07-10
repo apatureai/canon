@@ -1,11 +1,10 @@
-import type { Config } from "tailwindcss";
-import resolveConfig from "tailwindcss/resolveConfig";
 import type { TokenMap } from "./tokens.js";
 
 /**
- * Tailwind v3 token extraction (PRD §6). The fully-resolved theme is produced by
- * Tailwind's own `resolveConfig` — never static-AST-parsed, which would miss
- * preset/required defaults. Returns the flattened design tokens.
+ * Tailwind v3 token extraction (PRD §6). When Tailwind's legacy `resolveConfig`
+ * helper is available, file-based extraction uses it. Under Tailwind v4, where
+ * that helper is not exported, object extraction falls back to authored
+ * theme/extend values and v4 CSS tokens come from `tailwind-v4.ts`.
  *
  * `tailwind.config.{js,ts}` is EXECUTABLE code, so loading it is isolated behind
  * a `ConfigLoader` seam (below): the production loader runs it in a sandboxed
@@ -27,6 +26,53 @@ const CATEGORIES = [
   "screens",
   "boxShadow",
 ] as const;
+
+type TailwindConfig = {
+  theme?: {
+    extend?: Record<string, unknown>;
+    [key: string]: unknown;
+  };
+};
+
+type TailwindResolver = (config: unknown) => { theme: Record<string, unknown> };
+
+const TAILWIND_RESOLVE_CONFIG = "tailwindcss/resolveConfig";
+
+let resolveConfigPromise: Promise<TailwindResolver | null> | null = null;
+
+async function loadResolveConfig(): Promise<TailwindResolver | null> {
+  resolveConfigPromise ??= import(TAILWIND_RESOLVE_CONFIG)
+    .then((mod: { default?: TailwindResolver }) => mod.default ?? null)
+    .catch(() => null);
+  return resolveConfigPromise;
+}
+
+function mergeTheme(userConfig: unknown): Record<string, unknown> | null {
+  if (userConfig === null || typeof userConfig !== "object") return {};
+  const theme = (userConfig as TailwindConfig).theme;
+  if (theme === undefined) return {};
+  if (theme === null || typeof theme !== "object") return null;
+
+  const { extend, ...baseTheme } = theme;
+  const merged: Record<string, unknown> = { ...baseTheme };
+  if (extend && typeof extend === "object" && !Array.isArray(extend)) {
+    for (const [key, value] of Object.entries(extend)) {
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        merged[key] &&
+        typeof merged[key] === "object" &&
+        !Array.isArray(merged[key])
+      ) {
+        merged[key] = { ...(merged[key] as Record<string, unknown>), ...value };
+      } else {
+        merged[key] = value;
+      }
+    }
+  }
+  return merged;
+}
 
 function flatten(prefix: string, value: unknown, out: TokenMap): void {
   if (value === null || value === undefined) return;
@@ -58,14 +104,14 @@ export function extractTailwindTokens(theme: Record<string, unknown>): TokenMap 
 }
 
 /**
- * Resolve a Tailwind v3 config OBJECT and extract its tokens, or null on throw
- * (the caller then degrades to CSS-property extraction). Pure — no IO, no code
- * loading; the config object has already been produced by a `ConfigLoader`.
+ * Resolve a Tailwind v3 config OBJECT and extract its tokens. Tailwind v4 no
+ * longer exposes the v3 `resolveConfig` helper, so this falls back to authored
+ * theme/extend values when that helper is unavailable.
  */
 export function resolveTailwindV3Tokens(userConfig: unknown): TokenMap | null {
   try {
-    const full = resolveConfig(userConfig as Config);
-    return extractTailwindTokens(full.theme);
+    const theme = mergeTheme(userConfig);
+    return theme ? extractTailwindTokens(theme) : null;
   } catch {
     return null;
   }
@@ -96,6 +142,14 @@ export async function resolveTailwindV3FromFile(
     config = await loader.load(path);
   } catch {
     return null; // load failed (bad config / missing file) -> degrade
+  }
+  const resolver = await loadResolveConfig();
+  if (resolver) {
+    try {
+      return extractTailwindTokens(resolver(config).theme);
+    } catch {
+      return null;
+    }
   }
   return resolveTailwindV3Tokens(config);
 }

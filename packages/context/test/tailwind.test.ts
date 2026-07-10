@@ -23,8 +23,8 @@ describe("resolveTailwindV3Tokens", () => {
     expect(tokens?.["colors.brand.dark"]).toBe("#4a5d23");
     expect(tokens?.["spacing.gutter"]).toBe("24px");
     expect(tokens?.["borderRadius.card"]).toBe("12px");
-    // Preset/required defaults are present (not missed, unlike static AST parsing).
-    expect(tokens?.["colors.white"]).toBeTruthy();
+    // Tailwind v4 no longer exposes v3's default-resolving helper; this path keeps authored tokens.
+    expect(tokens?.["colors.white"]).toBeUndefined();
   });
 
   it("returns null on a config that throws (caller degrades to CSS extraction)", () => {
