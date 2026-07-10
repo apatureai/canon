@@ -23,8 +23,16 @@ describe("resolveTailwindV3Tokens", () => {
     expect(tokens?.["colors.brand.dark"]).toBe("#4a5d23");
     expect(tokens?.["spacing.gutter"]).toBe("24px");
     expect(tokens?.["borderRadius.card"]).toBe("12px");
-    // Tailwind v4 no longer exposes v3's default-resolving helper; this path keeps authored tokens.
-    expect(tokens?.["colors.white"]).toBeUndefined();
+    // The v3 resolver remains available through an alias even while v4 is installed.
+    expect(tokens?.["colors.white"]).toBeTruthy();
+  });
+
+  it("resolves v3 presets instead of dropping inherited design tokens", () => {
+    const tokens = resolveTailwindV3Tokens({
+      content: [],
+      presets: [{ theme: { extend: { colors: { inherited: "#123456" } } } }],
+    });
+    expect(tokens?.["colors.inherited"]).toBe("#123456");
   });
 
   it("returns null on a config that throws (caller degrades to CSS extraction)", () => {
