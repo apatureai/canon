@@ -57,6 +57,17 @@ describe("getSnapshot — downstream read contract", () => {
     expect(response?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: STORE_VERSION });
   });
 
+  it("emits the approved-only envelope required by Source of Truth ingest", async () => {
+    const { store, dnaVersion } = await storeWithApproved();
+    const response = await getSnapshot(store, "apatureai/ui-dna", { version: dnaVersion });
+
+    expect(response).not.toBeNull();
+    expect(response?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: "2" });
+    expect(response?.repo).toBe("apatureai/ui-dna");
+    expect(response?.dnaVersion).toBe(response?.snapshot.metadata.dnaVersion);
+    expect(response?.snapshot.metadata.approvalState).toBe("approved");
+  });
+
   it("returns a pinned immutable version when requested", async () => {
     const { store, dnaVersion } = await storeWithApproved();
     const response = await getSnapshot(store, "apatureai/ui-dna", { version: dnaVersion });

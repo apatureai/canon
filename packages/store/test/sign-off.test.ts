@@ -4,6 +4,8 @@ import {
   applyReviewDecisions,
   approveSnapshot,
   canTransition,
+  commitSnapshot,
+  getSnapshot,
   inMemorySnapshotStore,
   rejectReview,
   requestReview,
@@ -140,5 +142,57 @@ describe("approveSnapshot", () => {
     const a = await approveSnapshot(inMemorySnapshotStore(), requestReview(draft()), review);
     const b = await approveSnapshot(inMemorySnapshotStore(), requestReview(draft()), review);
     expect(a.commit.dnaVersion).toBe(b.commit.dnaVersion);
+  });
+
+  it("persists draft -> in_review -> approved as distinct immutable records with zero decisions", async () => {
+    const store = inMemorySnapshotStore();
+    const original = draft();
+    const draftCommit = await commitSnapshot(store, original);
+    const reviewing = requestReview(original);
+    const reviewCommit = await commitSnapshot(store, reviewing);
+
+    const approved = await approveSnapshot(store, reviewing, { decisions: [] });
+    const records = await store.list("apatureai/ui-dna");
+
+    expect(new Set([draftCommit.dnaVersion, reviewCommit.dnaVersion, approved.commit.dnaVersion]).size).toBe(3);
+    expect(records.map((record) => record.snapshot.metadata.approvalState)).toEqual([
+      "draft",
+      "in_review",
+      "approved",
+    ]);
+    expect(approved.commit.created).toBe(true);
+    expect(isApproved(approved.snapshot)).toBe(true);
+
+    const served = await getSnapshot(store, "apatureai/ui-dna", {
+      version: approved.commit.dnaVersion,
+    });
+    expect(served?.dnaVersion).toBe(approved.commit.dnaVersion);
+    expect(served?.snapshot.metadata.approvalState).toBe("approved");
+  });
+
+  it("cannot alias a persisted pre-approval record when every decision is a no-op", async () => {
+    const store = inMemorySnapshotStore();
+    const reviewing = requestReview(draft());
+    const preApproval = await commitSnapshot(store, reviewing);
+
+    const approved = await approveSnapshot(store, reviewing, {
+      decisions: [
+        { path: "tokens.color.--unknown", action: "accept" },
+        { path: "components.Unknown", action: "accept" },
+      ],
+    });
+
+    expect(approved.commit.dnaVersion).not.toBe(preApproval.dnaVersion);
+    expect(approved.snapshot.metadata.approvalState).toBe("approved");
+  });
+
+  it("recommits an approved record idempotently and keeps approval terminal", async () => {
+    const store = inMemorySnapshotStore();
+    const approved = await approveSnapshot(store, requestReview(draft()));
+    const repeated = await commitSnapshot(store, approved.snapshot);
+
+    expect(repeated.created).toBe(false);
+    expect(repeated.dnaVersion).toBe(approved.commit.dnaVersion);
+    await expect(approveSnapshot(store, approved.snapshot)).rejects.toThrow(/illegal approval transition/);
   });
 });

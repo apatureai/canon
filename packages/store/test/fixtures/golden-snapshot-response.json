@@ -1,7 +1,7 @@
 {
   "contract": {
     "schemaVersion": "1",
-    "storeVersion": "1"
+    "storeVersion": "2"
   },
   "repo": "apatureai/ui-dna",
   "dnaVersion": "GOLDEN_DNA_VERSION",

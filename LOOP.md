@@ -64,6 +64,7 @@ apatureai/judgment-engine and apatureai/gate.
 
 ## Self-improvement log (newest first)
 
+- 2026-07-11 (#58): immutable lifecycle state must participate in the stored-record identity. Content-only identity caused zero-decision approval to collide with an already persisted draft/in-review key and return the unapproved record. Store/read contract v2 keeps deterministic IDs, separates lifecycle records, and preserves idempotency within the same state; downstream golden consumers must bump in lockstep.
 - 2026-06-20 (scaffold): repo scoped for the build loop. Seeded `PROGRESS.md`
   (UD0 scaffold + the 10 existing context issues #1–#10, grouped UD1/UD2; UD3–UD6
   PRD components flagged for the research loop to file) and this playbook. Key

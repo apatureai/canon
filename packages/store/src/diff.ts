@@ -1,5 +1,5 @@
 import type { DnaSnapshot, Fact, Provenance } from "@uidna/schema";
-import { serializeForVersion } from "./version-identity.js";
+import { serializeGenomeContent } from "./version-identity.js";
 
 /**
  * Version-to-version genome change detection (#26, PRD §4/§7). `diffSnapshots`
@@ -11,7 +11,7 @@ import { serializeForVersion } from "./version-identity.js";
  *
  * Distinct from #21 drift hints (code-vs-standard WITHIN one snapshot). Pure, no
  * IO. Metadata-only bumps are distinguishable from genome-content changes via
- * the #22 content/identity split (`serializeForVersion`).
+ * the #22 content/identity split (`serializeGenomeContent`).
  */
 
 export type ChangeKind = "added" | "removed" | "changed";
@@ -167,6 +167,6 @@ export function diffSnapshots(a: DnaSnapshot, b: DnaSnapshot): SnapshotDiff {
   changes.sort((x, y) => (x.field < y.field ? -1 : x.field > y.field ? 1 : 0));
 
   // Genome-content identity (no metadata) -> distinguishes metadata-only bumps.
-  const metadataOnly = serializeForVersion(a) === serializeForVersion(b) && changes.length === 0;
+  const metadataOnly = serializeGenomeContent(a) === serializeGenomeContent(b) && changes.length === 0;
   return { changes, metadataOnly };
 }

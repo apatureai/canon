@@ -107,7 +107,10 @@ export interface DnaException {
 
 export interface DnaMetadata {
   schemaVersion: string;
-  /** Version of this repo's DNA snapshot (bumps when the genome changes). */
+  /**
+   * Immutable stored-record version. Bumps when the genome, causal extraction
+   * stamps, or approval lifecycle state changes.
+   */
   dnaVersion: string;
   /** Extraction-pipeline version that produced it (determinism stamp, PRD §7). */
   extractionVersion: string;

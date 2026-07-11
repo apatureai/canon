@@ -5,9 +5,9 @@ import { computeDnaVersion } from "./version-identity.js";
  * Immutable, content-addressed versioned snapshot store (#22, PRD §4/§7; core
  * #103 DECISION-3: ui-dna owns immutable versions). A resolved `DnaSnapshot` is
  * frozen under its content-addressed `dnaVersion` and NEVER mutated in place; a
- * new genome produces a NEW version. `commitSnapshot` is append-only and
- * idempotent: re-committing identical content + causal stamps is a no-op
- * returning the same version.
+ * new genome or lifecycle transition produces a NEW version. `commitSnapshot`
+ * is append-only and idempotent: re-committing identical content + causal
+ * stamps + lifecycle state is a no-op returning the same version.
  *
  * Persistence is behind an injected `SnapshotStore` port — tests use the
  * in-memory deterministic impl; production wires object storage as a thin
@@ -55,7 +55,8 @@ export interface CommitResult {
  * Commit a resolved snapshot: stamp it with its content-addressed `dnaVersion`,
  * freeze it, and append it if new. Idempotent — committing the same resolved
  * content + causal stamps again returns the existing version without mutating
- * anything; any genome change yields a new immutable version.
+ * anything; any genome, causal stamp, or lifecycle-state change yields a new
+ * immutable version.
  */
 export async function commitSnapshot(
   store: SnapshotStore,

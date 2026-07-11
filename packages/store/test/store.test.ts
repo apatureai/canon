@@ -14,13 +14,23 @@ describe("computeDnaVersion — content-addressed identity", () => {
     expect(computeDnaVersion(draft())).toBe(computeDnaVersion(draft()));
   });
 
-  it("ignores wall-clock-style incidental metadata (no run-uuid/timestamp folded in)", () => {
+  it("ignores dnaVersion and wall-clock-style incidental metadata", () => {
     const a = draft();
     const b = draft();
-    // dnaVersion + approvalState are NOT part of identity.
+    // dnaVersion is the output, not an identity input.
     a.metadata.dnaVersion = "anything";
-    a.metadata.approvalState = "approved";
     expect(computeDnaVersion(a)).toBe(computeDnaVersion(b));
+  });
+
+  it("distinguishes immutable lifecycle records with identical genome content", () => {
+    const a = draft();
+    const b = draft();
+    b.metadata.approvalState = "in_review";
+    const c = draft();
+    c.metadata.approvalState = "approved";
+    expect(computeDnaVersion(a)).not.toBe(computeDnaVersion(b));
+    expect(computeDnaVersion(b)).not.toBe(computeDnaVersion(c));
+    expect(computeDnaVersion(a)).not.toBe(computeDnaVersion(c));
   });
 
   it("changes when the genome content changes", () => {
