@@ -5,6 +5,7 @@
   },
   "repo": "apatureai/ui-dna",
   "dnaVersion": "GOLDEN_DNA_VERSION",
+  "contentDigest": "sha256:e7ce5f3e0cc2950dbb8197cecb3e902facd161c17e0acd5882186080c82547e1",
   "snapshot": {
     "repository": {
       "owner": "apatureai",

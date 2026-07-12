@@ -1,5 +1,9 @@
 # Apature UI DNA - Build Progress (loop source of truth)
 
+## Cross-repository lifecycle readiness
+
+- [x] #57 - E2E genome lifecycle drill (added July 11, 2026) -> done: the seeded, one-command runner composes real UI DNA extraction/store/sign-off, DNA Consultant session approval, Source of Truth digest-verified mirror plus HTTP/MCP serving, and Judgment Engine grounded critique/version stamping. One execution regenerates byte-identical goldens in all four repositories; draft serving, stale digest, and version-mismatch failure legs fail closed. No browser, model, customer data, network, or write capability is used.
+
 Deterministic checklist for the autonomous build loop. Work top-down by milestone (UD0 → UD6).
 
 How the loop uses it:

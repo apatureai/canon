@@ -65,6 +65,7 @@ describe("getSnapshot — downstream read contract", () => {
     expect(response?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: "2" });
     expect(response?.repo).toBe("apatureai/ui-dna");
     expect(response?.dnaVersion).toBe(response?.snapshot.metadata.dnaVersion);
+    expect(response?.contentDigest).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(response?.snapshot.metadata.approvalState).toBe("approved");
   });
 

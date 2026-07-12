@@ -1,5 +1,7 @@
 import { isApproved, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
+import { createHash } from "node:crypto";
 import { STORE_VERSION } from "./version-identity.js";
+import { serializeGenomeContent } from "./version-identity.js";
 import type { SnapshotStore } from "./store.js";
 
 /**
@@ -29,6 +31,8 @@ export interface SnapshotResponse {
   contract: ContractVersion;
   repo: string;
   dnaVersion: string;
+  /** Canonical genome-content digest consumers verify before mirroring. */
+  contentDigest: string;
   snapshot: DnaSnapshot;
 }
 
@@ -39,6 +43,20 @@ export interface GetSnapshotOptions {
 
 function contractVersion(): ContractVersion {
   return { schemaVersion: SCHEMA_VERSION, storeVersion: STORE_VERSION };
+}
+
+export function computeSnapshotContentDigest(snapshot: DnaSnapshot): string {
+  return `sha256:${createHash("sha256").update(serializeGenomeContent(snapshot)).digest("hex")}`;
+}
+
+function responseFor(repo: string, dnaVersion: string, snapshot: DnaSnapshot): SnapshotResponse {
+  return {
+    contract: contractVersion(),
+    repo,
+    dnaVersion,
+    contentDigest: computeSnapshotContentDigest(snapshot),
+    snapshot,
+  };
 }
 
 /**
@@ -54,12 +72,12 @@ export async function getSnapshot(
   if (opts.version !== undefined) {
     const record = await store.get(repo, opts.version);
     if (!record || !isApproved(record.snapshot)) return null; // pinned must exist + be approved
-    return { contract: contractVersion(), repo, dnaVersion: record.dnaVersion, snapshot: record.snapshot };
+    return responseFor(repo, record.dnaVersion, record.snapshot);
   }
 
   // Latest approved: the last-committed approved version (list is in commit order).
   const approved = (await store.list(repo)).filter((r) => isApproved(r.snapshot));
   const latest = approved[approved.length - 1];
   if (!latest) return null;
-  return { contract: contractVersion(), repo, dnaVersion: latest.dnaVersion, snapshot: latest.snapshot };
+  return responseFor(repo, latest.dnaVersion, latest.snapshot);
 }

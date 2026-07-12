@@ -1,5 +1,5 @@
 import type { DnaSnapshot, Fact, ProductIdentity, RenderedAnchor } from "@uidna/schema";
-import { getSnapshot, type SnapshotResponse } from "./read-api.js";
+import { computeSnapshotContentDigest, getSnapshot, type SnapshotResponse } from "./read-api.js";
 import type { SnapshotStore } from "./store.js";
 
 /**
@@ -308,5 +308,11 @@ export async function getResidentSnapshot(
     redactedCount,
   });
 
-  return { contract: response.contract, repo: response.repo, dnaVersion: response.dnaVersion, snapshot };
+  return {
+    contract: response.contract,
+    repo: response.repo,
+    dnaVersion: response.dnaVersion,
+    contentDigest: computeSnapshotContentDigest(snapshot),
+    snapshot,
+  };
 }
