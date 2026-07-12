@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1",
+  "profileVersion": "1",
+  "repo": "apatureai/ui-dna",
+  "dnaVersion": "dna_golden_v1",
+  "contentDigest": "sha256:cc10052fcbc1085b7c73e265be08b188e0e485c8f22a6343aaf9acea959b8ac5",
+  "compactIndexes": {
+    "colorTokens": [
+      {
+        "id": "tokens.color.--brand",
+        "hex": "#aabbcc",
+        "source": {
+          "authority": "approved_ui_dna",
+          "path": "tokens.color.--brand",
+          "provenance": "human",
+          "confidence": 1
+        }
+      }
+    ],
+    "spacingScale": {
+      "id": "distributions.spacingIntervals",
+      "stepsPx": [4, 8, 16],
+      "tolerancePx": 0.5,
+      "source": {
+        "authority": "approved_ui_dna",
+        "path": "distributions.spacingIntervals"
+      }
+    },
+    "radiusScale": {
+      "id": "distributions.radiusPatterns",
+      "stepsPx": [4, 8],
+      "tolerancePx": 0.5,
+      "source": {
+        "authority": "approved_ui_dna",
+        "path": "distributions.radiusPatterns"
+      }
+    },
+    "typeScale": {
+      "id": "distributions.typeScale",
+      "stepsPx": [14, 16, 24],
+      "tolerancePx": 0.5,
+      "source": {
+        "authority": "approved_ui_dna",
+        "path": "distributions.typeScale"
+      }
+    },
+    "components": [],
+    "targetSize": {
+      "id": "policy.wcag-2.2-aa.target-size",
+      "minWidthPx": 24,
+      "minHeightPx": 24,
+      "source": {
+        "authority": "policy_default",
+        "policyId": "WCAG-SC-2.5.8",
+        "policyVersion": "2.2"
+      }
+    },
+    "contrast": {
+      "id": "policy.wcag-2.2-aa.contrast",
+      "minRatio": 4.5,
+      "minRatioLargeText": 3,
+      "source": {
+        "authority": "policy_default",
+        "policyId": "WCAG-SC-1.4.3",
+        "policyVersion": "2.2"
+      }
+    }
+  }
+}

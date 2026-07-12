@@ -17,6 +17,28 @@ export {
 } from "./sign-off.js";
 export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./read-api.js";
 export { getSnapshot } from "./read-api.js";
+export type {
+  ApprovedDnaAuthority,
+  PolicyDefaultAuthority,
+  PointerProfileColorToken,
+  PointerProfileScale,
+  PointerProfileComponentHint,
+  PointerProfileTargetSize,
+  PointerProfileContrast,
+  PointerCompactIndexes,
+  PointerLocalCheckProfile,
+  GetPointerProfileOptions,
+} from "./pointer-profile.js";
+export {
+  POINTER_LOCAL_CHECK_PROFILE_VERSION,
+  UnsupportedPointerProfileVersionError,
+  UnapprovedPointerProfileError,
+  InvalidPointerProfileSourceError,
+  serializePointerLocalCheckProfile,
+  computePointerLocalCheckProfileDigest,
+  projectPointerLocalCheckProfile,
+  getPointerLocalCheckProfile,
+} from "./pointer-profile.js";
 export type { ChangeKind, FieldChange, SnapshotDiff } from "./diff.js";
 export { diffSnapshots } from "./diff.js";
 export type {
