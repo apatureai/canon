@@ -3,8 +3,8 @@
  * routes so only relevant pages are rendered/sampled. MVP: Next.js page-file
  * mapping (App Router `app/.../page.tsx` and Pages Router `pages/*.tsx`),
  * `layout.tsx` -> its child routes (capped), and config overrides (`always`,
- * `map`, `maxPerPr`). The import-graph path (v1.5, #9) is gated behind the #8
- * feasibility spike and intentionally not built here.
+ * `map`, `maxPerPr`). The measured, bounded import-graph v1.5 path lives in
+ * `import-graph-routes.ts`; this module remains its deterministic fallback.
  *
  * Ported from judgment-engine's proven `@engine/context` routes extractor
  * (LOOP.md reuse note) and extended with `layout.tsx` child-route mapping per

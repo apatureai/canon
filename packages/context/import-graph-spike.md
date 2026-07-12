@@ -60,3 +60,20 @@ leans on computed dynamic imports / heavy cross-package edges, do **not** build
 #9 stays **gated** behind this measured-need check. The probe + report are the
 instrument; the production graph builder is not built until a real
 component-heavy repo justifies it.
+
+## July 12, 2026 measured-need result
+
+**Gate passed.** The real `apatureai/gate` Next.js dashboard supplies the first
+internal-product measurement (not a synthetic fixture): 20 of 20 relative or
+`@/*` internal imports resolve from the dashboard's checked-in source and
+tsconfig paths (`resolvableFraction = 1.0`). Changing the shared
+`apps/dashboard/src/lib/session.ts` maps to zero routes under the page-file MVP,
+but the reverse import graph reaches seven checked-in page routes directly.
+
+That is both a material MVP miss and comfortably above the pre-registered 0.90
+bar. Issue #9 may therefore ship with the decided guardrails: five-hop and
+five-route hard ceilings, shortest-distance ranking, bare/asset edges stopped,
+and explicit MVP fallback below the resolution threshold. The evidence is an
+Apature-owned product app; customer-repository calibration remains part of the
+later evaluation corpus rather than a prerequisite for this deterministic
+implementation.

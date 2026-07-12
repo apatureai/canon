@@ -21,6 +21,14 @@ export type { RouteConfig } from "./routes.js";
 export { pageFileToRoute, layoutFileToRoutes, mapDiffToRoutes } from "./routes.js";
 export type { TsconfigPaths, ImportKind, ResolvedImport, FeasibilityReport } from "./import-graph-spike.js";
 export { resolveFileImports, assessImportGraphFeasibility } from "./import-graph-spike.js";
+export type {
+  ImportGraphSourceFile,
+  ImportGraphRouteOptions,
+  ImportGraphFallbackReason,
+  ImportGraphDiagnostics,
+  ImportGraphRouteResult,
+} from "./import-graph-routes.js";
+export { mapDiffToRoutesWithImportGraph } from "./import-graph-routes.js";
 export type { ContextBlock } from "./context-block.js";
 export { CONTEXT_VERSION, serializeContextBlock, buildContextBlock, canonicalize } from "./context-block.js";
 export type { ConfigLoader } from "./tailwind.js";
