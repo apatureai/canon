@@ -18,6 +18,23 @@ export {
 export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./read-api.js";
 export { getSnapshot } from "./read-api.js";
 export type {
+  ApatureAgentCardV1,
+  CardStatus,
+  CardSafety,
+  CardCapability,
+  CardTenancy,
+  CardAuth,
+  CardObservability,
+} from "./agent-card.js";
+export {
+  AGENT_CARD_VERSION,
+  buildUiDnaAgentCard,
+  serializeAgentCard,
+  computeAgentCardDigest,
+  assertReadOnlyCard,
+  UnsafeAgentCardError,
+} from "./agent-card.js";
+export type {
   ApprovedDnaAuthority,
   PolicyDefaultAuthority,
   PointerProfileColorToken,

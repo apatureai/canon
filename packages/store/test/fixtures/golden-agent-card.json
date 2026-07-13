@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "ApatureAgentCardV1",
+  "status": "draft-unapproved",
+  "registered": false,
+  "surface": "ui-dna",
+  "repo": "apatureai/ui-dna",
+  "issuer": "apatureai/core",
+  "cardVersion": "1",
+  "environment": "unbound",
+  "contractVersions": { "schema": "1", "store": "2" },
+  "capabilities": [
+    {
+      "intent": "genome.snapshot.read",
+      "description": "Read the versioned, APPROVED DnaSnapshot for a repo (latest approved or a pinned dnaVersion).",
+      "input": "GetSnapshotOptions",
+      "output": "SnapshotResponse",
+      "access": "read_only"
+    },
+    {
+      "intent": "genome.grounding.retrieve",
+      "description": "Retrieve grounding genome slices for judgment-engine critique.",
+      "input": "GenomeQuery",
+      "output": "GenomeSlice",
+      "access": "read_only"
+    }
+  ],
+  "tenancy": { "scope": "per_tenant", "residencyAware": true },
+  "auth": { "audience": "apature://ui-dna", "requiredScopes": ["genome:read"], "delegationRequired": true },
+  "safety": { "no_write": true, "read_only_browser": true, "no_model_calls": true },
+  "observability": {
+    "traceParentPropagation": true,
+    "minSpanAttributes": ["surface", "intent", "dnaVersion", "tenant"]
+  },
+  "forbidden": ["untrusted repo execution", "rendered capture", "raw artifact custody", "model calls", "eval promotion"]
+}
