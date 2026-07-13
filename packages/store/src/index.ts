@@ -18,6 +18,28 @@ export {
 export type { ContractVersion, SnapshotResponse, GetSnapshotOptions } from "./read-api.js";
 export { getSnapshot } from "./read-api.js";
 export type {
+  AuthorityStatus,
+  RevocationReason,
+  AuthorityKey,
+  AuthorityActor,
+  AuthorityEvent,
+  AuthorityRejectReason,
+  AppendResult,
+  ReadMode,
+  AuthorityReadDecision,
+  AuthorityStatusResponse,
+  AuthorityStore,
+} from "./authority.js";
+export {
+  AUTHORITY_CONTRACT_VERSION,
+  hashAuthorityEvent,
+  appendAuthorityEvent,
+  resolveAuthorityStatus,
+  authorizeRead,
+  authorityKeyString,
+  inMemoryAuthorityStore,
+} from "./authority.js";
+export type {
   ApatureAgentCardV1,
   CardStatus,
   CardSafety,
