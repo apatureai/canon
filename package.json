@@ -6,7 +6,7 @@
   "description": "Apature UI DNA - canonical design-genome schema, extraction, versioning, and downstream read contract.",
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=24 <25"
   },
   "scripts": {
     "build": "tsc -b",
