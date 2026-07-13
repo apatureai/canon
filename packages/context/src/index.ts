@@ -5,7 +5,15 @@ export { extractCssCustomProperties } from "./css-vars.js";
 export { extractCssTokens } from "./css-vars-dna.js";
 export type { ParsedToken } from "./tokens-json.js";
 export { parseTokensJson, parseTokensJsonTyped } from "./tokens-json.js";
-export { extractTokensJson } from "./tokens-json-dna.js";
+export { extractTokensJson, extractTokensJsonWithDiagnostics, type ExtractTokensResult } from "./tokens-json-dna.js";
+export {
+  resolveTokensJson,
+  type DtcgValue,
+  type ResolvedToken,
+  type ResolutionDiagnostic,
+  type ResolutionErrorKind,
+  type ResolveResult,
+} from "./tokens-resolver.js";
 export { classifyTokenName, emptyTokens } from "./token-groups.js";
 export type { BrandBlock } from "./brand.js";
 export { extractBrandBlock, brandDimensionEnabled } from "./brand.js";
