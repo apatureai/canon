@@ -1,0 +1,14 @@
+{
+  "valid": {
+    "$type": "color",
+    "$value": { "colorSpace": "srgb", "components": [0.067, 0.067, 0.067], "hex": "#111111" }
+  },
+  "unresolved": { "$type": "color", "$value": "{missing}" },
+  "wrongType": { "$type": "dimension", "$value": "{valid}" },
+  "cycleA": { "$type": "color", "$value": "{cycleB}" },
+  "cycleB": { "$type": "color", "$value": "{cycleA}" },
+  "remote": {
+    "$type": "color",
+    "$value": { "$ref": "https://example.invalid/tokens.json#/color" }
+  }
+}

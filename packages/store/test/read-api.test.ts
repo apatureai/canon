@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { extractTokensJson } from "@uidna/context";
 import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
 import { describe, expect, it } from "vitest";
 import {
@@ -20,6 +21,16 @@ function goldenSnapshot(): DnaSnapshot {
   const d = emptyDraft("apatureai", "ui-dna", "extract-1");
   d.identity.tone = fact("calm, precise", 1, "human");
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
+  const resolved = extractTokensJson({
+    primitive: {
+      brand: {
+        $type: "color",
+        $value: { colorSpace: "srgb", components: [0.04, 0.04, 0.04], hex: "#0a0a0a" },
+      },
+    },
+    semantic: { brand: { $value: "{primitive.brand}" } },
+  });
+  d.tokens.color["semantic.brand"] = resolved.color["semantic.brand"]!;
   d.tokens.spacing["--gap"] = fact("8px", 0.75, "config");
   d.distributions = {
     spacingIntervals: [8, 16],
@@ -67,6 +78,8 @@ describe("getSnapshot — downstream read contract", () => {
     expect(response?.dnaVersion).toBe(response?.snapshot.metadata.dnaVersion);
     expect(response?.contentDigest).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(response?.snapshot.metadata.approvalState).toBe("approved");
+    expect(response?.snapshot.tokens.color["semantic.brand"]?.value).toBe("#0a0a0a");
+    expect(JSON.stringify(response)).not.toContain("{primitive.brand}");
   });
 
   it("returns a pinned immutable version when requested", async () => {

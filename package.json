@@ -14,7 +14,8 @@
     "clean": "tsc -b --clean",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
-    "drill:genome-lifecycle": "node scripts/genome-lifecycle-drill.mjs"
+    "drill:genome-lifecycle": "node scripts/genome-lifecycle-drill.mjs",
+    "eval:dtcg-corpus": "pnpm typecheck && node scripts/dtcg-corpus-benchmark.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

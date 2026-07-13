@@ -1,0 +1,100 @@
+{
+  "profile": {
+    "formatModule": "2025.10",
+    "aliases": true,
+    "jsonPointer": "same-document-only",
+    "groupExtends": true,
+    "resolverSetsAndModifiers": false,
+    "externalSources": false
+  },
+  "tokens": [
+    {
+      "name": "button-muted",
+      "value": {
+        "alpha": 0.5,
+        "colorSpace": "srgb",
+        "components": [0, 0.4, 0.8]
+      },
+      "type": "color",
+      "derivation": [
+        {
+          "kind": "json_pointer",
+          "from": "button-muted/components/0",
+          "to": "#/palette/blue/$value/components/0"
+        },
+        {
+          "kind": "json_pointer",
+          "from": "button-muted/components/1",
+          "to": "#/palette/blue/$value/components/1"
+        },
+        {
+          "kind": "json_pointer",
+          "from": "button-muted/components/2",
+          "to": "#/palette/blue/$value/components/2"
+        }
+      ]
+    },
+    {
+      "name": "button-primary.background",
+      "value": {
+        "alpha": 1,
+        "colorSpace": "srgb",
+        "components": [0, 0.4, 0.8]
+      },
+      "type": "color",
+      "derivation": [
+        { "kind": "group_extend", "from": "button-primary", "to": "button" },
+        {
+          "kind": "json_pointer",
+          "from": "button-primary.background",
+          "to": "#/palette/blue/$value"
+        }
+      ]
+    },
+    {
+      "name": "button-primary.foreground",
+      "value": {
+        "alpha": 1,
+        "colorSpace": "srgb",
+        "components": [1, 1, 1]
+      },
+      "type": "color",
+      "derivation": [
+        { "kind": "group_extend", "from": "button-primary", "to": "button" }
+      ]
+    },
+    {
+      "name": "button.background",
+      "value": {
+        "alpha": 1,
+        "colorSpace": "srgb",
+        "components": [0, 0.4, 0.8]
+      },
+      "type": "color",
+      "derivation": [
+        { "kind": "curly_alias", "from": "button.background", "to": "palette.blue" }
+      ]
+    },
+    {
+      "name": "button.foreground",
+      "value": {
+        "alpha": 1,
+        "colorSpace": "srgb",
+        "components": [1, 1, 1]
+      },
+      "type": "color",
+      "derivation": []
+    },
+    {
+      "name": "palette.blue",
+      "value": {
+        "alpha": 1,
+        "colorSpace": "srgb",
+        "components": [0, 0.4, 0.8]
+      },
+      "type": "color",
+      "derivation": []
+    }
+  ],
+  "diagnostics": []
+}

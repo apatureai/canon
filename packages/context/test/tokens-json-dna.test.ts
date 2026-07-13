@@ -1,28 +1,34 @@
 import { emptyDraft, validateSnapshot } from "@uidna/schema";
 import { describe, expect, it } from "vitest";
-import { extractTokensJson } from "../src/index.js";
+import { extractTokensJson, extractTokensJsonWithDiagnostics } from "../src/index.js";
+
+function colorValue(hex: string, components: [number, number, number] = [0, 0, 0]) {
+  return { colorSpace: "srgb", components, alpha: 1, hex };
+}
 
 describe("extractTokensJson", () => {
-  it("classifies W3C tokens by their declared $type", () => {
+  it("classifies DTCG Format 2025.10 tokens by their declared $type", () => {
     const tokens = extractTokensJson({
-      brand: { primary: { $value: "#ff0000", $type: "color" } },
-      space: { sm: { $value: "4px", $type: "dimension" } },
+      brand: { primary: { $value: colorValue("#ff0000", [1, 0, 0]), $type: "color" } },
+      space: { sm: { $value: { value: 4, unit: "px" }, $type: "dimension" } },
       font: { body: { $value: "Inter", $type: "fontFamily" } },
       radius: { md: { $value: "8px", $type: "borderRadius" } },
-      elevation: { card: { $value: "0 1px 2px #0001", $type: "shadow" } },
-      anim: { fast: { $value: "150ms", $type: "duration" } },
+      elevation: { card: { $value: { color: "#0001", blur: { value: 2, unit: "px" } }, $type: "shadow" } },
+      anim: { fast: { $value: { value: 150, unit: "ms" }, $type: "duration" } },
     });
     expect(tokens.color["brand.primary"]?.value).toBe("#ff0000");
     expect(tokens.spacing["space.sm"]?.value).toBe("4px");
     expect(tokens.typography["font.body"]?.value).toBe("Inter");
     expect(tokens.radii["radius.md"]?.value).toBe("8px");
-    expect(tokens.shadows["elevation.card"]?.value).toBe("0 1px 2px #0001");
+    expect(tokens.shadows["elevation.card"]?.value).toBe(
+      '{"blur":{"unit":"px","value":2},"color":"#0001"}',
+    );
     expect(tokens.motion["anim.fast"]?.value).toBe("150ms");
   });
 
   it("uses $type even when it disagrees with the token name", () => {
     // Name says "color" but $type says dimension -> dimension wins.
-    const tokens = extractTokensJson({ color: { gap: { $value: "8px", $type: "dimension" } } });
+    const tokens = extractTokensJson({ color: { gap: { $value: { value: 8, unit: "px" }, $type: "dimension" } } });
     expect(tokens.spacing["color.gap"]?.value).toBe("8px");
     expect(tokens.color["color.gap"]).toBeUndefined();
   });
@@ -37,7 +43,7 @@ describe("extractTokensJson", () => {
   });
 
   it("stamps tokens as config-provenance facts with sub-1 confidence", () => {
-    const tokens = extractTokensJson({ color: { primary: { $value: "#abc", $type: "color" } } });
+    const tokens = extractTokensJson({ color: { primary: { $value: colorValue("#abc"), $type: "color" } } });
     const f = tokens.color["color.primary"];
     expect(f?.provenance).toBe("config");
     expect(f?.confidence).toBeGreaterThan(0);
@@ -51,12 +57,40 @@ describe("extractTokensJson", () => {
 
   it("produces facts that pass schema validation when merged into a draft", () => {
     const draft = emptyDraft("apatureai", "ui-dna", "test");
-    draft.tokens = extractTokensJson({ color: { bg: { $value: "#fff", $type: "color" } } });
+    draft.tokens = extractTokensJson({ color: { bg: { $value: colorValue("#fff", [1, 1, 1]), $type: "color" } } });
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });
 
   it("is deterministic: same document in -> same tokens out", () => {
-    const doc = { color: { a: { $value: "#1", $type: "color" }, b: { $value: "#2", $type: "color" } } };
+    const doc = { color: { a: { $value: colorValue("#1"), $type: "color" }, b: { $value: colorValue("#2"), $type: "color" } } };
     expect(extractTokensJson(doc)).toEqual(extractTokensJson(doc));
+  });
+
+  it("projects resolved aliases but retains diagnostics and drops invalid references", () => {
+    const result = extractTokensJsonWithDiagnostics({
+      primitive: { ink: { $type: "color", $value: colorValue("#111") } },
+      semantic: { ink: { $value: "{primitive.ink}" } },
+      broken: { $type: "color", $value: "{missing}" },
+    });
+    expect(result.tokens.color["semantic.ink"]?.value).toBe("#111");
+    expect(result.tokens.color.broken).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "unresolved_reference",
+      path: "broken",
+    }));
+  });
+
+  it("projects exact composites deterministically only at the DNA string boundary", () => {
+    const tokens = extractTokensJson({
+      elevation: {
+        card: {
+          $type: "shadow",
+          $value: { offsetY: { unit: "px", value: 1 }, color: "#0004" },
+        },
+      },
+    });
+    expect(tokens.shadows["elevation.card"]?.value).toBe(
+      '{"color":"#0004","offsetY":{"unit":"px","value":1}}',
+    );
   });
 });

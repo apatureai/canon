@@ -3,7 +3,7 @@
   "profileVersion": "1",
   "repo": "apatureai/ui-dna",
   "dnaVersion": "dna_golden_v1",
-  "contentDigest": "sha256:cc10052fcbc1085b7c73e265be08b188e0e485c8f22a6343aaf9acea959b8ac5",
+  "contentDigest": "sha256:10db2fe28ca5d51a88e9b1b3a1e1d85f44be28b2a1ccf3955c1e8a20d2eb55a1",
   "compactIndexes": {
     "colorTokens": [
       {
@@ -14,6 +14,16 @@
           "path": "tokens.color.--brand",
           "provenance": "human",
           "confidence": 1
+        }
+      },
+      {
+        "id": "tokens.color.semantic.brand",
+        "hex": "#aabbcc",
+        "source": {
+          "authority": "approved_ui_dna",
+          "path": "tokens.color.semantic.brand",
+          "provenance": "config",
+          "confidence": 0.8
         }
       }
     ],

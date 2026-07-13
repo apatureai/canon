@@ -3,17 +3,27 @@ export { mergeTokens, sortTokens } from "./tokens.js";
 export type { CssCustomProperties } from "./css-vars.js";
 export { extractCssCustomProperties } from "./css-vars.js";
 export { extractCssTokens } from "./css-vars-dna.js";
-export type { ParsedToken } from "./tokens-json.js";
-export { parseTokensJson, parseTokensJsonTyped } from "./tokens-json.js";
-export { extractTokensJson, extractTokensJsonWithDiagnostics, type ExtractTokensResult } from "./tokens-json-dna.js";
+export type {
+  ParsedToken,
+  TokenDerivationStep,
+  TokenDiagnostic,
+  TokenDiagnosticCode,
+  TokenJsonValue,
+  TokensJsonResolution,
+  TokensJsonResolutionOptions,
+} from "./tokens-json.js";
 export {
+  DTCG_2025_10_PROFILE,
+  parseTokensJson,
+  parseTokensJsonTyped,
+  projectTokenValue,
   resolveTokensJson,
-  type DtcgValue,
-  type ResolvedToken,
-  type ResolutionDiagnostic,
-  type ResolutionErrorKind,
-  type ResolveResult,
-} from "./tokens-resolver.js";
+} from "./tokens-json.js";
+export {
+  extractTokensJson,
+  extractTokensJsonWithDiagnostics,
+  type ExtractTokensResult,
+} from "./tokens-json-dna.js";
 export { classifyTokenName, emptyTokens } from "./token-groups.js";
 export type { BrandBlock } from "./brand.js";
 export { extractBrandBlock, brandDimensionEnabled } from "./brand.js";

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { extractTokensJson } from "@uidna/context";
 import { emptyDraft, fact, type DnaSnapshot } from "@uidna/schema";
 import { describe, expect, it } from "vitest";
 import {
@@ -23,6 +24,16 @@ const golden = JSON.parse(
 function genome(): DnaSnapshot {
   const d = emptyDraft("apatureai", "ui-dna", "extract-pointer-profile-1");
   d.tokens.color["--brand"] = fact("#ABC", 1, "human");
+  const resolved = extractTokensJson({
+    primitive: {
+      brand: {
+        $type: "color",
+        $value: { colorSpace: "srgb", components: [0.667, 0.733, 0.8], hex: "#aabbcc" },
+      },
+    },
+    semantic: { brand: { $value: "{primitive.brand}" } },
+  });
+  d.tokens.color["semantic.brand"] = resolved.color["semantic.brand"]!;
   d.tokens.color["--gradient"] = fact("linear-gradient(red, blue)", 1, "human");
   d.distributions = {
     spacingIntervals: [16, 4, 8, 8],
@@ -56,6 +67,11 @@ describe("Pointer local-check read profile (#59)", () => {
     expect(profile).toEqual(golden);
     const { contentDigest, ...unsigned } = profile;
     expect(contentDigest).toBe(computePointerLocalCheckProfileDigest(unsigned));
+    expect(profile.compactIndexes.colorTokens).toContainEqual(expect.objectContaining({
+      id: "tokens.color.semantic.brand",
+      hex: "#aabbcc",
+    }));
+    expect(JSON.stringify(profile)).not.toContain("{primitive.brand}");
   });
 
   it("is byte-identical for the same approved snapshot and profile version", async () => {
@@ -105,6 +121,6 @@ describe("Pointer local-check read profile (#59)", () => {
     expect(profile?.compactIndexes.contrast.source.authority).toBe("policy_default");
     expect(profile?.compactIndexes.colorTokens[0]?.source.authority).toBe("approved_ui_dna");
     // Non-hex color facts are not silently recast into deterministic color rules.
-    expect(profile?.compactIndexes.colorTokens).toHaveLength(1);
+    expect(profile?.compactIndexes.colorTokens).toHaveLength(2);
   });
 });

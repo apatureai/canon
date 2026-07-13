@@ -1,7 +1,8 @@
 import type { DnaTokens, Fact } from "@uidna/schema";
 import { fact } from "@uidna/schema";
 import { classifyTokenName, emptyTokens } from "./token-groups.js";
-import { resolveTokensJson, type DtcgValue, type ResolutionDiagnostic } from "./tokens-resolver.js";
+import type { TokenDiagnostic } from "./tokens-json.js";
+import { projectTokenValue, resolveTokensJson } from "./tokens-json.js";
 
 /**
  * Map a `tokens.json` document onto the canonical `DnaTokens` groups (PRD §5),
@@ -9,14 +10,14 @@ import { resolveTokensJson, type DtcgValue, type ResolutionDiagnostic } from "./
  * tokens.json is an explicit, declared design-token file, a stronger signal than
  * CSS vars inferred from code, so it earns a higher confidence.
  *
- * Grouping prefers the W3C `$type` (an authored, machine-declared category) and
+ * Grouping prefers the DTCG Format 2025.10 `$type` (an authored category) and
  * falls back to name-prefix classification when `$type` is absent (classic Style
  * Dictionary files rarely declare it). Tokens that match neither are dropped from
  * the typed groups rather than guessed.
  */
 const CONFIG_CONFIDENCE = 0.8;
 
-/** Map a W3C `$type` onto a canonical `DnaTokens` group, or null if it has no home. */
+/** Map a DTCG Format 2025.10 `$type` onto a canonical group, or null if it has no home. */
 function groupFromType(type: string | null): keyof DnaTokens | null {
   switch (type) {
     case "color":
@@ -44,40 +45,35 @@ function groupFromType(type: string | null): keyof DnaTokens | null {
   }
 }
 
-/** Project a resolved DTCG value to the consumer string form (composites deterministic). */
-function projectValue(value: DtcgValue): string {
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  return JSON.stringify(value); // composite/array projected only at this consumer boundary, never internally
-}
-
 export interface ExtractTokensResult {
   tokens: DnaTokens;
-  /** Tokens that could not be resolved (unresolved/circular/type-mismatch/malformed) — abstained, never promoted. */
-  diagnostics: ResolutionDiagnostic[];
+  /** Tokens that could not be resolved or validated are abstained, never promoted. */
+  diagnostics: TokenDiagnostic[];
 }
 
 /**
- * Extract canonical DNA tokens from a parsed-JSON tokens document, resolving
- * DTCG 2025.10 aliases first (ui-dna#65). Deterministic. A token whose reference
- * is unresolved/circular/type-mismatched is NEVER promoted to a 0.8 config fact —
- * it is abstained and reported as a diagnostic. Only fully-resolved values reach
- * the genome.
+ * Extract canonical DNA tokens from a parsed-JSON tokens document. Deterministic:
+ * same document in → same `DnaTokens` out (token list is walked in document
+ * order; later duplicate dotted-names win, matching JSON object semantics).
  */
 export function extractTokensJsonWithDiagnostics(doc: unknown): ExtractTokensResult {
   const tokens = emptyTokens();
-  const { resolved, diagnostics } = resolveTokensJson(doc);
+  const resolution = resolveTokensJson(doc);
 
-  for (const { name, value, type } of resolved) {
+  for (const { name, value, type } of resolution.tokens) {
     const group = groupFromType(type) ?? classifyTokenName(name);
     if (!group) continue;
-    (tokens[group] as Record<string, Fact<string>>)[name] = fact(projectValue(value), CONFIG_CONFIDENCE, "config");
+    (tokens[group] as Record<string, Fact<string>>)[name] = fact(
+      projectTokenValue(value, type),
+      CONFIG_CONFIDENCE,
+      "config",
+    );
   }
 
-  return { tokens, diagnostics };
+  return { tokens, diagnostics: resolution.diagnostics };
 }
 
-/** Backwards-compatible extractor (tokens only); diagnostics available via the `WithDiagnostics` form. */
+/** Compatibility projection for existing DNA consumers. */
 export function extractTokensJson(doc: unknown): DnaTokens {
   return extractTokensJsonWithDiagnostics(doc).tokens;
 }

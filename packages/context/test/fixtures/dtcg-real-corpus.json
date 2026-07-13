@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-07-12",
+  "query": "GitHub code search: \"$value\" \"$type\" color extension:json; curated to design-token files",
+  "ceilings": { "p95Ms": 100, "peakHeapMiB": 64 },
+  "fixtures": [
+    { "repository": "louriach/Figma-Variable-Sync-to-Repo", "path": "tokens/color.json", "blobSha": "b09218060a3e0a94a95494e85a8cdb48d3f49f7e", "expected": { "rawTokens": 26, "resolvedTokens": 0, "diagnostics": 26 } },
+    { "repository": "VATSIM-Radar/vatsim-radar", "path": "figma-colors.json", "blobSha": "92ec6bf7f08c2c2cdc490e4f80d0d3b1f2fba309", "expected": { "rawTokens": 144, "resolvedTokens": 144, "diagnostics": 0 } },
+    { "repository": "tokens-studio/sd-tailwindv4", "path": "tokens/colors.json", "blobSha": "d75a67331e486f121c7efb4b2d94f3174b0fef51", "expected": { "rawTokens": 61, "resolvedTokens": 0, "diagnostics": 61 } },
+    { "repository": "microsoft/figma-variables-import", "path": "demo/light.json", "blobSha": "3a85b154af4251ece767ad794fcdbaaf0cb2911b", "expected": { "rawTokens": 173, "resolvedTokens": 0, "diagnostics": 173 } },
+    { "repository": "garyneville/aperture", "path": "tokens/color/ink.json", "blobSha": "58ca46cf265744327c65a7053d50a72e67088089", "expected": { "rawTokens": 3, "resolvedTokens": 0, "diagnostics": 3 } },
+    { "repository": "meshtastic/design", "path": "tokens/tokens.json", "blobSha": "f52edf1c26986a2c9d313431b61f16bd1aa13c23", "expected": { "rawTokens": 80, "resolvedTokens": 0, "diagnostics": 80 } },
+    { "repository": "italia/design-tokens-italia", "path": "tokens/semantic.json", "blobSha": "8b4e150f978b8e2bab81abf35d152564977b833f", "expected": { "rawTokens": 97, "resolvedTokens": 0, "diagnostics": 97 } },
+    { "repository": "ifero/myLoyaltyCards", "path": "tokens/color.json", "blobSha": "1fcbf9990476a991e651e5251a842b9f5384d6d0", "expected": { "rawTokens": 57, "resolvedTokens": 0, "diagnostics": 57 } },
+    { "repository": "NVE/Designsystem", "path": "tokens/brand/rme.json", "blobSha": "3cae685a19351b6ad983fa0a3cd5f78ac4f59ccc", "expected": { "rawTokens": 63, "resolvedTokens": 5, "diagnostics": 58 } },
+    { "repository": "Hit1009/playstockfish", "path": "design.json", "blobSha": "9d0870e118adb040e2d829f585f4fb40467fdaaf", "expected": { "rawTokens": 133, "resolvedTokens": 30, "diagnostics": 98 } },
+    { "repository": "mbachaud/BigEd", "path": "design-tokens.json", "blobSha": "45783a1ad18a9a70414cb248d700572621457751", "expected": { "rawTokens": 77, "resolvedTokens": 0, "diagnostics": 77 } },
+    { "repository": "kneelinghorse/OODS-Foundry", "path": "tokens/view.json", "blobSha": "6af59cae6981dd6b911175734fcaf73ad0c86af5", "expected": { "rawTokens": 40, "resolvedTokens": 4, "diagnostics": 36 } },
+    { "repository": "TFM-LSW/k0ntxt", "path": "tokens/alias.json", "blobSha": "bf75856bec2a4dd24b92aeea2ced56e78146b407", "expected": { "rawTokens": 80, "resolvedTokens": 0, "diagnostics": 79 } },
+    { "repository": "KooshaPari/phenoDesign", "path": "tokens/keycap.json", "blobSha": "c0ea15e7fa4b1558c13f3c36d39cda63b5724421", "expected": { "rawTokens": 28, "resolvedTokens": 2, "diagnostics": 26 } },
+    { "repository": "sainzs/random-access-themes", "path": "tokens/amnesiac.json", "blobSha": "e3f87d0a78c88b1586468302db7be60ad577eba9", "expected": { "rawTokens": 37, "resolvedTokens": 4, "diagnostics": 33 } },
+    { "repository": "jamesodwyerGDS/design-tokens-poc-styled", "path": "tokens/core.json", "blobSha": "3e4129ece02533af5efd130a6f627576081794ae", "expected": { "rawTokens": 77, "resolvedTokens": 64, "diagnostics": 13 } },
+    { "repository": "digital-go-jp/design-tokens", "path": "figma/tokens.json", "blobSha": "ba56d70315bed58b77f038edd79cea8454c2a146", "expected": { "rawTokens": 220, "resolvedTokens": 43, "diagnostics": 177 } },
+    { "repository": "axa-ch/design-tokens", "path": "tokens.json", "blobSha": "ac0ebb94fa31725e4442d37c48e9c2899b42e243", "expected": { "rawTokens": 214, "resolvedTokens": 79, "diagnostics": 119 } },
+    { "repository": "pattespatte/vanilla-css-design-system", "path": "tokens/other.json", "blobSha": "5d21783698d4cc739805b4e187269e30c65811d4", "expected": { "rawTokens": 10, "resolvedTokens": 9, "diagnostics": 1 } },
+    { "repository": "davidyarham/styleDictionary", "path": "tokens/colors.json", "blobSha": "a4257906359a69ac3ea8afa2913a489ee4fb211e", "expected": { "rawTokens": 9, "resolvedTokens": 0, "diagnostics": 9 } }
+  ]
+}
