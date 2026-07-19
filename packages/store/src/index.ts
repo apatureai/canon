@@ -132,6 +132,17 @@ export {
   type DriftDelta,
 } from "./drift-delta.js";
 
+// Drift remediation (Move 3/4): the agent-actionable output of the drift gate —
+// each gated drift entry projected into a cited, eyes-not-hands fix instruction
+// ("replace the hardcoded value with the design token"), partitioned blocking vs
+// advisory. The drift-axis analog of pointer's fix-spec. Composes evaluateDriftGate.
+export {
+  buildDriftRemediation,
+  type DriftAction,
+  type DriftRemediation,
+  type DriftRemediationPlan,
+} from "./drift-remediation.js";
+
 // Design-source drift gate (core#189 #2, Move 4): the end-to-end capability —
 // parse a design-tool DTCG export into a design genome and gate the code genome's
 // drift against it (+ a fair base-vs-head delta variant). Refuses to gate a
