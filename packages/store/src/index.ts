@@ -103,3 +103,18 @@ export {
   annotateDriftWithExceptions,
   raisedDrift,
 } from "./exceptions.js";
+
+export {
+  computeDesignCodeDrift,
+  DESIGN_CODE_DRIFT_VERSION,
+  type TokenGroup,
+  type DriftKind,
+  type DriftEntry,
+  type DesignCodeDrift,
+} from "./drift.js";
+export {
+  evaluateDriftGate,
+  DEFAULT_DRIFT_GATE_POLICY,
+  type DriftGatePolicy,
+  type DriftGateVerdict,
+} from "./drift.js";
