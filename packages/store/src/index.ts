@@ -118,3 +118,16 @@ export {
   type DriftGatePolicy,
   type DriftGateVerdict,
 } from "./drift.js";
+
+// Drift delta (PRD §4/§7): the base-vs-head diff that makes the drift gate FAIR —
+// drift entries partition into introduced / resolved / persisting, and the
+// verdict gates on the INTRODUCED set only (a change never blocks on pre-existing
+// design-code debt). Drift entries have a natural group+name+kind key; the key
+// is a policy input for stricter matching.
+export {
+  diffDrift,
+  defaultDriftKey,
+  type DriftKey,
+  type DriftDeltaOptions,
+  type DriftDelta,
+} from "./drift-delta.js";
