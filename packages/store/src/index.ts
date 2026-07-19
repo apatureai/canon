@@ -131,3 +131,18 @@ export {
   type DriftDeltaOptions,
   type DriftDelta,
 } from "./drift-delta.js";
+
+// Design-source drift gate (core#189 #2, Move 4): the end-to-end capability —
+// parse a design-tool DTCG export into a design genome and gate the code genome's
+// drift against it (+ a fair base-vs-head delta variant). Refuses to gate a
+// fundamentally malformed export (would flag everything) rather than mislead.
+export {
+  reviewDesignSourceDrift,
+  reviewDesignSourceDriftDelta,
+  BLOCKING_DESIGN_DIAGNOSTICS,
+  type DesignSourceDriftOutcome,
+  type DesignSourceGate,
+  type InvalidDesignSource,
+  type DesignSourceDriftDelta,
+  type DesignSourceDriftDeltaOutcome,
+} from "./design-source-drift.js";
