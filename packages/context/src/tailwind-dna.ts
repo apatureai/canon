@@ -6,6 +6,7 @@ import {
   resolveTailwindV3Tokens,
   type ConfigLoader,
 } from "./tailwind.js";
+import { CONFIG_CONFIDENCE } from "./internal.js";
 
 /**
  * Map resolved Tailwind v3 tokens onto the canonical `DnaTokens` groups
@@ -18,7 +19,6 @@ import {
  * is more precise than name-prefix guessing. Tokens are keyed by their dotted
  * Tailwind name (e.g. `colors.brand`).
  */
-const CONFIG_CONFIDENCE = 0.8;
 
 /** Tailwind resolved-theme category (the dotted-name's first segment) -> canonical group. */
 const CATEGORY_TO_GROUP: Record<string, keyof DnaTokens> = {

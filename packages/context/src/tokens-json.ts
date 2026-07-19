@@ -1,4 +1,5 @@
 import type { TokenMap } from "./tokens.js";
+import { isRecord } from "./internal.js";
 
 /** The exact JSON value retained by the DTCG resolver before consumer projection. */
 export type TokenJsonValue =
@@ -88,9 +89,6 @@ interface ResolveContext {
   resolvedValueNodes: number;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
 
 function compareStrings(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;

@@ -3,6 +3,7 @@ import { fact } from "@uidna/schema";
 import { classifyTokenName, emptyTokens } from "./token-groups.js";
 import type { TokenDiagnostic } from "./tokens-json.js";
 import { projectTokenValue, resolveTokensJson } from "./tokens-json.js";
+import { CONFIG_CONFIDENCE } from "./internal.js";
 
 /**
  * Map a `tokens.json` document onto the canonical `DnaTokens` groups (PRD §5),
@@ -15,7 +16,6 @@ import { projectTokenValue, resolveTokensJson } from "./tokens-json.js";
  * Dictionary files rarely declare it). Tokens that match neither are dropped from
  * the typed groups rather than guessed.
  */
-const CONFIG_CONFIDENCE = 0.8;
 
 /** Map a DTCG Format 2025.10 `$type` onto a canonical group, or null if it has no home. */
 function groupFromType(type: string | null): keyof DnaTokens | null {
