@@ -154,6 +154,11 @@ export {
   type DriftGateNodeResult,
 } from "./drift-gate-node.js";
 
+// Drift comment (delivery parity): the human-readable PR comment for the drift
+// gate — the drift-axis sibling of pointer's renderReviewComment. Introduced drift
+// headlined by the design token it broke; pre-existing counted, not gated.
+export { renderDriftComment } from "./drift-comment.js";
+
 // Design-source drift gate (core#189 #2, Move 4): the end-to-end capability —
 // parse a design-tool DTCG export into a design genome and gate the code genome's
 // drift against it (+ a fair base-vs-head delta variant). Refuses to gate a
