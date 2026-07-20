@@ -106,6 +106,7 @@ export {
 
 export {
   computeDesignCodeDrift,
+  driftFromEntries,
   DESIGN_CODE_DRIFT_VERSION,
   type TokenGroup,
   type DriftKind,

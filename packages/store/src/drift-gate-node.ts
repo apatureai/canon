@@ -13,12 +13,10 @@
  */
 
 import {
-  DESIGN_CODE_DRIFT_VERSION,
   DEFAULT_DRIFT_GATE_POLICY,
+  driftFromEntries,
   type DesignCodeDrift,
-  type DriftEntry,
   type DriftGatePolicy,
-  type DriftKind,
 } from "./drift.js";
 import { diffDrift, type DriftDeltaOptions } from "./drift-delta.js";
 import { buildDriftRemediation, type DriftRemediationPlan } from "./drift-remediation.js";
@@ -44,22 +42,6 @@ export interface DriftGateNodeResult {
   introducedCount: number;
   resolvedCount: number;
   persistingCount: number;
-}
-
-/** Wrap a bare entry list as a DesignCodeDrift so the gate/remediation can score it. */
-function driftFromEntries(entries: DriftEntry[]): DesignCodeDrift {
-  const count = (k: DriftKind): number => entries.reduce((n, e) => (e.kind === k ? n + 1 : n), 0);
-  return {
-    driftModelVersion: DESIGN_CODE_DRIFT_VERSION,
-    entries,
-    summary: {
-      aligned: 0,
-      valueMismatch: count("value_mismatch"),
-      missingInCode: count("missing_in_code"),
-      undocumentedInDesign: count("undocumented_in_design"),
-    },
-    conformant: entries.length === 0,
-  };
 }
 
 /**

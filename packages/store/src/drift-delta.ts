@@ -16,12 +16,11 @@
  */
 
 import {
-  DESIGN_CODE_DRIFT_VERSION,
   DEFAULT_DRIFT_GATE_POLICY,
+  driftFromEntries,
   evaluateDriftGate,
   type DesignCodeDrift,
   type DriftEntry,
-  type DriftKind,
   type DriftGatePolicy,
   type DriftGateVerdict,
 } from "./drift.js";
@@ -50,22 +49,6 @@ export interface DriftDelta {
    * outcome. A change that only inherits pre-existing drift does not block.
    */
   verdict: DriftGateVerdict;
-}
-
-/** Wrap a bare entry list as a DesignCodeDrift so the existing gate can score it. */
-function driftFromEntries(entries: DriftEntry[]): DesignCodeDrift {
-  const count = (k: DriftKind): number => entries.reduce((n, e) => (e.kind === k ? n + 1 : n), 0);
-  return {
-    driftModelVersion: DESIGN_CODE_DRIFT_VERSION,
-    entries,
-    summary: {
-      aligned: 0,
-      valueMismatch: count("value_mismatch"),
-      missingInCode: count("missing_in_code"),
-      undocumentedInDesign: count("undocumented_in_design"),
-    },
-    conformant: entries.length === 0,
-  };
 }
 
 /**

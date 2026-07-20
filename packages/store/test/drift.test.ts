@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { fact, type DnaTokens } from "@uidna/schema";
-import { computeDesignCodeDrift } from "@uidna/store";
+import { computeDesignCodeDrift, driftFromEntries } from "@uidna/store";
 
 const emptyTokens = (): DnaTokens => ({
   color: {}, typography: {}, spacing: {}, radii: {}, shadows: {}, breakpoints: {}, motion: {},
@@ -123,5 +123,21 @@ describe("evaluateDriftGate — the neutral gate over drift", () => {
 
   it("the default policy is the documented one", () => {
     expect(DEFAULT_DRIFT_GATE_POLICY).toEqual({ block: ["value_mismatch"], warn: ["missing_in_code", "undocumented_in_design"] });
+  });
+});
+
+describe("driftFromEntries (shared helper)", () => {
+  it("wraps entries into a DesignCodeDrift with a recomputed summary", () => {
+    const d = driftFromEntries([
+      { group: "color", name: "brand", kind: "value_mismatch", design: "#2563EB", code: "#3B82F6" },
+      { group: "spacing", name: "gap", kind: "missing_in_code", design: "8px" },
+    ]);
+    expect(d.conformant).toBe(false);
+    expect(d.summary.valueMismatch).toBe(1);
+    expect(d.summary.missingInCode).toBe(1);
+    expect(d.summary.aligned).toBe(0);
+  });
+  it("is conformant for an empty entry list", () => {
+    expect(driftFromEntries([]).conformant).toBe(true);
   });
 });

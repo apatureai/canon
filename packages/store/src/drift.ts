@@ -109,6 +109,26 @@ export function computeDesignCodeDrift(design: DnaTokens, code: DnaTokens): Desi
   };
 }
 
+/**
+ * Wrap a bare drift-entry list as a `DesignCodeDrift` (recomputing the summary)
+ * so a subset of entries — e.g. the drift a change introduced — can be scored by
+ * the gate / remediation. `aligned` is 0 by construction (only divergent entries).
+ */
+export function driftFromEntries(entries: DriftEntry[]): DesignCodeDrift {
+  const count = (k: DriftKind): number => entries.reduce((n, e) => (e.kind === k ? n + 1 : n), 0);
+  return {
+    driftModelVersion: DESIGN_CODE_DRIFT_VERSION,
+    entries,
+    summary: {
+      aligned: 0,
+      valueMismatch: count("value_mismatch"),
+      missingInCode: count("missing_in_code"),
+      undocumentedInDesign: count("undocumented_in_design"),
+    },
+    conformant: entries.length === 0,
+  };
+}
+
 // --- drift policy gate --------------------------------------------------------
 
 /**
