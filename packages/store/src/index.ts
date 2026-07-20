@@ -143,6 +143,16 @@ export {
   type DriftRemediationPlan,
 } from "./drift-remediation.js";
 
+// Drift gate node (agentic-SDLC graph): the drift axis as a CONDITIONAL node —
+// the fair drift verdict + routing edge (fix vs proceed) + the cited remediation
+// back-edge for the introduced drift. Composes diffDrift + buildDriftRemediation.
+export {
+  evaluateDriftGateNode,
+  type DriftGateRoute,
+  type DriftGateNodePolicy,
+  type DriftGateNodeResult,
+} from "./drift-gate-node.js";
+
 // Design-source drift gate (core#189 #2, Move 4): the end-to-end capability —
 // parse a design-tool DTCG export into a design genome and gate the code genome's
 // drift against it (+ a fair base-vs-head delta variant). Refuses to gate a
