@@ -141,3 +141,37 @@ describe("driftFromEntries (shared helper)", () => {
     expect(driftFromEntries([]).conformant).toBe(true);
   });
 });
+
+describe("computeDesignCodeDrift — hex color equivalence (no false value_mismatch)", () => {
+  it("treats a hex color as equal regardless of case (the common false-positive)", () => {
+    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#2563EB" }), tokens({ "brand.primary": "#2563eb" }));
+    expect(r.conformant).toBe(true);
+    expect(r.summary.aligned).toBe(1);
+    expect(r.summary.valueMismatch).toBe(0);
+  });
+
+  it("treats hex shorthand as equal to its expanded form", () => {
+    const r = computeDesignCodeDrift(tokens({ "brand.bg": "#FFF" }), tokens({ "brand.bg": "#ffffff" }));
+    expect(r.conformant).toBe(true);
+    expect(r.summary.aligned).toBe(1);
+  });
+
+  it("ignores surrounding whitespace when comparing values", () => {
+    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#2563EB" }), tokens({ "brand.primary": "  #2563EB " }));
+    expect(r.conformant).toBe(true);
+  });
+
+  it("still flags genuinely different colors (not a normalization false-negative)", () => {
+    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#2563EB" }), tokens({ "brand.primary": "#3B82F6" }));
+    expect(r.summary.valueMismatch).toBe(1);
+    expect(r.entries[0]).toMatchObject({ kind: "value_mismatch", design: "#2563EB", code: "#3B82F6" });
+  });
+
+  it("does not coerce non-hex formats (rgb vs hex still reported), reporting the originals", () => {
+    // Scope boundary: hex-only normalization; rgb()/hsl() are left to an exact
+    // compare, so this stays a mismatch and the ORIGINAL strings are reported.
+    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#ffffff" }), tokens({ "brand.primary": "rgb(255,255,255)" }));
+    expect(r.summary.valueMismatch).toBe(1);
+    expect(r.entries[0]).toMatchObject({ design: "#ffffff", code: "rgb(255,255,255)" });
+  });
+});

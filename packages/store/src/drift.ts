@@ -71,6 +71,41 @@ export interface DesignCodeDrift {
  * (design is the source of truth) and deterministic: the same two token sets
  * always yield the same report, with entries in a stable group-then-name order.
  */
+/**
+ * Canonicalize a hex color for comparison: lowercase, and expand 3/4-digit
+ * shorthand to its 6/8-digit form. Returns null when the string is not a hex
+ * color, so non-hex values (`rgb()`, `hsl()`, named) fall through to an exact
+ * comparison rather than being coerced.
+ */
+function canonicalHex(value: string): string | null {
+  const match = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value);
+  const captured = match?.[1];
+  if (captured === undefined) return null;
+  const hex = captured.toLowerCase();
+  const expanded = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
+  return `#${expanded}`;
+}
+
+/**
+ * Whether a design value and a code value are the SAME token value for drift
+ * purposes. Leading/trailing whitespace never counts as drift, and a hex COLOR
+ * is compared case- and shorthand-insensitively — `#2563EB` / `#2563eb`, and
+ * `#FFF` / `#ffffff`, are one color, not a `value_mismatch` that would wrongly
+ * block a conformant PR. Every other value compares exactly (trimmed). Only the
+ * equality DECISION is normalized; the drift entry still reports the originals.
+ */
+function driftValuesEqual(group: TokenGroup, design: string, code: string): boolean {
+  const d = design.trim();
+  const c = code.trim();
+  if (d === c) return true;
+  if (group === "color") {
+    const dh = canonicalHex(d);
+    const ch = canonicalHex(c);
+    if (dh !== null && ch !== null) return dh === ch;
+  }
+  return false;
+}
+
 export function computeDesignCodeDrift(design: DnaTokens, code: DnaTokens): DesignCodeDrift {
   const entries: DriftEntry[] = [];
   let aligned = 0;
@@ -85,7 +120,7 @@ export function computeDesignCodeDrift(design: DnaTokens, code: DnaTokens): Desi
       const codeValue = codeGroup[name]?.value;
 
       if (designValue !== undefined && codeValue !== undefined) {
-        if (designValue === codeValue) aligned += 1;
+        if (driftValuesEqual(group, designValue, codeValue)) aligned += 1;
         else entries.push({ group, name, kind: "value_mismatch", design: designValue, code: codeValue });
       } else if (designValue !== undefined) {
         entries.push({ group, name, kind: "missing_in_code", design: designValue });
