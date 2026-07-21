@@ -9,7 +9,9 @@
 import { describe, expect, it } from "vitest";
 import {
   reviewDesignSourceDrift,
+  reviewDesignSourceDriftDelta,
   enforceDesignSourceProvenance,
+  enforceDesignSourceProvenanceDelta,
   provenanceMeetsBar,
   DEFAULT_PROVENANCE_POLICY,
   type DesignSourceProvenance,
@@ -108,6 +110,50 @@ describe("enforceDesignSourceProvenance", () => {
 
   it("is deterministic", () => {
     const build = () => enforceDesignSourceProvenance(blockingOutcome, prov("declared"), DEFAULT_PROVENANCE_POLICY);
+    expect(build()).toEqual(build());
+  });
+});
+
+describe("enforceDesignSourceProvenanceDelta — provenance over the fair base-vs-head gate", () => {
+  // base conformant, head introduces a value_mismatch → the delta BLOCKS on introduced drift.
+  const blockingDelta = reviewDesignSourceDriftDelta(designExport, design, mutateFirstColor(design, "#FF0000"));
+
+  it("keeps full authority when provenance meets the bar (introduced drift still blocks)", () => {
+    const r = enforceDesignSourceProvenanceDelta(blockingDelta, prov("signed"));
+    expect(r.status).toBe("delta");
+    if (r.status !== "delta") return;
+    expect(r.delta.verdict.decision).toBe("block");
+    expect(r.delta.introduced.length).toBe(1);
+    expect(r.provenanceSufficient).toBe(true);
+  });
+
+  it("advisory: below-bar caps the introduced-drift block down to warn (never fails the PR)", () => {
+    const r = enforceDesignSourceProvenanceDelta(blockingDelta, prov("declared"));
+    expect(r.status).toBe("delta_advisory");
+    if (r.status !== "delta_advisory") return;
+    expect(r.delta.verdict.decision).toBe("warn");
+    expect(r.ungatedVerdict.decision).toBe("block");
+    expect(r.delta.verdict.blocking).toEqual([]);
+    expect(r.delta.verdict.warnings.length).toBeGreaterThan(0);
+    // The fair-delta partition is preserved through enforcement.
+    expect(r.delta.introduced.length).toBe(1);
+  });
+
+  it("refuse: below-bar returns unverified_design_source (no gate)", () => {
+    const policy: DesignSourceProvenancePolicy = { minVerification: "signed", belowBar: "refuse" };
+    const r = enforceDesignSourceProvenanceDelta(blockingDelta, prov("attested"), policy);
+    expect(r.status).toBe("unverified_design_source");
+  });
+
+  it("passes a malformed export through untouched", () => {
+    const invalid = reviewDesignSourceDriftDelta("not a token document", design, design);
+    expect(invalid.status).toBe("invalid_design_source");
+    const r = enforceDesignSourceProvenanceDelta(invalid, prov("unverified"));
+    expect(r.status).toBe("invalid_design_source");
+  });
+
+  it("is deterministic", () => {
+    const build = () => enforceDesignSourceProvenanceDelta(blockingDelta, prov("declared"));
     expect(build()).toEqual(build());
   });
 });

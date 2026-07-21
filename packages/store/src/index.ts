@@ -181,6 +181,7 @@ export {
 // never adds a block. Pure + deterministic.
 export {
   enforceDesignSourceProvenance,
+  enforceDesignSourceProvenanceDelta,
   provenanceMeetsBar,
   DEFAULT_PROVENANCE_POLICY,
   type ProvenanceVerification,
@@ -190,4 +191,7 @@ export {
   type AdvisoryDesignSourceGate,
   type VerifiedDesignSourceGate,
   type ProvenancedDriftOutcome,
+  type VerifiedDesignSourceDelta,
+  type AdvisoryDesignSourceDelta,
+  type ProvenancedDriftDeltaOutcome,
 } from "./design-source-provenance.js";

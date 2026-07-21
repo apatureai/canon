@@ -23,6 +23,8 @@
  */
 
 import type {
+  DesignSourceDriftDelta,
+  DesignSourceDriftDeltaOutcome,
   DesignSourceDriftOutcome,
   DesignSourceGate,
   InvalidDesignSource,
@@ -80,6 +82,17 @@ export function provenanceMeetsBar(
   policy: DesignSourceProvenancePolicy = DEFAULT_PROVENANCE_POLICY,
 ): boolean {
   return VERIFICATION_RANK[provenance.verification] >= VERIFICATION_RANK[policy.minVerification];
+}
+
+/**
+ * Soften a drift verdict for advisory mode: a `block` is capped to `warn` with
+ * its would-be blockers surfaced as warnings (never dropped); `warn`/`pass`
+ * stand. This is the single source of the "never fail the PR on an under-verified
+ * source" rule, shared by the point-in-time and the fair-delta enforcement.
+ */
+function capVerdictToAdvisory(verdict: DriftGateVerdict): DriftGateVerdict {
+  if (verdict.decision !== "block") return verdict;
+  return { decision: "warn", blocking: [], warnings: [...verdict.warnings, ...verdict.blocking], ignored: verdict.ignored };
 }
 
 /** The design export was usable, but its provenance was below the required bar. */
@@ -140,19 +153,73 @@ export function enforceDesignSourceProvenance(
     };
   }
 
-  // advisory: keep the findings, but never let an under-verified source fail the
-  // PR. Cap a `block` down to `warn` — the would-be blocking entries are surfaced
-  // as warnings (not dropped). `warn`/`pass` verdicts stand unchanged.
-  const ungated = outcome.verdict;
-  const cappedVerdict: DriftGateVerdict =
-    ungated.decision === "block"
-      ? { decision: "warn", blocking: [], warnings: [...ungated.warnings, ...ungated.blocking], ignored: ungated.ignored }
-      : ungated;
+  // advisory: keep the findings, but never let an under-verified source fail the PR.
   return {
     ...outcome,
     status: "gated_advisory",
-    verdict: cappedVerdict,
-    ungatedVerdict: ungated,
+    verdict: capVerdictToAdvisory(outcome.verdict),
+    ungatedVerdict: outcome.verdict,
+    provenance,
+    provenanceSufficient: false,
+  };
+}
+
+/** The fair-delta gate kept full authority because provenance met the bar. */
+export interface VerifiedDesignSourceDelta extends DesignSourceDriftDelta {
+  provenance: DesignSourceProvenance;
+  /** Always true here. */
+  provenanceSufficient: true;
+}
+
+/** A fair-delta gate whose verdict was capped to advisory (provenance below the bar). */
+export interface AdvisoryDesignSourceDelta extends Omit<DesignSourceDriftDelta, "status"> {
+  status: "delta_advisory";
+  provenance: DesignSourceProvenance;
+  /** Always false here — the reason the delta verdict was capped. */
+  provenanceSufficient: false;
+  /** The verdict the introduced-drift delta would have produced with full authority. */
+  ungatedVerdict: DriftGateVerdict;
+}
+
+export type ProvenancedDriftDeltaOutcome =
+  | VerifiedDesignSourceDelta
+  | AdvisoryDesignSourceDelta
+  | UnverifiedDesignSource
+  | InvalidDesignSource;
+
+/**
+ * Enforce design-source provenance over the FAIR (base-vs-head) drift delta — the
+ * surface a PR gate actually uses (it fires only on drift the change introduced).
+ * The delta's fair verdict is computed on the introduced set; provenance then
+ * gates whether that verdict carries authority, exactly as for the point-in-time
+ * gate: meets-bar keeps it, below-bar softens the delta verdict to advisory
+ * (`delta_advisory`, block→warn) or refuses (`unverified_design_source`). Never
+ * adds a block; `invalid_design_source` passes through. Deterministic.
+ */
+export function enforceDesignSourceProvenanceDelta(
+  outcome: DesignSourceDriftDeltaOutcome,
+  provenance: DesignSourceProvenance,
+  policy: DesignSourceProvenancePolicy = DEFAULT_PROVENANCE_POLICY,
+): ProvenancedDriftDeltaOutcome {
+  if (outcome.status === "invalid_design_source") return outcome;
+
+  if (provenanceMeetsBar(provenance, policy)) {
+    return { ...outcome, provenance, provenanceSufficient: true };
+  }
+
+  if (policy.belowBar === "refuse") {
+    return {
+      status: "unverified_design_source",
+      provenance,
+      requiredVerification: policy.minVerification,
+    };
+  }
+
+  return {
+    ...outcome,
+    status: "delta_advisory",
+    delta: { ...outcome.delta, verdict: capVerdictToAdvisory(outcome.delta.verdict) },
+    ungatedVerdict: outcome.delta.verdict,
     provenance,
     provenanceSufficient: false,
   };
