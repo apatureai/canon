@@ -173,3 +173,21 @@ export {
   type DesignSourceDriftDelta,
   type DesignSourceDriftDeltaOutcome,
 } from "./design-source-drift.js";
+
+// D2: design-source provenance enforcement. The drift gate keeps blocking
+// authority only when the design export's provenance meets a verification bar;
+// below it, the verdict is softened to advisory (block→warn) or refused. Takes
+// the drift outcome as input (dependency inversion); only ever REMOVES authority,
+// never adds a block. Pure + deterministic.
+export {
+  enforceDesignSourceProvenance,
+  provenanceMeetsBar,
+  DEFAULT_PROVENANCE_POLICY,
+  type ProvenanceVerification,
+  type DesignSourceProvenance,
+  type DesignSourceProvenancePolicy,
+  type UnverifiedDesignSource,
+  type AdvisoryDesignSourceGate,
+  type VerifiedDesignSourceGate,
+  type ProvenancedDriftOutcome,
+} from "./design-source-provenance.js";
