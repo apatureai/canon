@@ -33,6 +33,24 @@ describe("extractTokensJson", () => {
     expect(tokens.color["color.gap"]).toBeUndefined();
   });
 
+  it("disambiguates a DTCG `dimension` radius by its name (radii, not spacing)", () => {
+    // DTCG 2025.10 has no `borderRadius` $type — a conformant radius token is
+    // `$type: "dimension"`, the same as spacing. The name is the only signal, so
+    // a `dimension` token that names itself a radius must land in `radii` (where
+    // code-side extraction puts it), not silently in `spacing`.
+    const tokens = extractTokensJson({
+      radius: { lg: { $value: { value: 12, unit: "px" }, $type: "dimension" } },
+      rounded: { xl: { $value: { value: 16, unit: "px" }, $type: "dimension" } },
+      space: { md: { $value: { value: 8, unit: "px" }, $type: "dimension" } },
+    });
+    expect(tokens.radii["radius.lg"]?.value).toBe("12px");
+    expect(tokens.radii["rounded.xl"]?.value).toBe("16px");
+    expect(tokens.spacing["radius.lg"]).toBeUndefined(); // not misfiled as spacing
+    // A plain spacing dimension is unaffected.
+    expect(tokens.spacing["space.md"]?.value).toBe("8px");
+    expect(tokens.radii["space.md"]).toBeUndefined();
+  });
+
   it("falls back to name-prefix classification when $type is absent", () => {
     const tokens = extractTokensJson({
       color: { primary: { value: "#0a0a0a" } },

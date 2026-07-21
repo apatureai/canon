@@ -61,7 +61,14 @@ export function extractTokensJsonWithDiagnostics(doc: unknown): ExtractTokensRes
   const resolution = resolveTokensJson(doc);
 
   for (const { name, value, type } of resolution.tokens) {
-    const group = groupFromType(type) ?? classifyTokenName(name);
+    // DTCG 2025.10 types border-radius tokens as `dimension` — the SAME `$type`
+    // as spacing — so `groupFromType` alone would file every radius under
+    // `spacing`. The token NAME is the only disambiguator the format offers, so
+    // for a `dimension` token whose name reads as a radius, honor `radii`. This
+    // keeps radius drift grounded against the radii group (where code-side
+    // extraction puts it) instead of silently comparing it as spacing.
+    const byName = classifyTokenName(name);
+    const group = type === "dimension" && byName === "radii" ? "radii" : (groupFromType(type) ?? byName);
     if (!group) continue;
     (tokens[group] as Record<string, Fact<string>>)[name] = fact(
       projectTokenValue(value, type),
