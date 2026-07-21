@@ -51,6 +51,24 @@ describe("extractTokensJson", () => {
     expect(tokens.radii["space.md"]).toBeUndefined();
   });
 
+  it("disambiguates a DTCG `dimension` typographic length by its name (typography, not spacing)", () => {
+    // DTCG has no `fontSize` $type either — font-size / line-height / letter-spacing
+    // are `dimension`, same as spacing. A `dimension` that names itself typographic
+    // must ground as `typography`, where code-side extraction files it.
+    const tokens = extractTokensJson({
+      "font-size": { lg: { $value: { value: 18, unit: "px" }, $type: "dimension" } },
+      leading: { tight: { $value: { value: 20, unit: "px" }, $type: "dimension" } },
+      tracking: { wide: { $value: { value: 1, unit: "px" }, $type: "dimension" } },
+      gap: { md: { $value: { value: 8, unit: "px" }, $type: "dimension" } },
+    });
+    expect(tokens.typography["font-size.lg"]?.value).toBe("18px");
+    expect(tokens.typography["leading.tight"]?.value).toBe("20px");
+    expect(tokens.typography["tracking.wide"]?.value).toBe("1px");
+    expect(tokens.spacing["font-size.lg"]).toBeUndefined(); // not misfiled as spacing
+    // A plain spacing dimension is still spacing.
+    expect(tokens.spacing["gap.md"]?.value).toBe("8px");
+  });
+
   it("falls back to name-prefix classification when $type is absent", () => {
     const tokens = extractTokensJson({
       color: { primary: { value: "#0a0a0a" } },
