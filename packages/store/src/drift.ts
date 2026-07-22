@@ -159,16 +159,49 @@ function canonicalDimension(value: string): string | null {
   return `${num}${unit}`; // Number() already drops trailing-zero decimals
 }
 
+/** The two CSS `font-weight` keywords with an UNAMBIGUOUS numeric equivalent. */
+const WEIGHT_KEYWORDS: Readonly<Record<string, string>> = { normal: "400", bold: "700" };
+
+/**
+ * Canonicalize a `typography` token value for comparison, inferring the sub-kind
+ * from the value SHAPE (the group mixes families, sizes, and weights with no
+ * per-value type signal). Only UNAMBIGUOUS normalizations, else null (→ exact):
+ *   - **weight**: `normal` = `400`, `bold` = `700`, and a bare `100`–`900` stays
+ *     numeric (`lighter`/`bolder` are relative → left exact).
+ *   - **size / line-height**: a `<number><unit?>` reuses `canonicalDimension`.
+ *   - **family**: a single family with surrounding quotes strips them
+ *     (`"Inter"` = `Inter`); a fallback LIST is left exact (a single family is
+ *     not equated with a list).
+ * Never equates genuinely different weights/families, so real drift still flags.
+ */
+function canonicalTypography(value: string): string | null {
+  const lower = value.toLowerCase();
+  if (lower in WEIGHT_KEYWORDS) return WEIGHT_KEYWORDS[lower] ?? null;
+  if (/^[1-9]00$/.test(value)) return value; // bare numeric weight
+
+  const dim = canonicalDimension(value);
+  if (dim !== null) return dim; // font-size / line-height with a unit
+
+  // A single font family, optionally quoted — strip a matching quote pair.
+  const quoted = /^(["'])(.*)\1$/.exec(value);
+  if (quoted) return quoted[2] ?? null;
+  if (/^[A-Za-z][\w -]*$/.test(value)) return value; // plain single-family identifier
+
+  return null; // lists, stacks, and anything else → exact comparison
+}
+
 /**
  * Whether a design value and a code value are the SAME token value for drift
  * purposes. Leading/trailing whitespace never counts as drift; a COLOR is
  * compared by its canonical value (`#2563EB`/`#2563eb`, `#FFF`/`#ffffff`,
- * `#ffffff`/`rgb(255,255,255)`); and a length DIMENSION (spacing/radii) is
- * compared with zero treated as unit-agnostic and trailing-zero decimals
- * normalized (`0`/`0px`, `4.0px`/`4px`) — none of these are a `value_mismatch`
- * that would wrongly block a conformant PR. Every other value compares exactly
- * (trimmed). Only the equality DECISION is normalized; the drift entry still
- * reports the originals. Units are never converted, so `4px` ≠ `4rem`.
+ * `#ffffff`/`rgb(255,255,255)`); a length DIMENSION (spacing/radii) treats zero
+ * as unit-agnostic and normalizes trailing-zero decimals (`0`/`0px`,
+ * `4.0px`/`4px`); and TYPOGRAPHY equates a font-weight keyword with its numeric
+ * form (`normal`/`400`, `bold`/`700`) and a quoted single family with its bare
+ * form (`"Inter"`/`Inter`). None of these are a `value_mismatch` that would
+ * wrongly block a conformant PR. Every other value compares exactly (trimmed).
+ * Only the equality DECISION is normalized; the drift entry still reports the
+ * originals. Units are never converted, so `4px` ≠ `4rem`.
  */
 function driftValuesEqual(group: TokenGroup, design: string, code: string): boolean {
   const d = design.trim();
@@ -183,6 +216,11 @@ function driftValuesEqual(group: TokenGroup, design: string, code: string): bool
     const dd = canonicalDimension(d);
     const cd = canonicalDimension(c);
     if (dd !== null && cd !== null) return dd === cd;
+  }
+  if (group === "typography") {
+    const dt = canonicalTypography(d);
+    const ct = canonicalTypography(c);
+    if (dt !== null && ct !== null) return dt === ct;
   }
   return false;
 }

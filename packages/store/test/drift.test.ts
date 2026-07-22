@@ -225,3 +225,36 @@ describe("computeDesignCodeDrift — dimension equivalence (spacing/radii, no fa
     expect(r.summary.valueMismatch).toBe(1); // not equivalent by our normalization
   });
 });
+
+describe("computeDesignCodeDrift — typography equivalence (no false mismatch)", () => {
+  const typ = (name: string, value: string): DnaTokens => {
+    const t = emptyTokens();
+    t.typography[name] = fact(value, 1, "config");
+    return t;
+  };
+
+  it("equates font-weight keyword with its numeric form", () => {
+    expect(computeDesignCodeDrift(typ("body.weight", "normal"), typ("body.weight", "400")).conformant).toBe(true);
+    expect(computeDesignCodeDrift(typ("heading.weight", "bold"), typ("heading.weight", "700")).conformant).toBe(true);
+  });
+
+  it("equates a quoted single family with its bare form", () => {
+    expect(computeDesignCodeDrift(typ("font.body", '"Inter"'), typ("font.body", "Inter")).conformant).toBe(true);
+    expect(computeDesignCodeDrift(typ("font.mono", "'JetBrains Mono'"), typ("font.mono", "JetBrains Mono")).conformant).toBe(true);
+  });
+
+  it("normalizes a font-size unit-shape (reuses the dimension rules)", () => {
+    expect(computeDesignCodeDrift(typ("size.lg", "18.0px"), typ("size.lg", "18px")).conformant).toBe(true);
+  });
+
+  it("still flags genuinely different weights / families", () => {
+    expect(computeDesignCodeDrift(typ("body.weight", "400"), typ("body.weight", "bold")).summary.valueMismatch).toBe(1);
+    expect(computeDesignCodeDrift(typ("font.body", "Inter"), typ("font.body", "Roboto")).summary.valueMismatch).toBe(1);
+  });
+
+  it("leaves a single family vs a fallback list as a mismatch (not equated)", () => {
+    const r = computeDesignCodeDrift(typ("font.body", "Inter"), typ("font.body", "Inter, sans-serif"));
+    expect(r.summary.valueMismatch).toBe(1);
+    expect(r.entries[0]).toMatchObject({ design: "Inter", code: "Inter, sans-serif" });
+  });
+});
