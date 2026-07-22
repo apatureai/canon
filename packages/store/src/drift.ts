@@ -135,14 +135,40 @@ function canonicalColor(value: string): string | null {
   return null;
 }
 
+/** Groups whose values are CSS length dimensions (safe to normalize as such). */
+const DIMENSION_GROUPS: ReadonlySet<TokenGroup> = new Set<TokenGroup>(["spacing", "radii"]);
+
+/**
+ * Canonicalize a CSS dimension for comparison WITHOUT converting units (that
+ * would need a root font size / context and is not safe). Two unambiguous
+ * normalizations only:
+ *   - **zero is unit-agnostic**: `0` = `0px` = `0rem` = `0%` (a numeric zero
+ *     length is the same length whatever the unit);
+ *   - **trailing-zero decimals**: `4.0px` = `4px`, `4.50rem` = `4.5rem`.
+ * Returns null for anything that is not a plain `<number><unit?>` (e.g. `calc()`,
+ * `clamp()`, multi-value shorthands), so those fall back to an exact comparison.
+ * Different units on a non-zero value stay distinct (`4px` ≠ `4rem`).
+ */
+function canonicalDimension(value: string): string | null {
+  const match = /^(-?\d*\.?\d+)([a-z%]*)$/i.exec(value);
+  if (match === null) return null;
+  const num = Number(match[1]);
+  if (!Number.isFinite(num)) return null;
+  if (num === 0) return "0"; // zero length is unit-agnostic
+  const unit = (match[2] ?? "").toLowerCase();
+  return `${num}${unit}`; // Number() already drops trailing-zero decimals
+}
+
 /**
  * Whether a design value and a code value are the SAME token value for drift
- * purposes. Leading/trailing whitespace never counts as drift, and a COLOR is
- * compared by its canonical value — `#2563EB` / `#2563eb`, `#FFF` / `#ffffff`,
- * and `#ffffff` / `rgb(255,255,255)` / `rgba(255,255,255,1)` are one colour, not
- * a `value_mismatch` that would wrongly block a conformant PR. Every other value
- * compares exactly (trimmed). Only the equality DECISION is normalized; the drift
- * entry still reports the originals.
+ * purposes. Leading/trailing whitespace never counts as drift; a COLOR is
+ * compared by its canonical value (`#2563EB`/`#2563eb`, `#FFF`/`#ffffff`,
+ * `#ffffff`/`rgb(255,255,255)`); and a length DIMENSION (spacing/radii) is
+ * compared with zero treated as unit-agnostic and trailing-zero decimals
+ * normalized (`0`/`0px`, `4.0px`/`4px`) — none of these are a `value_mismatch`
+ * that would wrongly block a conformant PR. Every other value compares exactly
+ * (trimmed). Only the equality DECISION is normalized; the drift entry still
+ * reports the originals. Units are never converted, so `4px` ≠ `4rem`.
  */
 function driftValuesEqual(group: TokenGroup, design: string, code: string): boolean {
   const d = design.trim();
@@ -152,6 +178,11 @@ function driftValuesEqual(group: TokenGroup, design: string, code: string): bool
     const dc = canonicalColor(d);
     const cc = canonicalColor(c);
     if (dc !== null && cc !== null) return dc === cc;
+  }
+  if (DIMENSION_GROUPS.has(group)) {
+    const dd = canonicalDimension(d);
+    const cd = canonicalDimension(c);
+    if (dd !== null && cd !== null) return dd === cd;
   }
   return false;
 }

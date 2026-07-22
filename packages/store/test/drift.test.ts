@@ -191,3 +191,37 @@ describe("computeDesignCodeDrift — hex color equivalence (no false value_misma
     expect(r.entries[0]).toMatchObject({ design: "#ffffff", code: "hsl(0,0%,100%)" });
   });
 });
+
+describe("computeDesignCodeDrift — dimension equivalence (spacing/radii, no false mismatch)", () => {
+  const dim = (group: "spacing" | "radii", name: string, value: string): DnaTokens => {
+    const t = emptyTokens();
+    t[group][name] = fact(value, 1, "config");
+    return t;
+  };
+
+  it("treats zero as unit-agnostic (0 = 0px = 0rem) in spacing and radii", () => {
+    expect(computeDesignCodeDrift(dim("spacing", "gap", "0"), dim("spacing", "gap", "0px")).conformant).toBe(true);
+    expect(computeDesignCodeDrift(dim("spacing", "gap", "0px"), dim("spacing", "gap", "0rem")).conformant).toBe(true);
+    expect(computeDesignCodeDrift(dim("radii", "sm", "0"), dim("radii", "sm", "0%")).conformant).toBe(true);
+  });
+
+  it("normalizes trailing-zero decimals within the same unit", () => {
+    expect(computeDesignCodeDrift(dim("spacing", "md", "4.0px"), dim("spacing", "md", "4px")).conformant).toBe(true);
+    expect(computeDesignCodeDrift(dim("radii", "lg", "0.50rem"), dim("radii", "lg", "0.5rem")).conformant).toBe(true);
+  });
+
+  it("never converts units — a real unit change still flags", () => {
+    const r = computeDesignCodeDrift(dim("spacing", "md", "4px"), dim("spacing", "md", "4rem"));
+    expect(r.summary.valueMismatch).toBe(1);
+    expect(r.entries[0]).toMatchObject({ group: "spacing", design: "4px", code: "4rem" });
+  });
+
+  it("still flags a genuinely different magnitude", () => {
+    expect(computeDesignCodeDrift(dim("spacing", "md", "8px"), dim("spacing", "md", "6px")).summary.valueMismatch).toBe(1);
+  });
+
+  it("falls back to exact compare for non-plain dimensions (calc, shorthands)", () => {
+    const r = computeDesignCodeDrift(dim("spacing", "md", "calc(4px + 2px)"), dim("spacing", "md", "6px"));
+    expect(r.summary.valueMismatch).toBe(1); // not equivalent by our normalization
+  });
+});
