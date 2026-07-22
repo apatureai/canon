@@ -167,11 +167,27 @@ describe("computeDesignCodeDrift — hex color equivalence (no false value_misma
     expect(r.entries[0]).toMatchObject({ kind: "value_mismatch", design: "#2563EB", code: "#3B82F6" });
   });
 
-  it("does not coerce non-hex formats (rgb vs hex still reported), reporting the originals", () => {
-    // Scope boundary: hex-only normalization; rgb()/hsl() are left to an exact
-    // compare, so this stays a mismatch and the ORIGINAL strings are reported.
-    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#ffffff" }), tokens({ "brand.primary": "rgb(255,255,255)" }));
+  it("treats rgb()/rgba() as equal to the equivalent hex (no false mismatch)", () => {
+    // design tokens are typically hex; hand-written CSS is often rgb() — the same
+    // colour must not read as drift.
+    expect(computeDesignCodeDrift(tokens({ c: "#ffffff" }), tokens({ c: "rgb(255,255,255)" })).conformant).toBe(true);
+    expect(computeDesignCodeDrift(tokens({ c: "#2563eb" }), tokens({ c: "rgb(37, 99, 235)" })).conformant).toBe(true);
+    // alpha: rgba(...,0.5) == #rrggbb80; and opaque hex6 == hex8-with-ff-alpha.
+    expect(computeDesignCodeDrift(tokens({ c: "#00000080" }), tokens({ c: "rgba(0,0,0,0.5)" })).conformant).toBe(true);
+    expect(computeDesignCodeDrift(tokens({ c: "#ffffff" }), tokens({ c: "#ffffffff" })).conformant).toBe(true);
+  });
+
+  it("still flags genuinely different rgb/hex colours, reporting the originals", () => {
+    const r = computeDesignCodeDrift(tokens({ "brand.primary": "#ffffff" }), tokens({ "brand.primary": "rgb(0,0,0)" }));
     expect(r.summary.valueMismatch).toBe(1);
-    expect(r.entries[0]).toMatchObject({ design: "#ffffff", code: "rgb(255,255,255)" });
+    expect(r.entries[0]).toMatchObject({ design: "#ffffff", code: "rgb(0,0,0)" });
+  });
+
+  it("does not coerce unrecognized colour formats (hsl vs hex still reported)", () => {
+    // Scope boundary: hsl()/named colours fall back to exact compare — no false
+    // equivalence, and the ORIGINAL strings are reported.
+    const r = computeDesignCodeDrift(tokens({ c: "#ffffff" }), tokens({ c: "hsl(0,0%,100%)" }));
+    expect(r.summary.valueMismatch).toBe(1);
+    expect(r.entries[0]).toMatchObject({ design: "#ffffff", code: "hsl(0,0%,100%)" });
   });
 });

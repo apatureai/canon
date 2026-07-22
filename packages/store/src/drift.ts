@@ -77,31 +77,81 @@ export interface DesignCodeDrift {
  * color, so non-hex values (`rgb()`, `hsl()`, named) fall through to an exact
  * comparison rather than being coerced.
  */
-function canonicalHex(value: string): string | null {
-  const match = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value);
-  const captured = match?.[1];
-  if (captured === undefined) return null;
-  const hex = captured.toLowerCase();
-  const expanded = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
-  return `#${expanded}`;
+/** A `0-100%` or `0-255` colour channel → a byte, or null if out of range / malformed. */
+function channelToByte(raw: string): number | null {
+  const s = raw.trim();
+  if (s.endsWith("%")) {
+    const p = Number(s.slice(0, -1));
+    return Number.isFinite(p) && p >= 0 && p <= 100 ? Math.round((p / 100) * 255) : null;
+  }
+  const n = Number(s);
+  return Number.isInteger(n) && n >= 0 && n <= 255 ? n : null;
+}
+
+/** A `0-1` float or `0-100%` alpha → a byte, or null if out of range / malformed. */
+function alphaToByte(raw: string): number | null {
+  const s = raw.trim();
+  if (s.endsWith("%")) {
+    const p = Number(s.slice(0, -1));
+    return Number.isFinite(p) && p >= 0 && p <= 100 ? Math.round((p / 100) * 255) : null;
+  }
+  const a = Number(s);
+  return Number.isFinite(a) && a >= 0 && a <= 1 ? Math.round(a * 255) : null;
+}
+
+/**
+ * Canonicalize a colour to a single `#rrggbbaa` form (lowercase, opaque alpha
+ * `ff`), so equivalent spellings compare equal for drift: `#FFF` = `#ffffff` =
+ * `#ffffffff` = `rgb(255,255,255)` = `rgba(255,255,255,1)`, and
+ * `rgba(0,0,0,.5)` = `#00000080`. Handles hex (3/4/6/8-digit) and comma-form
+ * `rgb()/rgba()` with integer or `%` channels. Returns null for anything it does
+ * not recognize (e.g. `hsl()`, named colours), so those fall back to an exact
+ * comparison — no false equivalence.
+ */
+function canonicalColor(value: string): string | null {
+  const hexMatch = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value);
+  const hexCaptured = hexMatch?.[1];
+  if (hexCaptured !== undefined) {
+    let hex = hexCaptured.toLowerCase();
+    if (hex.length <= 4) hex = [...hex].map((c) => c + c).join("");
+    if (hex.length === 6) hex += "ff"; // no alpha ⇒ fully opaque
+    return `#${hex}`;
+  }
+
+  const rgbMatch = /^rgba?\(([^)]+)\)$/i.exec(value);
+  const rgbBody = rgbMatch?.[1];
+  if (rgbBody !== undefined) {
+    const parts = rgbBody.split(",");
+    if (parts.length !== 3 && parts.length !== 4) return null;
+    const r = channelToByte(parts[0] ?? "");
+    const g = channelToByte(parts[1] ?? "");
+    const b = channelToByte(parts[2] ?? "");
+    const a = parts.length === 4 ? alphaToByte(parts[3] ?? "") : 255;
+    if (r === null || g === null || b === null || a === null) return null;
+    const hx = (n: number): string => n.toString(16).padStart(2, "0");
+    return `#${hx(r)}${hx(g)}${hx(b)}${hx(a)}`;
+  }
+
+  return null;
 }
 
 /**
  * Whether a design value and a code value are the SAME token value for drift
- * purposes. Leading/trailing whitespace never counts as drift, and a hex COLOR
- * is compared case- and shorthand-insensitively — `#2563EB` / `#2563eb`, and
- * `#FFF` / `#ffffff`, are one color, not a `value_mismatch` that would wrongly
- * block a conformant PR. Every other value compares exactly (trimmed). Only the
- * equality DECISION is normalized; the drift entry still reports the originals.
+ * purposes. Leading/trailing whitespace never counts as drift, and a COLOR is
+ * compared by its canonical value — `#2563EB` / `#2563eb`, `#FFF` / `#ffffff`,
+ * and `#ffffff` / `rgb(255,255,255)` / `rgba(255,255,255,1)` are one colour, not
+ * a `value_mismatch` that would wrongly block a conformant PR. Every other value
+ * compares exactly (trimmed). Only the equality DECISION is normalized; the drift
+ * entry still reports the originals.
  */
 function driftValuesEqual(group: TokenGroup, design: string, code: string): boolean {
   const d = design.trim();
   const c = code.trim();
   if (d === c) return true;
   if (group === "color") {
-    const dh = canonicalHex(d);
-    const ch = canonicalHex(c);
-    if (dh !== null && ch !== null) return dh === ch;
+    const dc = canonicalColor(d);
+    const cc = canonicalColor(c);
+    if (dc !== null && cc !== null) return dc === cc;
   }
   return false;
 }
