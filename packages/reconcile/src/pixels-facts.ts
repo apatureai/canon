@@ -1,4 +1,4 @@
-import type { DnaTokens, Fact, VisualDistributions } from "@uidna/schema";
+import { canonicalColor, type DnaTokens, type Fact, type VisualDistributions } from "@uidna/schema";
 import { clampConfidence } from "./thresholds.js";
 
 /**
@@ -50,7 +50,7 @@ function colorFacts(proportions: Record<string, number>): Record<string, Fact<st
   // wins on a match; this only names a pixels-only candidate).
   const agg = new Map<string, { value: string; share: number }>();
   for (const [color, proportion] of Object.entries(proportions)) {
-    const key = canonicalColor(color);
+    const key = colorKey(color);
     const existing = agg.get(key);
     if (existing) existing.share += proportion;
     else agg.set(key, { value: color, share: proportion });
@@ -95,15 +95,15 @@ export type RenderBackedGroup = (typeof RENDER_BACKED_GROUPS)[number];
 const ROOT_FONT_PX = 16;
 
 /**
- * Expand a 3- or 4-digit hex shorthand to its 6-/8-digit form (`#fff` → `#ffffff`,
- * `#abcd` → `#aabbccdd`) so shorthand and longhand don't read as a false
- * disagreement. Non-shorthand hex (and non-hex) is returned trimmed/lowercased.
+ * A TOTAL colour key for matching a rendered colour to a declared token. Uses the
+ * shared canonicalizer (`@uidna/schema` `canonicalColor`, #97) so hex, shorthand,
+ * case, AND `rgb()/rgba()` all collapse to one `#rrggbbaa` key — `#fff` /
+ * `#ffffff` / `rgb(255,255,255)` are one observation, not a false disagreement /
+ * dead token. Anything the shared canonicalizer does not recognize (named
+ * colours, `hsl()`) falls back to the trimmed/lowercased string as its key.
  */
-function canonicalColor(value: string): string {
-  const v = value.trim().toLowerCase();
-  const m = /^#([0-9a-f]{3,4})$/.exec(v);
-  if (!m) return v;
-  return "#" + [...(m[1] as string)].map((ch) => ch + ch).join("");
+function colorKey(value: string): string {
+  return canonicalColor(value) ?? value.trim().toLowerCase();
 }
 
 /**
@@ -126,6 +126,6 @@ function canonicalNumeric(value: string): string {
 
 /** Canonicalize a declared token VALUE for matching against pixels facts. */
 export function canonicalTokenValue(group: keyof DnaTokens, value: string): string {
-  if (group === "color") return canonicalColor(value);
+  if (group === "color") return colorKey(value);
   return canonicalNumeric(value);
 }

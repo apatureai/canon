@@ -11,9 +11,9 @@ function emptyDist(): VisualDistributions {
 }
 
 describe("canonicalTokenValue — hex shorthand (#37)", () => {
-  it("expands 3-digit hex shorthand so #FFF == #ffffff", () => {
-    expect(canonicalTokenValue("color", "#FFF")).toBe("#ffffff");
-    expect(canonicalTokenValue("color", "#ffffff")).toBe("#ffffff");
+  it("expands 3-digit hex shorthand so #FFF == #ffffff (canonical #ffffffff)", () => {
+    expect(canonicalTokenValue("color", "#FFF")).toBe("#ffffffff");
+    expect(canonicalTokenValue("color", "#ffffff")).toBe("#ffffffff");
     expect(canonicalTokenValue("color", "#FFF")).toBe(canonicalTokenValue("color", "#ffffff"));
   });
 
@@ -98,12 +98,12 @@ describe("reconcileTokens — shorthand/units don't read as false disagreements 
 
     const { tokens: resolved } = reconcileTokens(tokens, dist);
     // Both forms collapse to one canonical candidate; shares sum (0.3 + 0.3).
-    expect(Object.keys(resolved.color)).toEqual(["pixels:#ffffff"]);
+    expect(Object.keys(resolved.color)).toEqual(["pixels:#ffffffff"]);
     const combined = reconcileTokens(
       emptyTokens(),
       { ...emptyDist(), colorProportions: { "#ffffff": 0.6 } },
-    ).tokens.color["pixels:#ffffff"];
-    expect(resolved.color["pixels:#ffffff"]?.confidence).toBe(combined?.confidence);
+    ).tokens.color["pixels:#ffffffff"];
+    expect(resolved.color["pixels:#ffffffff"]?.confidence).toBe(combined?.confidence);
   });
 });
 

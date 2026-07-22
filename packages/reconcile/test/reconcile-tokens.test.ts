@@ -66,9 +66,9 @@ describe("reconcileTokens — pixels-only", () => {
     const { tokens: resolved } = reconcileTokens(tokens, dist);
     // Keys are the canonical (shorthand-expanded) color so they match the
     // declared-token side; the observed raw form is preserved as the fact value.
-    expect(Object.keys(resolved.color)).toEqual(["pixels:#000000", "pixels:#ffffff"]);
-    expect(resolved.color["pixels:#000000"]?.value).toBe("#000");
-    expect(resolved.color["pixels:#ffffff"]?.value).toBe("#fff");
+    expect(Object.keys(resolved.color)).toEqual(["pixels:#000000ff", "pixels:#ffffffff"]);
+    expect(resolved.color["pixels:#000000ff"]?.value).toBe("#000");
+    expect(resolved.color["pixels:#ffffffff"]?.value).toBe("#fff");
   });
 });
 
