@@ -7,6 +7,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDriftRemediation,
+  driftRemediationToAxisFixItems,
   DESIGN_CODE_DRIFT_VERSION,
   type DesignCodeDrift,
   type DriftEntry,
@@ -86,6 +87,31 @@ describe("partitions by the neutral gate", () => {
   it("is deterministic and conformant drift yields an empty plan", () => {
     expect(buildDriftRemediation(drift([]))).toEqual({ blocking: [], advisory: [] });
     const build = () => buildDriftRemediation(drift([mismatch, missing]));
+    expect(build()).toEqual(build());
+  });
+});
+
+describe("driftRemediationToAxisFixItems — feeds the combined cross-axis fix plan", () => {
+  it("projects each remediation to an AxisFixItem: token ref, grounded, blocking from the gate split", () => {
+    const plan = buildDriftRemediation(drift([mismatch, missing, undocumented]));
+    const items = driftRemediationToAxisFixItems(plan);
+    // The blocking value_mismatch first, as a grounded, blocking, token-cited fix.
+    expect(items[0]).toEqual({
+      ref: "color.brand",
+      instruction: plan.blocking[0]!.instruction,
+      grounded: true,
+      blocking: true,
+    });
+    // Every drift remediation is grounded (token-cited, deterministic action).
+    expect(items.every((i) => i.grounded)).toBe(true);
+    // Blocking items precede advisory ones; advisory carry blocking:false.
+    expect(items.map((i) => i.blocking)).toEqual([true, false, false]);
+    expect(items.map((i) => i.ref)).toEqual(["color.brand", "spacing.gap", "color.legacy"]);
+  });
+
+  it("is deterministic and an empty plan yields no items", () => {
+    expect(driftRemediationToAxisFixItems({ blocking: [], advisory: [] })).toEqual([]);
+    const build = () => driftRemediationToAxisFixItems(buildDriftRemediation(drift([mismatch])));
     expect(build()).toEqual(build());
   });
 });

@@ -94,3 +94,40 @@ export function buildDriftRemediation(
     advisory: verdict.warnings.map(toRemediation),
   };
 }
+
+/**
+ * The structural fix-item shape the cross-axis combined review aggregates
+ * (pointer's `combineDesignReview` → `AxisReview.fixItems`). Declared HERE, not
+ * imported from the sidecar, so ui-dna stays dependency-free of pointer; the
+ * combiner consumes any axis whose fix items match this shape (structural typing
+ * / dependency inversion).
+ */
+export interface AxisFixItem {
+  /** WHAT to fix — the cited design token `group.name` (the un-arguable anchor). */
+  ref: string;
+  /** The agent-actionable fix instruction. */
+  instruction: string;
+  /** Whether an agent can deterministically apply it (always true for drift — token-cited). */
+  grounded: boolean;
+  /** Whether it corresponds to a blocking (vs warning) drift entry. */
+  blocking: boolean;
+}
+
+/**
+ * Project a drift remediation plan into combined-review `AxisFixItem`s so the
+ * drift axis can populate the unified cross-axis fix plan — the design-axis analog
+ * of pointer's `designFixPlanToAxisFixItems`. Every drift remediation is `grounded`
+ * (it cites a design token and carries a deterministic action, so an agent can
+ * apply it); the gate's blocking/advisory split maps to `blocking`. The token
+ * (`group.name`) is the `ref`. Blocking items first, then advisory; order otherwise
+ * preserved. Pure and deterministic.
+ */
+export function driftRemediationToAxisFixItems(plan: DriftRemediationPlan): AxisFixItem[] {
+  const toItem = (r: DriftRemediation, blocking: boolean): AxisFixItem => ({
+    ref: `${r.group}.${r.name}`,
+    instruction: r.instruction,
+    grounded: true,
+    blocking,
+  });
+  return [...plan.blocking.map((r) => toItem(r, true)), ...plan.advisory.map((r) => toItem(r, false))];
+}

@@ -139,9 +139,11 @@ export {
 // advisory. The drift-axis analog of pointer's fix-spec. Composes evaluateDriftGate.
 export {
   buildDriftRemediation,
+  driftRemediationToAxisFixItems,
   type DriftAction,
   type DriftRemediation,
   type DriftRemediationPlan,
+  type AxisFixItem,
 } from "./drift-remediation.js";
 
 // Drift gate node (agentic-SDLC graph): the drift axis as a CONDITIONAL node —
