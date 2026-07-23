@@ -82,8 +82,13 @@ export function reconcileComponents(
     if (nodes.length > 0) {
       // CONFIRMED on rendered routes: reinforce confidence, lift provenance to
       // pixels (observed), enrich variants/usageExamples with observed roles.
+      // Reinforce toward the ceiling, but never LOWER a detection already above it
+      // (negative headroom) — pixel confirmation must not penalize confidence.
       const headroom = MAX_REINFORCED_CONFIDENCE - conv.confidence;
-      const confidence = clampConfidence(conv.confidence + headroom * AGREEMENT_REINFORCE);
+      const confidence = Math.max(
+        conv.confidence,
+        clampConfidence(conv.confidence + headroom * AGREEMENT_REINFORCE),
+      );
       const roles = observedRoles(nodes);
       components.push({
         ...conv,

@@ -87,10 +87,13 @@ export function reconcileField<T>(field: string, candidates: Fact<T>[]): Reconci
     );
   } else if (agreers.length > 0) {
     // Reinforce above the winner toward (but never reaching) the sign-off ceiling.
+    // Never LOWER it: when the winner is already above the reinforce ceiling the
+    // headroom is negative, so floor at the winner's own confidence — agreement
+    // must never penalize a high-confidence value.
     const headroom = MAX_REINFORCED_CONFIDENCE - winner.confidence;
-    confidence = Math.min(
-      MAX_REINFORCED_CONFIDENCE,
-      winner.confidence + headroom * AGREEMENT_REINFORCE,
+    confidence = Math.max(
+      winner.confidence,
+      Math.min(MAX_REINFORCED_CONFIDENCE, winner.confidence + headroom * AGREEMENT_REINFORCE),
     );
   } else {
     confidence = winner.confidence;

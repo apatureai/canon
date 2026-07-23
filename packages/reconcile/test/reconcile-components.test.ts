@@ -55,6 +55,16 @@ describe("reconcileComponents — confirmed usage (#38)", () => {
     expect(conflicts).toEqual([]);
   });
 
+  it("pixel confirmation never LOWERS a detection already above the reinforce ceiling", () => {
+    // A high-confidence detection (0.99 > 0.98) confirmed on rendered routes must
+    // not be penalized: before the fix, negative headroom dragged it below 0.99.
+    const conv: ComponentConvention = { ...detected("radix"), confidence: 0.99 };
+    const { components } = reconcileComponents([conv], evidenceWith([radixNode]));
+    const radix = components.find((c) => c.name === "radix");
+    expect(radix?.confidence).toBeGreaterThanOrEqual(0.99);
+    expect(radix?.provenance).toBe("pixels");
+  });
+
   it("enriches the convention with observed roles and a usage example", () => {
     const { components } = reconcileComponents([detected("shadcn/ui")], evidenceWith([radixNode]));
     const shadcn = components.find((c) => c.name === "shadcn/ui");

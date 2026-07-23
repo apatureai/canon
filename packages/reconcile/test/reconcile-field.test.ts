@@ -48,6 +48,16 @@ describe("reconcileField — agreement reinforces", () => {
     expect(resolved.confidence).toBeLessThan(1); // sign-off ceiling reserved
     expect(conflicts).toEqual([]);
   });
+
+  it("never LOWERS a winner already above the reinforce ceiling (agreement can't penalize)", () => {
+    const { resolved } = reconcileField("tokens.color.brand", [
+      fact("#bada55", 0.99, "config"), // already above MAX_REINFORCED_CONFIDENCE (0.98)
+      fact("#bada55", 0.9, "code"),
+    ]);
+    expect(resolved.value).toBe("#bada55");
+    // Before the fix, negative headroom dragged this down to 0.98.
+    expect(resolved.confidence).toBeGreaterThanOrEqual(0.99);
+  });
 });
 
 describe("reconcileField — disagreement keeps config value, degrades, records conflict", () => {
