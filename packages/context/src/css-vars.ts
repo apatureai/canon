@@ -9,7 +9,7 @@ import type { TokenMap } from "./tokens.js";
  * selectors are intentionally ignored — they are not design tokens.
  *
  * Ported from judgment-engine's proven `@engine/context` css-vars extractor
- * (LOOP.md reuse note): pure, deterministic, no IO.
+ * pure, deterministic, no IO.
  */
 export interface CssCustomProperties {
   /** Tokens from :root / html. */

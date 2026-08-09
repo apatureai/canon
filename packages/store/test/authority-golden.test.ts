@@ -1,20 +1,14 @@
 /**
- * Shared authority-status golden vectors (#72, closing verification for #64).
+ * Authority-status golden vectors.
  *
- * `fixtures/authority-status.golden.json` is the ONE mirror source the four
- * consumers of the revocation contract assert against: UI-DNA (here, the
- * authority), Source of Truth (sot#58 resolver), DNA Consultant (dnac#55
- * invalidation), and Judgment Engine (je#168 grounding enforcement) each keep a
- * BYTE-IDENTICAL copy of the fixture and replay it through their own
- * `(effective|revoked)` handling, so a divergence in any repo's understanding
- * of the contract fails that repo's CI instead of surfacing in production.
+ * `fixtures/authority-status.golden.json` pins the authority/revocation
+ * contract: the admission matrix for the append-only hash-chained log, and the
+ * read decision for every `(status, mode)` pair. This suite RECOMPUTES every
+ * embedded hash from the live implementation, so a stale or hand-edited fixture
+ * fails here even if its internal expectations stay self-consistent.
  *
- * Regeneration happens ONLY in ui-dna (the sole authority): rebuild
- * `@uidna/store`, re-run the generator embedded in the PR that introduced this
- * file, and propagate the new bytes to every consumer in the same change set.
- * Never hand-edit a downstream copy. This suite additionally RECOMPUTES every
- * embedded hash from the live implementation, so a stale or hand-edited
- * fixture fails here even if its internal expectations stay self-consistent.
+ * Regenerate with `packages/store/scripts/generate-authority-golden.mjs` after
+ * building `@uidna/store`; never hand-edit the fixture.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

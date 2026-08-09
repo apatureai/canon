@@ -1,6 +1,6 @@
 /**
- * Design-source provenance enforcement (founder decision D2, PRD §4/§7,
- * PRODUCT-DIRECTION Move 4). The design↔code drift gate is only as authoritative
+ * Design-source provenance enforcement (decision D2, PRD §4/§7).
+ * The design↔code drift gate is only as authoritative
  * as the design export it grounds against. A drift finding says "the code uses
  * `#3B82F6` but the design system defines `color.brand.primary = #2563EB`" — but
  * *says who?* If the export's origin is unverified (an arbitrary DTCG file, not

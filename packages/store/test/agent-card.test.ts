@@ -17,7 +17,7 @@ const golden = JSON.parse(
   readFileSync(fileURLToPath(new URL("./fixtures/golden-agent-card.json", import.meta.url)), "utf8"),
 ) as Record<string, unknown>;
 
-describe("ui-dna ApatureAgentCardV1 (#29, core #105 / INTEROP.md §2)", () => {
+describe("ui-dna ApatureAgentCardV1", () => {
   it("matches the pinned descriptor shape (golden; additive only)", () => {
     expect(buildUiDnaAgentCard()).toEqual(golden);
   });
@@ -41,13 +41,13 @@ describe("ui-dna ApatureAgentCardV1 (#29, core #105 / INTEROP.md §2)", () => {
     expect(card.signature).toBeUndefined();
   });
 
-  it("carries the forbidden claims from core CAPABILITY-REGISTRY.md (no model calls / write)", () => {
+  it("carries the forbidden claims (no model calls / write)", () => {
     expect(buildUiDnaAgentCard().forbidden).toContain("model calls");
     expect(buildUiDnaAgentCard().forbidden).toContain("eval promotion");
   });
 });
 
-describe("card canonicalization + digest (INTEROP.md §3 static registry)", () => {
+describe("card canonicalization + digest (static registry)", () => {
   it("canonical serialization is deterministic and digest is sha256-prefixed", () => {
     const card = buildUiDnaAgentCard();
     expect(serializeAgentCard(card)).toBe(serializeAgentCard(buildUiDnaAgentCard()));

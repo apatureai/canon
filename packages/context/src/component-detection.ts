@@ -4,8 +4,8 @@
  * (e.g. shadcn implies CSS-variable theming, MUI implies its 8px spacing
  * system). No-op when none are detected.
  *
- * Ported from judgment-engine's proven `@engine/context` detector (LOOP.md reuse
- * note): pure, deterministic, no IO.
+ * Ported from judgment-engine's proven `@engine/context` detector:
+ * pure, deterministic, no IO.
  */
 
 export interface ComponentLibrary {

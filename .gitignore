@@ -6,3 +6,8 @@ coverage/
 .env
 .env.*
 !.env.example
+.idea/
+.vscode/
+*.log
+.eslintcache
+.pnpm-store/

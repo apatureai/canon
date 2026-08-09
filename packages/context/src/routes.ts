@@ -7,7 +7,7 @@
  * `import-graph-routes.ts`; this module remains its deterministic fallback.
  *
  * Ported from judgment-engine's proven `@engine/context` routes extractor
- * (LOOP.md reuse note) and extended with `layout.tsx` child-route mapping per
+ * and extended with `layout.tsx` child-route mapping per
  * UI DNA issue #7. Pure, deterministic, no IO.
  */
 

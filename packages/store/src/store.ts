@@ -2,8 +2,8 @@ import type { DnaSnapshot } from "@uidna/schema";
 import { computeDnaVersion } from "./version-identity.js";
 
 /**
- * Immutable, content-addressed versioned snapshot store (#22, PRD §4/§7; core
- * #103 DECISION-3: ui-dna owns immutable versions). A resolved `DnaSnapshot` is
+ * Immutable, content-addressed versioned snapshot store (#22, PRD §4/§7).
+ * ui-dna owns immutable versions. A resolved `DnaSnapshot` is
  * frozen under its content-addressed `dnaVersion` and NEVER mutated in place; a
  * new genome or lifecycle transition produces a NEW version. `commitSnapshot`
  * is append-only and idempotent: re-committing identical content + causal

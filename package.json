@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Apature UI DNA - canonical design-genome schema, extraction, versioning, and downstream read contract.",
+  "license": "MIT",
+  "author": "Aditya Prathapa",
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git" },
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=24 <25"
@@ -14,7 +17,6 @@
     "clean": "tsc -b --clean",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
-    "drill:genome-lifecycle": "node scripts/genome-lifecycle-drill.mjs",
     "eval:dtcg-corpus": "pnpm typecheck && node scripts/dtcg-corpus-benchmark.mjs"
   },
   "devDependencies": {

@@ -103,7 +103,7 @@ describe("Pointer local-check read profile (#59)", () => {
     const snapshot = genome();
     snapshot.metadata = { ...snapshot.metadata, approvalState: "approved", dnaVersion: "dna_source_v1" };
 
-    expect(() => projectPointerLocalCheckProfile(snapshot, "apatureai/pointer", "dna_source_v1"))
+    expect(() => projectPointerLocalCheckProfile(snapshot, "apatureai/some-other-repo", "dna_source_v1"))
       .toThrow(InvalidPointerProfileSourceError);
     expect(() => projectPointerLocalCheckProfile(snapshot, "apatureai/ui-dna", "dna_other"))
       .toThrow(InvalidPointerProfileSourceError);

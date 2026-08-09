@@ -4,7 +4,7 @@
   "registered": false,
   "surface": "ui-dna",
   "repo": "apatureai/ui-dna",
-  "issuer": "apatureai/core",
+  "issuer": "apature",
   "cardVersion": "1",
   "environment": "unbound",
   "contractVersions": { "schema": "1", "store": "2" },

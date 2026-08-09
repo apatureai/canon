@@ -1,4 +1,9 @@
-# SPIKE #8 — diff→route import-graph feasibility
+# Design note: diff→route import-graph feasibility
+
+*Archive note: the bare `#N` markers below refer to issues in the original
+private tracker and cannot be resolved from the public repository. They are
+retained as provenance. The implementation this note gated is
+`packages/context/src/import-graph-routes.ts`.*
 
 **Question (PRD §4.3):** before building the v1.5 import-graph diff→route path
 (#9), can a static import graph reliably walk from a changed component up to the
@@ -55,25 +60,25 @@ captures the affected routes, or `resolvableFraction` is low because the repo
 leans on computed dynamic imports / heavy cross-package edges, do **not** build
 #9 — the static graph would be both incomplete and misleading.
 
-## Decision for the loop
+## What happened next
 
-#9 stays **gated** behind this measured-need check. The probe + report are the
-instrument; the production graph builder is not built until a real
-component-heavy repo justifies it.
+The production graph builder was held behind this measured-need check: the probe
+and its feasibility report were the instrument, and nothing was built until a
+real component-heavy repository justified it.
 
-## July 12, 2026 measured-need result
+### July 12, 2026 measured-need result
 
-**Gate passed.** The real `apatureai/gate` Next.js dashboard supplies the first
-internal-product measurement (not a synthetic fixture): 20 of 20 relative or
-`@/*` internal imports resolve from the dashboard's checked-in source and
-tsconfig paths (`resolvableFraction = 1.0`). Changing the shared
-`apps/dashboard/src/lib/session.ts` maps to zero routes under the page-file MVP,
-but the reverse import graph reaches seven checked-in page routes directly.
+**The check passed.** A real Next.js dashboard app supplied the first
+measurement against product code rather than a synthetic fixture: 20 of 20
+relative or `@/*` internal imports resolved from that app's checked-in source
+and tsconfig paths (`resolvableFraction = 1.0`). Changing its shared
+`src/lib/session.ts` mapped to zero routes under the page-file MVP, while the
+reverse import graph reached seven checked-in page routes directly.
 
-That is both a material MVP miss and comfortably above the pre-registered 0.90
-bar. Issue #9 may therefore ship with the decided guardrails: five-hop and
-five-route hard ceilings, shortest-distance ranking, bare/asset edges stopped,
-and explicit MVP fallback below the resolution threshold. The evidence is an
-Apature-owned product app; customer-repository calibration remains part of the
-later evaluation corpus rather than a prerequisite for this deterministic
-implementation.
+That was both a material MVP miss and comfortably above the pre-registered 0.90
+bar, so the bounded implementation shipped with the guardrails above: five-hop
+and five-route hard ceilings, shortest-distance ranking, bare/asset edges
+stopped, and an explicit MVP fallback below the resolution threshold. It is
+implemented in `packages/context/src/import-graph-routes.ts`. The evidence came
+from one first-party application; calibration against third-party repositories
+was left to a later evaluation corpus and never happened.

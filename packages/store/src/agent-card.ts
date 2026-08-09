@@ -3,32 +3,28 @@ import { createHash } from "node:crypto";
 import { STORE_VERSION } from "./version-identity.js";
 
 /**
- * ui-dna A2A capability descriptor (#29; core #105 / INTEROP.md §2, ADR-001).
+ * ui-dna A2A capability descriptor: the agent-card contract by which sibling
  *
- * Publishes ui-dna's `ApatureAgentCardV1` so sibling Apature surfaces (today the
- * DNA Consultant orchestrating Gate/Entropy/SoT) can DISCOVER and call the
- * genome read/grounding contract as an agent capability — without inventing a
- * second wire path to the genome (ADR-001 one-contract rule).
+ * Apature surfaces DISCOVER and call the genome read/grounding contract as an
+ * agent capability — without inventing a second wire path to the genome.
  *
  * The card is a DESCRIPTOR, not a permission grant, and not a runtime service:
- * per core's static-registry model it advertises the EXISTING contracts —
+ * under the static-registry model it advertises the EXISTING contracts —
  *   - genome snapshot read  → `getSnapshot` / `SnapshotResponse` (read-api.ts)
  *   - genome-slice grounding → `retrieveGenomeSlice` / `GenomeSlice` (retrieval.ts)
  * — and stamps the same `@uidna/schema` + `@uidna/store` versions those
  * contracts already speak. It carries ZERO new capability.
  *
- * Status is `draft-unapproved`: core CAPABILITY-REGISTRY.md records ui-dna as
- * "Next candidate after contract promotion" with no approved card yet, so this
- * artifact exists for the eventual registration review to approve or reject —
- * it is build-later/gated, tracking (not duplicating) core #105's spec.
+ * Status is `draft-unapproved`: no card was ever approved for registration, so
+ * this artifact exists for a registration review that never happened.
  */
 
 export const AGENT_CARD_VERSION = "ApatureAgentCardV1" as const;
 
-/** Registry status vocabulary (core INTEROP.md §3). ui-dna is `draft-unapproved`. */
+/** Registry status vocabulary. ui-dna is `draft-unapproved`. */
 export type CardStatus = "draft-unapproved" | "approved" | "deprecated";
 
-/** Explicit safety declarations (INTEROP.md §2). ui-dna's A2A surface is read-only. */
+/** Explicit safety declarations. ui-dna's A2A surface is read-only. */
 export interface CardSafety {
   no_write: boolean;
   read_only_browser: boolean;
@@ -70,14 +66,14 @@ export interface CardObservability {
 }
 
 /**
- * ui-dna's `ApatureAgentCardV1`, narrowed to Apature's product boundaries
- * (INTEROP.md §2: identity, endpoint binding, capabilities, contract versions,
- * tenancy, auth, safety, observability, signature).
+ * ui-dna's `ApatureAgentCardV1`, narrowed to Apature's product boundaries:
+ * identity, endpoint binding, capabilities, contract versions, tenancy, auth,
+ * safety, observability, signature.
  */
 export interface ApatureAgentCardV1 {
   schemaVersion: typeof AGENT_CARD_VERSION;
   status: CardStatus;
-  /** Whether this card is registered in the core static registry. False until approved. */
+  /** Whether this card is registered in the static registry. False until approved. */
   registered: boolean;
   surface: "ui-dna";
   repo: string;
@@ -91,15 +87,15 @@ export interface ApatureAgentCardV1 {
   auth: CardAuth;
   safety: CardSafety;
   observability: CardObservability;
-  /** Claims ui-dna must NOT make as a callable surface (core CAPABILITY-REGISTRY.md). */
+  /** Claims ui-dna must NOT make as a callable surface. */
   forbidden: readonly string[];
   /** JWS signature (static-registry model). Absent until the card is signed for registration. */
   signature?: string;
 }
 
 /**
- * The forbidden-claim set from core CAPABILITY-REGISTRY.md for ui-dna: it may
- * publish approved genome/snapshot reads, but never these.
+ * The forbidden-claim set for ui-dna: it may publish approved genome/snapshot
+ * reads, but never these.
  */
 const UI_DNA_FORBIDDEN = Object.freeze([
   "untrusted repo execution",
@@ -122,7 +118,7 @@ export function buildUiDnaAgentCard(): ApatureAgentCardV1 {
     registered: false,
     surface: "ui-dna",
     repo: "apatureai/ui-dna",
-    issuer: "apatureai/core",
+    issuer: "apature",
     cardVersion: "1",
     environment: "unbound",
     contractVersions: { schema: SCHEMA_VERSION, store: STORE_VERSION },
@@ -165,7 +161,7 @@ export function serializeAgentCard(card: ApatureAgentCardV1): string {
   return canonicalize(card);
 }
 
-/** The `card_digest` a core registry entry pins (INTEROP.md §3). */
+/** The `card_digest` a registry entry pins. */
 export function computeAgentCardDigest(card: ApatureAgentCardV1): string {
   return `sha256:${createHash("sha256").update(serializeAgentCard(card)).digest("hex")}`;
 }

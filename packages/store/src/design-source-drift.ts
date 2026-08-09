@@ -1,6 +1,6 @@
 /**
- * Design-source drift gate — the end-to-end capability (PRD §4/§7, core#189 #2,
- * PRODUCT-DIRECTION Move 4). Given a raw design-tool token export (a DTCG
+ * Design-source drift gate — the end-to-end capability (PRD §4/§7). Given a
+ * raw design-tool token export (a DTCG
  * document from Figma / Tokens Studio / etc.) and the code's extracted genome,
  * decide the design↔code conformance gate: "the code uses `#3B82F6` but the
  * design system defines `color.brand.primary = #2563EB`. Off-token."

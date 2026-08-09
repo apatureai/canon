@@ -1,10 +1,11 @@
 /**
- * Drift remediation — the agent-actionable output of the drift gate (PRD §4,
- * PRODUCT-DIRECTION Move 3/4). The drift gate says a token drifted; in the
+ * Drift remediation — the agent-actionable output of the drift gate (PRD §4).
+ * The drift gate says a token drifted; in the
  * AI-native loop a coding agent needs to be told precisely what to do about it.
  * This projects each gated drift entry into a cited, eyes-not-hands fix
  * instruction the agent applies ("replace the hardcoded `#3B82F6` with the
- * `color.brand.primary` token") — the design-axis analog of pointer's fix-spec.
+ * `color.brand.primary` token") — the design-axis analog of the rendered-review
+ * fix spec.
  *
  * It stays inside the eyes-not-hands boundary by construction: a remediation
  * CITES the design token (group + name + authoritative value) and states the
@@ -96,11 +97,10 @@ export function buildDriftRemediation(
 }
 
 /**
- * The structural fix-item shape the cross-axis combined review aggregates
- * (pointer's `combineDesignReview` → `AxisReview.fixItems`). Declared HERE, not
- * imported from the sidecar, so ui-dna stays dependency-free of pointer; the
- * combiner consumes any axis whose fix items match this shape (structural typing
- * / dependency inversion).
+ * The structural fix-item shape the cross-axis combined review aggregates.
+ * Declared HERE rather than imported, so ui-dna carries no dependency on the
+ * rendered-review axis; the combiner consumes any axis whose fix items match
+ * this shape (structural typing / dependency inversion).
  */
 export interface AxisFixItem {
   /** WHAT to fix — the cited design token `group.name` (the un-arguable anchor). */
@@ -116,7 +116,7 @@ export interface AxisFixItem {
 /**
  * Project a drift remediation plan into combined-review `AxisFixItem`s so the
  * drift axis can populate the unified cross-axis fix plan — the design-axis analog
- * of pointer's `designFixPlanToAxisFixItems`. Every drift remediation is `grounded`
+ * of the rendered-review axis's own fix-item projection. Every drift remediation is `grounded`
  * (it cites a design token and carries a deterministic action, so an agent can
  * apply it); the gate's blocking/advisory split maps to `blocking`. The token
  * (`group.name`) is the `ref`. Blocking items first, then advisory; order otherwise

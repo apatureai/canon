@@ -11,7 +11,7 @@ import type { DnaSnapshot } from "@uidna/schema";
  * actually change.
  *
  * Ported from judgment-engine's proven `@engine/context` context-block builder
- * (LOOP.md reuse note) and adapted to serialize the canonical `DnaSnapshot`
+ * and adapted to serialize the canonical `DnaSnapshot`
  * content. Bump `CONTEXT_VERSION` when the serialization format changes; it is
  * part of the hashed payload, so a format change busts every cache entry.
  */

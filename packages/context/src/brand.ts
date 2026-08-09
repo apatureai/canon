@@ -9,7 +9,7 @@ import { isRecord } from "./internal.js";
  * brand-fit findings without a stated brand.
  *
  * Ported from judgment-engine's proven `@engine/context` brand extractor
- * (LOOP.md reuse note): pure, deterministic, no IO.
+ * pure, deterministic, no IO.
  */
 export interface BrandBlock {
   description: string | null;

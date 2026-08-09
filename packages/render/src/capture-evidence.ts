@@ -2,8 +2,8 @@ import type { Provenance } from "@uidna/schema";
 
 /**
  * `CaptureEvidence` — the typed INPUT PORT by which ui-dna consumes
- * judgment-engine's rendered-evidence artifacts (PRD §4, §7; ECOSYSTEM /
- * core #103 DECISION-3). The engine OWNS capture (Playwright viewports, DOM
+ * judgment-engine's rendered-evidence artifacts (PRD §4, §7). The engine OWNS
+ * capture (Playwright viewports, DOM
  * geometry, a11y + computed-style, screenshot storage, phash); ui-dna OWNS
  * reconciliation and reads it through this seam. **This repo never runs a
  * browser** — these are plain serializable types describing already-captured

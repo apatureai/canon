@@ -73,11 +73,9 @@ for (const status of ["effective", "superseded", "revoked"]) {
 
 const golden = {
   description:
-    "Shared authority-status golden vectors (ui-dna#72 / #64). UI-DNA is the sole authority; " +
-    "Source of Truth, DNA Consultant, and Judgment Engine mirror this file BYTE-IDENTICALLY and " +
-    "assert their (effective|revoked) handling against it, so all four consumers converge on one " +
-    "mirror source. Regenerate only in ui-dna (packages/store/test/authority-golden.test.ts " +
-    "documents how); never hand-edit a downstream copy.",
+    "Authority-status golden vectors: the admission matrix for the append-only hash-chained " +
+    "authority log and the read decision for every (status, mode) pair. Regenerate with " +
+    "packages/store/scripts/generate-authority-golden.mjs; never hand-edit this file.",
   contractVersion: AUTHORITY_CONTRACT_VERSION,
   scenarios: {
     withdrawalDrill: replay([a1, a2]),

@@ -3,7 +3,7 @@
  * Tailwind, tokens.json) normalizes into a flat `TokenMap` of name -> string
  * value before it is classified into the canonical `DnaTokens` groups and
  * stamped with confidence + provenance. Ported from judgment-engine's proven
- * `@engine/context` so UI DNA owns the canonical genome (see LOOP.md reuse note).
+ * `@engine/context` so UI DNA owns the canonical genome.
  */
 export type TokenMap = Record<string, string>;
 

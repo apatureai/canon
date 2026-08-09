@@ -17,13 +17,13 @@ import type { SnapshotStore } from "./store.js";
  * / token-groups a PR touches — the diff→route output of #7), return only the
  * RELEVANT slices of the approved genome (the tokens, conventions, anchors,
  * exceptions, identity that bear on those surfaces) instead of the whole
- * snapshot. This keeps the genome the source of grounding (the moat per §2)
+ * snapshot. This keeps the genome the source of grounding
  * while bounding what the engine has to read.
  *
  * Retrieval is over the APPROVED, version-pinned snapshot served by the #25 read
  * contract (`getSnapshot`) — a draft/in_review snapshot is NEVER retrieved (the
  * `isApproved` gate is reused, not re-implemented). The returned `dnaVersion`
- * lets the engine stamp the review (ADR-006 version stamping). Excepted routes
+ * lets the engine stamp the review. Excepted routes
  * (#24) in scope are annotated so critique does not flag intentional deviation.
  *
  * Pure + deterministic over a fixture snapshot: same query + same approved
@@ -63,7 +63,7 @@ export interface AnnotatedException extends DnaException {
 export interface GenomeSlice {
   contract: ContractVersion;
   repo: string;
-  /** The approved version this slice was cut from — the engine stamps the review with it (ADR-006). */
+  /** The approved version this slice was cut from — the engine stamps the review with it. */
   dnaVersion: string;
   /** Product identity always bears on judgment (small, sets tone/dos/donts) — carried whole. */
   identity: ProductIdentity;

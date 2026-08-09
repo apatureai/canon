@@ -1,40 +1,28 @@
-# Apature UI DNA - Product Requirements Document
+# UI DNA — design and scope
 
-Created: 2026-06-15
-Source: extracted from `apature-systems/core` PRD as of 2026-06-15.
+Written June 2026; archived unmaintained. This is the original product spec. It
+describes intent at the time of writing, including scope that was never built —
+read it as the plan, not as a description of the code.
+
+Three parts were removed for the public archive because they were commercial
+rather than technical: §2 (company role / defensibility), the buyer subsection
+of §3, and §9 (business success metrics). Section numbering is therefore gapped,
+and a handful of source comments cite `PRD §2` or `PRD §9` and no longer resolve
+to anything here.
 
 ## 1. Product Summary
 
 Apature UI DNA extracts a canonical model of what a product is supposed to look and behave like. It turns an existing codebase and rendered app into a versioned design genome: tokens, component conventions, spacing and type distributions, color usage, brand tone, and rendered visual evidence.
 
-UI DNA is the shared asset beneath Gate, MCP Review, Entropy Engine, Source of Truth, and DNA Consultant.
+UI DNA is the shared genome consumed by the other Apature components: the design review gate, the MCP review server, drift consolidation, upstream serving to agents, and continuous consulting.
 
-## 2. Company Role
-
-The company is not defended by calling a vision model. It is defended by owning per-team design judgment data and the canonical UI DNA that judgment is grounded against.
-
-UI DNA turns onboarding from "please write a brand block" into "we extracted your product's actual design language; confirm or correct it."
-
-This asset compounds:
-
-- Gate judges PRs against it.
-- MCP Review rechecks fixes against it.
-- Entropy Engine consolidates drift toward it.
-- Source of Truth serves it upstream to agents.
-- DNA Consultant carries it forward continuously.
-
-## 3. Users And Buyers
+## 3. Users
 
 Primary users:
 
 - Teams installing Apature products.
 - Design-system maintainers who need the actual UI standard captured.
 - Engineering teams whose codebase has implicit design rules not written down.
-
-Buyer:
-
-- Indirect in v1, bundled with Gate.
-- Direct in enterprise onboarding once the extraction and sign-off workflow is strong enough.
 
 ## 4. Scope
 
@@ -109,29 +97,10 @@ Required controls:
 
 - Read-only repository access.
 - No code writes.
-- Screenshot retention follows the customer's Apature tier.
+- Screenshot retention is configurable per deployment.
 - Provenance stored without leaking private source content into logs.
 - Customer controls which routes become canonical visual anchors.
 - Enterprise path supports self-hosted extraction and model inference.
-
-## 9. Success Metrics
-
-Activation:
-
-- Percentage of Gate installs that produce a DNA draft.
-- Time from install to approved DNA.
-
-Quality:
-
-- Team acceptance rate of extracted DNA fields.
-- Number of manual edits required before sign-off.
-- Reduction in generic brand configuration needed.
-
-Downstream value:
-
-- Gate precision improvement with DNA enabled.
-- Entropy findings accepted.
-- Source of Truth queries answered from approved DNA.
 
 ## 10. Open Risks
 
