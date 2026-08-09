@@ -1,0 +1,25 @@
+/* Hand-written global stylesheet: the tokens the app actually ships with.
+   Two of these deliberately disagree with src/theme.css so that
+   `ui-dna context` has a real conflict to reconcile. */
+:root {
+  --color-brand: #0a58ca;
+  --color-surface: #ffffff;
+  --color-text: #0a0a0a;
+  --color-muted: #6b7280;
+  --radius-card: 10px;
+  --radius-control: 6px;
+  --space-gutter: 16px;
+  --font-sans: Inter, system-ui, sans-serif;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --duration-fast: 120ms;
+}
+
+.dark {
+  --color-surface: #0a0a0a;
+  --color-text: #f5f5f5;
+}
+
+/* Component-scoped custom properties are not design tokens and are ignored. */
+.data-grid__cell {
+  --cell-padding: 6px;
+}

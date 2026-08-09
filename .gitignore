@@ -11,3 +11,6 @@ coverage/
 *.log
 .eslintcache
 .pnpm-store/
+
+# Quickstart output (ui-dna context --out out/genome.json)
+out/

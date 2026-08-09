@@ -1,0 +1,14 @@
+{
+  "name": "sample-project",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Synthetic front-end project used as input for `ui-dna context`. Nothing here is installed or built; only its design-system files are read.",
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
+    "class-variance-authority": "^0.7.1",
+    "react": "^19.1.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

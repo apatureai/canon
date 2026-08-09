@@ -35,8 +35,8 @@ pnpm clean       # tsc -b --clean
 ```
 
 Lint, typecheck and test are exactly what CI runs (`.github/workflows/ci.yml`). As of the last
-verified run on Node 24.14.0 the tree is green — lint clean, typecheck clean, **424 tests across
-48 files in about 2 seconds**. If something fails right after a clean clone, suspect your Node or
+verified run on Node 24.14.0 the tree is green — lint clean, typecheck clean, **461 tests across
+53 files in about 2 seconds**. If something fails right after a clean clone, suspect your Node or
 pnpm version first.
 
 ### The one extra script
@@ -49,7 +49,7 @@ latency and peak heap. It needs network access to `api.github.com`; set `GITHUB_
 
 ## Layout
 
-Six workspace packages under `packages/`, wired with TypeScript project references:
+Seven workspace packages under `packages/`, wired with TypeScript project references:
 
 | Package | What it owns |
 | --- | --- |
@@ -59,6 +59,7 @@ Six workspace packages under `packages/`, wired with TypeScript project referenc
 | `@uidna/reconcile` | Merges code/config/pixel evidence for one logical field into a single resolved fact plus a recorded conflict trail. |
 | `@uidna/store` | Immutable, content-addressed genome snapshots per repo; sign-off workflow; the authority/revocation log; the versioned downstream read contract; the design↔code drift gate. |
 | `@uidna/eval` | Measures the precedence ladder instead of assuming it: reconciliation precision/recall and confidence calibration (ECE/Brier) over labeled fixtures, with a CI floor. |
+| `@uidna/cli` | The `ui-dna` command line. The ONLY package that reads the filesystem; every other package takes strings and returns facts. Keep it that way when adding an extractor: parse in `context`, read the bytes here. |
 
 Tests live in each package's `test/` directory next to `src/`. A hard rule the codebase follows
 throughout: **tests never call a real model, launch a real browser, or hit the network** —
@@ -70,7 +71,7 @@ everything runs against stubs and fixtures. Please keep it that way.
   `.js` extension.
 - Each package has its own `tsconfig.json` and is wired into the root `tsc -b` project-reference
   graph. Dependencies flow strictly downward: `schema` → `context`/`render` → `reconcile` →
-  `store`/`eval`.
+  `store`/`eval`/`cli`.
 - The schema is the contract. Extractors fill it, consumers read it; nothing invents a second
   wire shape for the same data.
 - **Determinism is a requirement, not a nicety.** The same inputs must produce byte-identical
@@ -78,13 +79,15 @@ everything runs against stubs and fixtures. Please keep it that way.
   than wall-clock TTL. Several golden fixtures assert exactly this.
 - Lint runs with `--max-warnings=0`; a warning fails the build.
 
-## Reading the historical docs
+`examples/` holds synthetic inputs for the CLI — a sample DTCG token file and a sample project.
+They are fixtures the README's transcripts and `packages/cli/test` both run against, so changing
+one means updating both.
 
-[`docs/DESIGN.md`](docs/DESIGN.md) is the original product spec. It describes intent and scope at
-the time of writing, including scope that was never built, and it is not a description of the
-maintained state of anything. Bare `#N` markers in source comments and commit messages refer to
-issues in a private tracker that is not part of this release; they are retained as provenance and
-cannot be resolved from here. Treat all of it as context, not as instructions.
+## Reading the source
+
+Bare `#N` markers in source comments and commit messages refer to issues in a private tracker that
+is not part of this release; they are retained as provenance and cannot be resolved from here.
+Treat them as context, not as instructions.
 
 Commit messages here are plain prose with no attribution trailers; match that style if you are
 continuing the history in a fork.

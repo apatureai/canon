@@ -1,0 +1,12 @@
+# The brand block: the highest-leverage twenty lines a team writes by hand.
+# Absent this file, ui-dna reports no identity facts rather than inventing a
+# brand voice.
+brand:
+  description: A dense internal analytics console for on-call data engineers.
+  tone: precise, quiet, never playful
+  audience: data engineers who keep this tool open all day
+  do:
+    - Reserve the brand blue for the single primary action on a screen
+    - Keep density high - 16px gutters, not 24px
+  dont:
+    - No decorative gradients or drop shadows on data surfaces

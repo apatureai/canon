@@ -1,0 +1,12 @@
+{
+  "$description": "A designer's DTCG export. `color.accent` points at a token that was renamed on the design side and never republished - ui-dna abstains on it instead of promoting the reference syntax as a value.",
+  "color": {
+    "$type": "color",
+    "brand": { "$value": { "colorSpace": "srgb", "components": [0.184, 0.435, 0.929], "hex": "#2f6fed" } },
+    "accent": { "$value": "{color.brand-secondary}" }
+  },
+  "space": {
+    "$type": "dimension",
+    "gutter": { "$value": { "value": 16, "unit": "px" } }
+  }
+}

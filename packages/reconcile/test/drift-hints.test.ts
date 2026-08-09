@@ -69,6 +69,45 @@ describe("computeDriftHints", () => {
     expect(JSON.stringify(result.tokens)).toBe(snapshotBefore);
   });
 
+  it("names the winning candidate when two candidates share the winning provenance", () => {
+    // Two static files disagreeing about one token are BOTH `code` (a Tailwind
+    // v4 @theme block at 0.7, a :root block at 0.6). The winner is decided by
+    // confidence, so the hint must not simply take the first `code` candidate.
+    const conflicts: Conflict[] = [
+      {
+        field: "tokens.color.--color-brand",
+        candidates: [
+          { value: "#0a58ca", provenance: "code", confidence: 0.6 },
+          { value: "#2f6fed", provenance: "code", confidence: 0.7 },
+        ],
+        winner: "code",
+        confidenceDelta: -0.21,
+      },
+    ];
+    const [hint] = computeDriftHints(conflicts);
+    expect(hint?.standardValue).toBe("#2f6fed"); // the higher-confidence code fact won
+    expect(hint?.driftingValue).toBe("#0a58ca");
+    expect(hint?.message).toBe(
+      'tokens.color.--color-brand: code says "#2f6fed" but code shows "#0a58ca"',
+    );
+  });
+
+  it("breaks a same-provenance, same-confidence tie the way reconcileField does", () => {
+    const conflicts: Conflict[] = [
+      {
+        field: "tokens.spacing.--gap",
+        candidates: [
+          { value: "8px", provenance: "code", confidence: 0.6 },
+          { value: "16px", provenance: "code", confidence: 0.6 },
+        ],
+        winner: "code",
+        confidenceDelta: -0.18,
+      },
+    ];
+    // pickWinner's final tie-break is the lowest value string: "16px" < "8px".
+    expect(computeDriftHints(conflicts)[0]?.standardValue).toBe("16px");
+  });
+
   it("returns an empty list when there are no conflicts (agreement case)", () => {
     const tokens = emptyTokens();
     tokens.spacing["--space-4"] = fact("16px", 0.8, "config");

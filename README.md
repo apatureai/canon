@@ -1,247 +1,416 @@
 # ui-dna
 
-**Archived.** This was part of Apature, a commercial design-review product that has been wound
-down. The code is released as-is under the MIT license. It is not actively developed, and issues
-and pull requests are unlikely to be reviewed. Everything below describes what the code actually
-does, including the parts that were never finished.
+**Archived — provided as-is, no updates expected.** Issues and pull requests are not monitored. Last verified working 2026-08-09 on macOS 14 (Darwin 24.6) + Node v24.14.0 + pnpm 9.15.0.
 
----
+A command line and TypeScript libraries that read a codebase's *de facto* design system — colors, spacing, type scale, radii, component conventions, brand voice — out of its own files.
 
-`ui-dna` is a set of six TypeScript libraries for extracting a codebase's *de facto* design
-system — the colors, spacing, type scale, radii, component conventions and brand voice a product
-actually uses — into a single typed, versioned data structure, and then serving that structure to
-other tools as a stable read contract.
+## Why this exists
 
-**Read this before you read anything else:** these are composable pure functions, not a program.
-There is no CLI, no server, no `bin`, and no orchestrator that points this at a repository and
-produces a genome. Nothing in `packages/*/src` reads the filesystem, opens a socket, launches a
-browser, or reads an environment variable — you supply the file contents, you get typed facts
-back. The orchestration that composed these into a product lived in a private repo that is not
-part of this release. See [Limits](#limits-and-what-never-shipped) before investing time.
+`ui-dna` was one component of Apature, a GitHub-native design reviewer that critiqued a pull
+request's rendered UI against the repository's own design system. It answered the question "against
+*what* standard?", so a review could cite the team's own tokens rather than a generic opinion. The
+product was wound down; this repository is released under MIT as a working snapshot.
 
-What is genuinely reusable outside Apature is concentrated in **`packages/context`**: a strict
-DTCG Format Module 2025.10 token resolver, Tailwind v3/v4 and CSS custom-property extractors, and
-a Next.js changed-files→affected-routes mapper. `packages/store` and `packages/render` are
-included for completeness but only made sense inside Apature's multi-repo system.
+The interesting part was never "parse a Tailwind config". It is what to do when a repository's
+design sources contradict each other — and how to produce something a team would agree to be
+gated on.
 
-## What it produces
+## What it does
 
-The output artifact is a **design genome**: a `DnaSnapshot`, an immutable, content-addressed
-record of one repository's design standard at one point in time. Extraction draws on two very
-different kinds of evidence — static sources in the repo (Tailwind config, CSS custom properties,
-DTCG/Style Dictionary token files, `package.json` dependencies, a `.designreview.yml` brand
-block) and rendered evidence from a real browser run (DOM geometry, computed styles,
-screenshots). Those two disagree constantly. Reconciling them honestly — and recording *how* they
-disagreed instead of silently picking a winner — is what this repo is about.
+- Resolves a **DTCG Format Module 2025.10** token file from disk: chained curly aliases,
+  same-document RFC 6901 `$ref` including property-level references, `$root`, group `$extends`,
+  inherited types, deterministic derivation chains — and 11 diagnostic codes for everything it
+  refuses to resolve.
+- Extracts a design system from a **project directory**: CSS custom properties (including
+  `.dark` / `[data-theme]` / `prefers-color-scheme` scopes), Tailwind v4 `@theme` blocks,
+  Tailwind v3 configs, DTCG/Style Dictionary token files, component libraries from
+  `package.json`, and a hand-written `.designreview.yml` brand block.
+- **Reconciles** sources that disagree: resolves the value by provenance precedence, computes
+  confidence separately (agreement reinforces, disagreement degrades), and records every
+  candidate it considered instead of silently picking one.
+- Emits a **content-addressed context block** and a schema-valid draft genome as JSON, byte-stable
+  across runs.
+- Ships all of the above as a library (`@uidna/schema`, `@uidna/context`, `@uidna/render`,
+  `@uidna/reconcile`, `@uidna/store`, `@uidna/eval`, `@uidna/cli`) with 472 tests that run offline
+  in about three seconds.
 
-Every inferred field carries a confidence score and a provenance tag saying where it came from
-(`code`, `pixels`, `config`, `human`, `feedback`). A genome only becomes readable by downstream
-consumers after a human signs it off.
+## What it does not do
 
-## Why it is technically interesting
+- It never runs a browser, takes a screenshot, or calls a model. Rendered evidence enters as data
+  through a typed input port; the capture side lived in another repository.
+- It never edits your code. It reads and reports.
+- It does not persist anything. The only `SnapshotStore` implementation is in-memory.
 
-The interesting part is not "parse a Tailwind config". It is the set of decisions about what to
-do when evidence sources contradict each other, and how to make the result something a team is
-willing to be gated on.
+Details, with the seam to build against for each gap, are in
+[Limitations](#limitations--not-implemented).
 
-**A precedence ladder that splits value from confidence.** When several sources claim a value for
-one field, the naive design is "highest-trust source wins" and the rest is discarded.
-`reconcileField` instead resolves the *value* by precedence — human sign-off > config > extracted
-code > observed pixels, so what a browser renders never silently overwrites a declared token —
-while computing *confidence* separately. Agreement between two independent sources reinforces
-confidence above what either source alone would justify (bounded below 1.0, which is reserved for
-human sign-off). Disagreement keeps the winning value but degrades its confidence in proportion
-to how strong the dissent was, and emits a `Conflict` recording every candidate considered. Every
-tunable in that ladder lives in one file (`packages/reconcile/src/thresholds.ts`) precisely so
-`@uidna/eval` can measure and calibrate them against labeled fixtures rather than leaving them as
-taste.
+## Requirements
 
-**The conflict trail is the product.** A conflict is not an error to be suppressed. It is
-promoted into an advisory `DriftHint` that says, in words, `config says X but pixels show Y`, or
-flags a *dead token* — a value the codebase declares but that never appears in anything rendered.
-Drift hints never mutate the resolved genome and never canonize the drifting value.
+| Tool | Floor | Check | Notes |
+|---|---|---|---|
+| Node | `>=24 <25` | `node -v  # need v24.x` | `.node-version` pins 24. Type stripping and `worker_threads` are both used. |
+| pnpm | 9.15.0 | `pnpm -v  # need 9.15.0` | Install with `corepack enable pnpm` or `npm i -g pnpm@9.15.0`. |
 
-**Determinism as a hard constraint.** The same repository state must produce a byte-identical
-genome. Serialization sorts keys and arrays recursively and contains no timestamps; caches are
-invalidated by content hash, never by wall-clock TTL. Version identity is the SHA-256 of the
-genome content folded with only the *causal* stamps that can legitimately change it (schema
-version, extraction version, model version) plus the immutable lifecycle state — and nothing
-incidental. Recommitting identical content is idempotent and returns the existing version.
+Tested on macOS 14 (Darwin 24.6.0). CI runs the same commands on `ubuntu-latest`. Windows is
+untested.
 
-That last clause was learned the hard way, and the fix is worth reading: content-only identity
-meant that approving a genome without editing anything produced the same hash as the unapproved
-draft, so an approval could collide with, and resolve to, the draft record. Lifecycle state is
-now part of identity (`packages/store/src/version-identity.ts`, `STORE_VERSION = "2"`).
+No credentials, no network, no browser, no model. Dependencies are pinned and `pnpm-lock.yaml` is
+committed, so `--frozen-lockfile` reproduces the tree this was verified on.
 
-**Approval is revocable without mutating anything.** `ApprovalState` is terminal at `approved`
-and an approved snapshot is never edited. But approvals do need to be withdrawn — a bad sign-off,
-a compromised account, a screenshot anchor that turned out to contain something sensitive. So
-authority lives in a separate append-only, hash-chained event log keyed by
-`(tenant, repo, dnaVersion)`, where each event pins its predecessor's hash so reordering,
-dropping, or backdating an event is detectable. Reads fail closed and *non-enumerating*: a
-revoked version is indistinguishable from a version that never existed. A `superseded` version
-stays readable when pinned explicitly (so an old review stays reproducible) but is skipped by
-`latest`.
+## Install
 
-**A design↔code drift gate that is fair to the PR author.** Given a designer's DTCG token export
-and the genome extracted from code, `computeDesignCodeDrift` treats design as authoritative and
-classifies every divergence as `value_mismatch`, `missing_in_code`, or `undocumented_in_design`.
-Two things make it usable in CI rather than merely correct. First, `diffDrift` partitions drift
-into introduced / resolved / persisting against the base branch, and the verdict gates on the
-*introduced* set only — a change is never blocked by pre-existing design debt it did not create.
-Second, `reviewDesignSourceDrift` refuses to gate at all on a malformed design export: an
-unparseable export yields an empty design genome, and gating an empty design against real code
-would flag *every* token as undocumented. A loud, confidently wrong verdict is worse than an
-abstention, so it returns a typed refusal.
-
-**A DTCG profile that abstains instead of guessing.** `@uidna/context` implements the Design
-Tokens Community Group Format Module 2025.10 profile: chained curly aliases, same-document
-RFC 6901 `$ref` including property-level references, `$root`, group `$extends`, inherited types,
-deterministic derivation chains. Unresolved, circular, type-mismatched, external, or over-budget
-references produce explicit diagnostics and never become facts. The Resolver Module's sets,
-modifiers and remote sources are deliberately disabled — enabling them would require an injected
-sandboxed allowlisted loader and a versioned profile change. The full profile and its measured
-baseline against 20 real public token files are in
-[`packages/context/DTCG_PROFILE.md`](packages/context/DTCG_PROFILE.md).
-
-**A hard architectural boundary: this repo never runs a browser.** Rendered evidence enters
-through `CaptureEvidence`, a plain serializable input port describing artifacts that some other
-process already captured. Everything here is a pure function over data. That is why the entire
-test suite runs offline in about two seconds with no browser, no model, no network and no
-credentials.
-
-## Where it sat in the Apature stack
-
-Apature was a GitHub-native design reviewer: it screenshotted a pull request's preview deploy,
-critiqued the rendered UI against the repo's own design system with a vision-language model, and
-posted an annotated review. Its stated boundary was that it judges and verifies but never edits
-code or drives the UI — "the eyes, not the hands". `ui-dna` is the component that answers
-"against *what* standard?", so that a review cites the team's own design system instead of a
-generic opinion.
-
-The other repos in the archive release:
-
-- [judgment-engine](https://github.com/apatureai/judgment-engine) — capture, grounded critique,
-  eval and feedback substrate. It **produces** the rendered artifacts that arrive here as
-  `CaptureEvidence`, and **consumes** approved genome slices to ground its critique. The static
-  extractors in `@uidna/context` were originally built in that repo's `@engine/context` and
-  ported here, with `ui-dna` intended as the canonical owner.
-- [gate](https://github.com/apatureai/gate) — the GitHub PR review surface; judges a PR against
-  an approved genome.
-- [mcp-review](https://github.com/apatureai/mcp-review) — the same review, in-loop over MCP for
-  coding agents.
-- [entropy-engine](https://github.com/apatureai/entropy-engine) — scans a codebase for design
-  drift against an approved genome and plans consolidation.
-- [ui-graph](https://github.com/apatureai/ui-graph) — a token-efficient, genome-aware scene graph
-  of rendered UI for agents.
-- [sigil](https://github.com/apatureai/sigil) — an unrelated line of work: a fixture-driven model
-  quality/efficiency audit harness.
-
-Nothing here imports any of those repos. The coupling is by data contract only: the
-`SnapshotResponse` wire shape is pinned by a golden fixture
-(`packages/store/test/fixtures/golden-snapshot-response.json`) so a byte-compat test fails if the
-contract changes underneath a consumer. Several other Apature repos referenced in the design
-history are **not** part of this release and are not linked here.
-
-## Repo layout
-
-pnpm workspace, six packages, strict TypeScript with NodeNext ESM and `tsc -b` project
-references. Dependencies flow strictly downward.
-
-```
-packages/
-  schema/      @uidna/schema     the contract every other package speaks
-  context/     @uidna/context    static extraction from repo sources
-  render/      @uidna/render     the rendered-evidence input port
-  reconcile/   @uidna/reconcile  merge code/config/pixels into resolved facts
-  store/       @uidna/store      versioning, sign-off, authority, read contract, drift gate
-  eval/        @uidna/eval       measures whether reconciliation is any good
-```
-
-**`@uidna/schema`** — `DnaSnapshot` and its parts: product identity, tokens (color, typography,
-spacing, radii, shadows, breakpoints, motion), component conventions, visual distributions,
-rendered anchors, exceptions, metadata. `Fact<T>` carries `{ value, confidence, provenance }`.
-`Conflict` records a reconciliation disagreement. Plus `fact()`, `emptyDraft()`, `isApproved()`,
-`validateSnapshot()` and a shared color canonicalizer so the drift gate and the reconciler agree
-on what "the same color" means. `SCHEMA_VERSION = "1"`; evolution is additive-only within a
-version.
-
-**`@uidna/context`** — pure extractors, each split into a source-format parser plus a thin
-`*-dna.ts` that maps its output onto schema facts. Tailwind v3 via Tailwind's own `resolveConfig`
-(behind an injected `ConfigLoader` port, so no customer config is ever evaluated in this
-process), Tailwind v4 `@theme` via PostCSS, CSS custom properties including theme-scoped blocks,
-DTCG/Style Dictionary token files, component-library detection (shadcn/Radix/MUI/Chakra/Mantine
-from `package.json`), the `.designreview.yml` brand block, and changed-file→route mapping for
-Next.js App and Pages routers with an import-graph pass that falls back deterministically when
-resolution coverage is below threshold. Also `serializeContextBlock`/`buildContextBlock`, the
-deterministic content-hash serializer.
-
-The confidence convention these settled on, in descending order: human-authored
-`.designreview.yml` 0.9 > config-declared token files and Tailwind config 0.8 > Tailwind v4
-`@theme` 0.7 > raw CSS custom properties 0.6 > component detection from a dependency being
-present 0.5. 1.0 is reserved for human sign-off.
-
-**`@uidna/render`** — the `CaptureEvidence` port (viewports, DOM geometry rects, computed-style
-and a11y facts, screenshot object-storage refs, perceptual hashes), a validator, a fixture
-capture source, `computeVisualDistributions` (spacing intervals, type scale, color proportions,
-radius patterns, density), and `selectAnchors`, which picks representative screenshot crops and
-honors route allow/deny lists. Screenshot *bytes* are never stored in the genome, only refs.
-
-**`@uidna/reconcile`** — `reconcileField`, `reconcileTokens` (declared tokens × observed
-distributions: confirm, contradict, or surface a strong pixels-only value that no token
-declares), `reconcileComponents` (a detected dependency confirmed or contradicted by observed DOM
-roles and class prefixes), `computeDriftHints`, and `thresholds.ts`.
-
-**`@uidna/store`** — the largest package. Content-addressed immutable versions over an injected
-`SnapshotStore` port; the draft → in_review → approved state machine, where approval applies
-headless JSON `ReviewDecisions` (accept/edit per field path), promotes confirmed facts to
-confidence 1.0 with provenance `human`, and commits a new version; route exceptions that suppress
-drift on surfaces that intentionally deviate; `diffSnapshots` for change detection between
-versions; the versioned `getSnapshot` read contract, which never serves a draft; the append-only
-authority log and revocation semantics; `retrieveGenomeSlice`, which returns only the genome
-slices relevant to the routes/components/token-groups a PR touches, bounded so a broad query
-cannot pull the whole snapshot; a residency/policy layer (tenant entitlement, secret/PII
-scrubbing, retention tiers for anchor refs, redacting access log); the design↔code drift gate and
-its base-vs-head delta, remediation projection, routing node and PR-comment renderer;
-design-source provenance enforcement, which can only ever *remove* blocking authority from a gate
-verdict, never add it; and two named projections — an A2A capability card and a local-check
-profile.
-
-**`@uidna/eval`** — runs reconciliation over labeled fixtures and reports resolved-fact
-precision/recall, conflict-detection recall, and confidence calibration (ECE, Brier, reliability
-bins), with a gate that can fail CI on a floor. Offline and deterministic.
-
-## Quickstart
-
-Requires Node `>=24 <25` (`.node-version` pins 24) and pnpm 9.15.0.
+From a clean clone, in the repository root:
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm build       # tsc -b across all six packages
-pnpm test        # vitest run
-pnpm lint        # eslint . --max-warnings=0
-pnpm typecheck   # same as build
+pnpm build
 ```
 
-CI (`.github/workflows/ci.yml`) runs exactly `lint`, `typecheck`, `test` on pull requests and on
-pushes to `main`, with `permissions: contents: read`.
+`pnpm build` is `tsc -b` across the workspace. The CLI runs from `packages/cli/dist`, so the build
+is part of installation, not an optional step.
 
-Verified on 2026-08-09 against Node v24.14.0 and pnpm 9.15.0: install, lint, typecheck and build
-all succeeded, and `pnpm test` passed **424 tests across 48 files in about 2 seconds**. No
-network, browser, model or credentials were needed.
+**Three ways to invoke it**, all equivalent. The transcripts below use the first because it is the
+one that has no wrapper in the output:
 
-One further script exists and is **not** part of the default gate:
+```bash
+node packages/cli/dist/bin.js tokens examples/sample-tokens.json   # explicit
+pnpm ui-dna tokens examples/sample-tokens.json                     # root script shortcut
+```
 
-- `pnpm eval:dtcg-corpus` — fetches 20 public design-token files from GitHub by immutable blob
-  SHA and checks parse determinism and the 100 ms / 64 MiB ceilings. Requires network access to
-  `api.github.com`; set `GITHUB_TOKEN` (or `GH_TOKEN`) to avoid the 60-requests/hour anonymous
-  rate limit. Deliberately outside CI.
+Nothing here was published to npm, so there is no `npm i -g ui-dna`. If you want the command on
+your `PATH`, symlink the built entry point yourself — it has a shebang and works from any working
+directory:
 
-## A worked example
+```bash
+chmod +x packages/cli/dist/bin.js
+mkdir -p ~/.local/bin                                       # or any directory already on your PATH
+ln -s "$PWD/packages/cli/dist/bin.js" ~/.local/bin/ui-dna
+```
 
-The packages are private workspace packages and were never published to npm, so this is
-in-workspace usage against the built `dist/` output. This example was executed on 2026-08-09; the
-output below is real.
+`dist/` is gitignored, so neither of those steps dirties the tree.
+
+## Quickstart
+
+Two commands, no credentials, about a minute. Run both from the repository root.
+
+### 1. Resolve a token file
+
+```console
+$ node packages/cli/dist/bin.js tokens examples/sample-tokens.json
+ui-dna tokens - examples/sample-tokens.json
+profile        DTCG Format Module 2025.10
+               aliases=true $ref=same-document-only $extends=true
+
+resolved tokens (22)
+  color.brand               color       #2f6fed
+  color.brand-strong        color       #2153ba
+  color.focus-ring          color       #2f6fed  <- #/color/brand/$value
+  color.link                color       #2f6fed  <- color.brand
+  color.link-hover          color       #2f6fed  <- color.brand <- color.link
+  color.surface             color       #ffffff
+  color.text                color       #0a0a0a
+  component.base            dimension   4px  <- space
+  component.button-padding  dimension   16px  <- space <- space.gutter
+  component.gutter          dimension   16px  <- space
+  component.section         dimension   48px  <- space
+  font.sans                 fontFamily  ["Inter","system-ui","sans-serif"]
+  motion.fast               duration    120ms
+  motion.slow               duration    320ms
+  radius.card               dimension   12px
+  radius.control            dimension   6px
+  shadow.card               shadow      {"blur":{"unit":"px","value":3},"color":{"alpha":0.08,"colorS... (--json for the exact value)
+  space.base                dimension   4px
+  space.gutter              dimension   16px
+  space.section             dimension   48px
+  typography.size-body      dimension   16px
+  typography.size-heading   dimension   30px
+
+diagnostics (4)
+  invalid_value         broken.typo  A dimension must contain a finite numeric value and unit.
+  circular_reference    color.loop-a  Circular token alias: color.loop-a -> color.loop-b -> color.loop-a.
+  circular_reference    color.loop-b  Circular token alias: color.loop-b -> color.loop-a -> color.loop-b.
+  unresolved_reference  color.missing  Token alias does not resolve: {color.nowhere}.
+
+  A diagnostic means the token was ABSTAINED, not guessed: it is absent from the
+  resolved list above rather than promoted with its reference syntax as a value.
+```
+
+**Success looks like:** `resolved tokens (22)` and `diagnostics (4)`. The four broken tokens
+(`color.missing`, `color.loop-a`, `color.loop-b`, `broken.typo`) are in the diagnostics list and
+absent from the resolved list — a resolver that reported 26 tokens would have guessed.
+
+### 2. Extract a design system from a project
+
+`examples/sample-project` is a synthetic front-end project. Nothing in it is installed or built;
+only its design-system files are read.
+
+```console
+$ node packages/cli/dist/bin.js context examples/sample-project --out out/genome.json
+ui-dna context - examples/sample-project
+
+sources (6 of 6 files walked)
+  .designreview.yml   brand-identity         -           tone, audience, 2 do, 1 don't
+  design.tokens.json  dtcg-tokens            2 tokens    1 diagnostic(s)
+  package.json        component-libraries    -           2 library: shadcn/ui, radix
+  src/styles.css      css-custom-properties  12 tokens   :root / theme scopes
+  src/theme.css       tailwind-v4-theme      5 tokens    @theme block
+  tailwind.config.js  tailwind-v3-config     -           not evaluated (pass --exec-tailwind-config)
+
+resolved tokens (16)
+  color         7
+  typography    1
+  spacing       2
+  radii         2
+  shadows       1
+  breakpoints   1
+  motion        2
+
+identity facts (5)
+component libraries (2)  shadcn/ui, radix
+
+conflicts (2)
+  tokens.color.--color-brand  resolved "#2f6fed" (code, confidence 0.49)
+      "#0a58ca"  code 0.60  src/styles.css
+      "#2f6fed"  code 0.70  src/theme.css
+      confidence delta -0.21
+  tokens.radii.--radius-card  resolved "12px" (code, confidence 0.49)
+      "10px"  code 0.60  src/styles.css
+      "12px"  code 0.70  src/theme.css
+      confidence delta -0.21
+
+drift hints (2)
+  tokens.color.--color-brand: code says "#2f6fed" but code shows "#0a58ca"
+  tokens.radii.--radius-card: code says "12px" but code shows "10px"
+
+token diagnostics (1)
+  design.tokens.json  unresolved_reference  color.accent  Token alias does not resolve: {color.brand-secondary}.
+
+context block
+  contextVersion  1
+  contentHash     sha256:da5aa778e56a08caea731d4c69672400c78be88d8008aac5267086ab2b2b0a17
+  bytes           2669
+  the hash is content-addressed: identical sources produce an identical hash, and
+  approving or re-versioning the genome does not change it.
+
+wrote draft genome  out/genome.json
+```
+
+**Success looks like:** `sources (6 of 6 files walked)`, `conflicts (2)`, the `sha256:da5aa778…` content hash, and a
+file at `out/genome.json`. Run it twice — the hash is identical, because it is computed over
+canonicalized extracted content with no timestamps in it.
+
+Read one fact out of the genome to see the shape:
+
+```console
+$ node -e "const g=require('./out/genome.json'); console.log(g.tokens.color['--color-brand'], g.identity.tone.value)"
+{
+  value: '#2f6fed',
+  confidence: 0.48999999999999994,
+  provenance: 'code'
+} precise, quiet, never playful
+```
+
+That is the whole idea: every field carries where it came from and how sure the extractor is. The
+brand token's confidence sits *below* either source that declared it, because two files disagreed
+about it — and both candidate values are still in the report.
+
+### Optional: evaluate the Tailwind config
+
+`tailwind.config.js` is executable code, so it is reported but not run unless you ask:
+
+```console
+$ node packages/cli/dist/bin.js context examples/sample-project --exec-tailwind-config | head -12
+ui-dna context - examples/sample-project
+
+sources (6 of 6 files walked)
+  .designreview.yml   brand-identity         -           tone, audience, 2 do, 1 don't
+  design.tokens.json  dtcg-tokens            2 tokens    1 diagnostic(s)
+  package.json        component-libraries    -           2 library: shadcn/ui, radix
+  src/styles.css      css-custom-properties  12 tokens   :root / theme scopes
+  src/theme.css       tailwind-v4-theme      5 tokens    @theme block
+  tailwind.config.js  tailwind-v3-config     348 tokens  evaluated in worker
+
+resolved tokens (364)
+  color         256
+```
+
+The jump from 16 to 364 tokens is Tailwind's default theme, which is part of the project's design
+system whether or not anyone wrote it down. The config is evaluated in a worker thread with a
+timeout: that bounds *failure* (a config that throws or hangs fails the load instead of taking the
+CLI down), not *privilege*. The config runs as ordinary Node code. Only point it at a repository
+you would already run `npm install` in.
+
+The `| head -12` is only there to keep the transcript short — the full report continues with the
+rest of the group counts, the conflicts, and the context block.
+
+### 3. Point it at your own repository
+
+Read this before you do, because a *correct* run on a real project often finds nothing, and the
+report should be the thing that tells you why.
+
+`ui-dna` reads **declared** design tokens. It does not infer a design system from usage: it will
+not mine `p-4 rounded-lg text-slate-900` out of your JSX and call it a spacing scale. Concretely,
+you get tokens from a `:root`/`html`/`.dark`/`[data-theme]` block of `--custom-properties`, a
+literal Tailwind v4 `@theme { … }` block, a DTCG/Style Dictionary token file, or a Tailwind v3
+config **with `--exec-tailwind-config`**. Consuming Tailwind v4 as `@import "tailwindcss"` declares
+nothing in your repository — that theme lives inside the npm package — and a `package.json` only
+contributes component conventions for shadcn/ui, Radix, MUI, Chakra and Mantine.
+
+So a plain Vite/React app that styles entirely in utility classes legitimately reports zero tokens.
+`examples/utility-only-project` is exactly that project, and running it shows what an honest empty
+result looks like:
+
+```console
+$ node packages/cli/dist/bin.js context examples/utility-only-project
+ui-dna context - examples/utility-only-project
+
+sources (3 of 3 files walked)
+  package.json   component-libraries    -           no recognised component library (shadcn/ui, radix, mui, chakra, mantine)
+  src/App.css    css-custom-properties  -           no custom properties in :root/html or a theme scope
+  src/index.css  css-custom-properties  -           no custom properties in :root/html or a theme scope
+
+resolved tokens (0)
+  color         0
+```
+
+Every candidate file the walk opened is listed with the reason it contributed nothing, so `0`
+tokens never has to be diagnosed. `sources (0 of N files walked)` is a different statement — it
+means no candidate file was found at all, and is worth re-checking the path over. `--json` carries
+the same data (`filesWalked`, plus every source including the zero-token ones) for scripts.
+
+If your project *does* declare tokens the report fills in immediately. A Next.js app with the
+shadcn/ui `:root` block and Radix in its dependencies, for instance, reports:
+
+```
+sources (2 of 2 files walked)
+  app/globals.css  css-custom-properties  6 tokens    :root / theme scopes
+  package.json     component-libraries    -           2 library: shadcn/ui, radix
+
+resolved tokens (6)
+  color         5
+  ...
+  radii         1
+```
+
+## Usage
+
+### `ui-dna tokens <file.json>`
+
+Resolve one DTCG token document.
+
+| Flag | Effect |
+|---|---|
+| `--json` | Print `{ profile, tokens, diagnostics }` as JSON. Values are exact and unelided; the report elides long composites. |
+| `--strict` | Exit 2 when any diagnostic was raised. |
+
+### `ui-dna context <directory>`
+
+Walk a project directory, extract every static design source, reconcile them, and build a context
+block.
+
+| Flag | Effect |
+|---|---|
+| `--json` | Print `filesWalked`, every source (including the ones that declared nothing), conflicts, drift hints, diagnostics, the context block and the full genome as JSON. |
+| `--out <file>` | Write the draft `DnaSnapshot` as JSON. Parent directories are created. |
+| `--repo <owner/name>` | Repository identity stamped into the genome. Default `local/<directory name>`. It is part of the hashed content. |
+| `--exec-tailwind-config` | Evaluate `tailwind.config.*` files in a worker thread. Off by default. |
+| `--max-depth <n>` | Directory depth bound. Default 8. |
+| `--max-files <n>` | File count bound. Default 5000. |
+| `--strict` | Exit 2 when any conflict or diagnostic was raised. |
+
+Exit codes: `0` success · `1` usage or IO failure · `2` `--strict` and the report was not clean.
+
+**Which files are read.** `*.css` anywhere (a file whose PostCSS parse finds a real `@theme`
+at-rule is also read as Tailwind v4); `tokens.json`, `design-tokens.json`, `*.tokens.json`
+anywhere; `tailwind.config.{js,cjs,mjs,ts,mts,cts}` anywhere; `package.json` and
+`.designreview.yml` at the scan root only. `node_modules`, `.git`, `dist`, `build`, `out`,
+`coverage`, `.next`, `.nuxt`, `.turbo`, `.cache`, `vendor` and `tmp` are never entered. Files over
+2 MiB and unparseable files are listed as `skipped`, never guessed at.
+
+**Every candidate file is reported, including the ones that declared nothing** — with `0` tokens
+and the reason. The header reads `sources (K of N files walked)`, so "your stylesheets declare no
+tokens" and "no stylesheet was found" are never the same output. A repository with hundreds of
+declaration-free stylesheets gets a bounded sample plus a count in the terminal table; `--json`
+always lists every one.
+
+### The confidence ladder
+
+Every extracted fact is a `Fact<T>` — `{ value, confidence, provenance }`. The conventions these
+settled on, in descending order:
+
+| Source | Provenance | Confidence |
+|---|---|---|
+| Human sign-off during review | `human` | 1.0 (reserved) |
+| `.designreview.yml` brand block | `human` | 0.9 |
+| `tokens.json` / Tailwind config | `config` | 0.8 |
+| Tailwind v4 `@theme` block | `code` | 0.7 |
+| Raw CSS custom properties | `code` | 0.6 |
+| Component library present in `package.json` | `code` | 0.5 |
+
+When several sources claim one field, `reconcileField` resolves the **value** by precedence —
+human > config > code > pixels, so what a browser renders never silently overwrites a declared
+token — and computes **confidence** separately. Agreement between two independent sources
+reinforces confidence above what either alone would justify (bounded below 1.0). Disagreement keeps
+the winning value but degrades its confidence in proportion to the strength of the dissent, and
+emits a `Conflict` listing every candidate. Every tunable lives in one file,
+`packages/reconcile/src/thresholds.ts`, so `@uidna/eval` can measure them against labeled fixtures
+instead of leaving them as taste.
+
+Conflicts are then promoted into advisory `DriftHint`s — `config says X but pixels show Y`, or a
+*dead token* the codebase declares that nothing rendered ever uses. Drift never mutates the
+resolved genome and never canonizes the drifting value.
+
+### The DTCG profile
+
+`resolveTokensJson` implements the stable Design Tokens Community Group
+[Format Module 2025.10](https://www.designtokens.org/TR/2025.10/format/) profile:
+
+- exact JSON token values, inherited types, chained curly aliases, same-document RFC 6901 `$ref`
+  including property-level references, `$root`, and group `$extends`;
+- deterministic alias/extension derivation chains and byte-stable key/token/diagnostic ordering;
+- fail-closed diagnostics for unresolved, circular, type-invalid, malformed, external and
+  over-budget references;
+- classic Style Dictionary `value` nodes remain an explicit compatibility path — they carry
+  `type: null` when undeclared and are not described as DTCG-conformant.
+
+The [Resolver Module](https://www.designtokens.org/TR/2025.10/resolver/)'s sets, modifiers,
+`resolutionOrder`, filesystem sources and remote sources are disabled. A resolver document returns
+`unsupported_resolver_module`; an external `$ref` returns `unsupported_external_reference`.
+Enabling either would require an injected, sandboxed, allowlisted loader and a versioned profile
+change.
+
+Resolved composite values stay structured. `projectTokenValue` is the named lossy string
+projection: colors prefer their preserved `hex`, dimensions and durations preserve value + unit,
+other composites use stable JSON. Invalid reference syntax is never projected into a `Fact`.
+
+Conformance and adversarial goldens in `packages/context/test/fixtures` cover the final 2025.10
+examples and the required failure taxonomy. A separate corpus benchmark
+(`pnpm eval:dtcg-corpus`) fetches 20 public token files from GitHub by immutable blob SHA;
+**it is the only thing in the repository that touches the network** and is deliberately outside
+CI. Baseline recorded 2026-07-12 on Node 25.2.1: 20/20 blobs fetched and parsed, repeated output
+byte-identical, p95 resolution 2.11–3.15 ms, peak heap 17.15–17.54 MiB (ceilings 100 ms / 64 MiB);
+1,629 raw token-shaped nodes yielded 384 strict-profile tokens and 1,223 diagnostics. That last
+number is compatibility evidence, not an accuracy score: most public repositories still use
+pre-2025 scalar `$value` shapes or split aliases across files, and this profile abstains rather
+than stringify them.
+
+### Using it as a library
+
+The packages are private workspace packages and were never published to npm, so the consumption
+path is clone → build → import, or vendor the source you want. Every extractor takes a **string**,
+not a path; `@uidna/cli` is the only package that reads a disk.
+
+The block below is `examples/library-example.ts`, checked in and runnable as-is once `pnpm build`
+has run — extract → reconcile → drift → version → sign off → serve, in one file:
+
+```console
+$ node examples/library-example.ts
+[
+  'tokens.spacing.--spacing-gap: code declares "8px" but it is not observed in rendered reality (dead token)'
+]
+before approval: null
+after approval:  { schemaVersion: '1', storeVersion: '2' } sha256:ef69d6a
+```
 
 ```ts
 import { emptyDraft } from "@uidna/schema";
@@ -258,39 +427,58 @@ draft.distributions = computeVisualDistributions(sampleCaptureEvidence());
 
 const { tokens, conflicts } = reconcileTokens(draft.tokens, draft.distributions);
 draft.tokens = tokens;
-console.log(computeDriftHints(conflicts).map((h) => h.message));
-// [ 'tokens.spacing.--spacing-gap: code declares "8px" but it is not observed
-//    in rendered reality (dead token)' ]
+console.log(computeDriftHints(conflicts).map((hint) => hint.message));
 
 const store = inMemorySnapshotStore();
 const { stored } = await commitSnapshot(store, draft);          // immutable draft version
+
+// Reading before sign-off returns null: a draft genome is never served downstream.
+console.log("before approval:", await getSnapshot(store, "acme/web"));
+
 await approveSnapshot(store, requestReview(stored.snapshot));   // new immutable approved version
 
 const served = await getSnapshot(store, "acme/web");
-// { contract: { schemaVersion: "1", storeVersion: "2" },
-//   repo, dnaVersion, contentDigest: "sha256:…", snapshot }
+console.log("after approval: ", served?.contract, served?.contentDigest.slice(0, 14));
+// served: { contract: { schemaVersion: "1", storeVersion: "2" },
+//           repo, dnaVersion, contentDigest: "sha256:…", snapshot }
 ```
 
-Calling `getSnapshot` before approval returns `null`. That is the point: a draft genome is never
-visible downstream.
+That `null` before approval is the point: a draft genome is never visible downstream.
 
-Note that you must read the CSS file yourself — `extractCssTokens` takes a string, not a path.
-That is true of every extractor in the repo.
+**Where the `@uidna/*` specifiers resolve.** Inside this repository they resolve everywhere,
+including the root, because the root `package.json` declares the workspace packages as
+dependencies — which is why the file above runs from the repository root with no extra setup. They
+resolve to `packages/<name>/dist`, so `pnpm build` is a prerequisite. **Outside** this repository
+they resolve nowhere: nothing was published to npm. Copy the file into your own project and you
+must rewrite each `@uidna/x` to a path into the built package, e.g.
+`import { emptyDraft } from "/abs/path/to/ui-dna/packages/schema/dist/index.js";`.
 
-## Architecture
+`packages/cli/test/library-example.test.ts` executes this example on every `pnpm test`, so it
+cannot rot into a snippet that no longer runs.
+
+## Configuration
+
+The library and CLI read **no environment variables at all**. The one exception is outside the
+default gate:
+
+| Variable | Required | Default | Effect |
+|---|---|---|---|
+| `GITHUB_TOKEN` / `GH_TOKEN` | No | unset | Used only by `pnpm eval:dtcg-corpus` to raise GitHub's 60-requests/hour anonymous rate limit while fetching the public token corpus. Nothing else in the repository reads it. |
+
+## How it works
 
 ```
-  repo sources                          rendered evidence (captured elsewhere)
-  tailwind.config / @theme              DOM geometry · computed styles
-  CSS custom properties                 a11y facts · screenshot refs · phash
-  tokens.json (DTCG)                             │
-  package.json · .designreview.yml               │
-         │                                       │
-         ▼                                       ▼
-   @uidna/context                          @uidna/render
-   Fact<T> @ code|config|human             Fact<T> @ pixels
-   confidence 0.5–0.9                      VisualDistributions, RenderedAnchor[]
-         └───────────────┬───────────────────────┘
+  repo sources (read by @uidna/cli)          rendered evidence (captured elsewhere)
+  tailwind.config / @theme                   DOM geometry · computed styles
+  CSS custom properties                      a11y facts · screenshot refs · phash
+  tokens.json (DTCG)                                  │
+  package.json · .designreview.yml                    │
+         │                                            │
+         ▼                                            ▼
+   @uidna/context                                @uidna/render
+   Fact<T> @ code|config|human                   Fact<T> @ pixels
+   confidence 0.5–0.9                            VisualDistributions, RenderedAnchor[]
+         └───────────────┬────────────────────────────┘
                          ▼
                   @uidna/reconcile
          value by precedence · confidence by agreement
@@ -309,72 +497,184 @@ That is true of every extractor in the repo.
                                         fair)
 ```
 
-The schema is the contract; every extractor fills it, every consumer reads it. Cross-package
-edges are typed ports (`ConfigLoader`, `CaptureSource`, `SnapshotStore`, `AuthorityStore`,
-`AccessLogger`, `AuthorityStatusResolver`) with in-memory or fixture implementations in this
-repo, so nothing in the test suite touches real infrastructure.
+pnpm workspace, seven packages, strict TypeScript with NodeNext ESM and `tsc -b` project
+references. Dependencies flow strictly downward.
 
-## Limits and what never shipped
+```
+packages/
+  schema/      @uidna/schema     the contract every other package speaks
+  context/     @uidna/context    static extraction from repo sources
+  render/      @uidna/render     the rendered-evidence input port
+  reconcile/   @uidna/reconcile  merge code/config/pixels into resolved facts
+  store/       @uidna/store      versioning, sign-off, authority, read contract, drift gate
+  eval/        @uidna/eval       measures whether reconciliation is any good
+  cli/         @uidna/cli        the filesystem entry point (`ui-dna`)
+examples/      sample-tokens.json, sample-project/ (a rich synthetic project),
+               utility-only-project/ (one that declares nothing), library-example.ts
+scripts/       dtcg-corpus-benchmark.mjs — the network-touching corpus check
+```
 
-Be clear-eyed about what this is. It is a well-tested set of pure libraries and a set of design
-decisions. It is not a running system.
+**`@uidna/schema`** — `DnaSnapshot` and its parts: product identity, tokens (color, typography,
+spacing, radii, shadows, breakpoints, motion), component conventions, visual distributions,
+rendered anchors, exceptions, metadata. `Fact<T>` carries `{ value, confidence, provenance }`;
+`Conflict` records a reconciliation disagreement. Plus `fact()`, `emptyDraft()`, `isApproved()`,
+`validateSnapshot()` and a shared color canonicalizer so the drift gate and the reconciler agree on
+what "the same color" means. `SCHEMA_VERSION = "1"`; evolution is additive-only within a version.
 
-- **No CLI, no server, no HTTP or MCP endpoint, no database, no UI.** There is no entry point
-  that points this at a repository and produces a genome, and no filesystem access anywhere in
-  the library source. `emptyDraft()` is only ever called from tests. The orchestration lived in a
-  private repo that is not part of this release. The design doc's headline goal — "a useful DNA
-  draft for a real frontend repo in under ten minutes" — was never demonstrated end to end from
-  this repo.
-- **All six packages are `private: true` at version `0.0.0`** and were never published to npm.
-  The only consumption path is clone → `pnpm install` → `pnpm build` → import from
-  `packages/<name>/dist`, or vendor the source you want.
-- **The only `SnapshotStore` implementation is in-memory.** Persistent object storage was left as
-  a port with no adapter. Restarting the process loses every genome.
-- **The Tailwind v3 `ConfigLoader` has no production implementation.** The design assumed a
-  sandboxed worker evaluating `tailwind.config.{js,ts}` in isolation; only a test stub exists
-  here. A `tailwind.config.js` is executable code — do not wire this to `require()` a third-party
-  config without building that sandbox yourself.
-- **Nothing captures rendered evidence.** `CaptureEvidence` is an input port and
-  `fixtureCaptureSource` is a stub. Every test feeds it fixtures. Without `judgment-engine` or an
-  equivalent capture implementation, the `pixels` half of reconciliation has no input and you get
-  static extraction only.
-- **No sign-off UI.** Human review is a headless JSON `ReviewDecisions` document. Something had
-  to render it and collect a human's answer; nothing here does.
-- **The local-check profile targets a surface that never shipped.**
-  `getPointerLocalCheckProfile` and
-  [`docs/pointer-local-check-profile.md`](docs/pointer-local-check-profile.md) describe a
-  projection for a planned live design-copilot client. Its component-hint family is deliberately
-  empty — the genome never owned a stable rendered component signature — and its target-size and
-  contrast entries are marked `policy_default` because they are WCAG defaults, not anything a
-  team asserted.
-- **The A2A agent card is `draft-unapproved`.** It is a descriptor for contracts that already
-  exist, carrying zero new capability, built in anticipation of a registration review that never
-  happened.
-- **Secret/PII scrubbing in the residency layer is pattern-based.** Treat it as defense in depth,
-  not as a guarantee.
-- **The DTCG Resolver Module is unsupported by design**, as are external and remote `$ref`s.
-  Resolver documents return `unsupported_resolver_module`.
-- **The eval harness measures reconciliation against hand-labeled fixtures**, not against real
-  repositories. The precedence weights in `thresholds.ts` were never calibrated on production
-  data; they remain reasoned defaults with the measurement apparatus built around them.
+**`@uidna/context`** — pure extractors, each split into a source-format parser plus a thin
+`*-dna.ts` that maps its output onto schema facts: Tailwind v3 via Tailwind's own `resolveConfig`
+behind an injected `ConfigLoader` port, Tailwind v4 `@theme` via PostCSS, CSS custom properties
+including theme-scoped blocks, DTCG/Style Dictionary token files, component-library detection
+(shadcn/Radix/MUI/Chakra/Mantine), the `.designreview.yml` brand block, and changed-file → route
+mapping for Next.js App and Pages routers with an import-graph pass that falls back
+deterministically when resolution coverage is below threshold. Also `buildContextBlock`, the
+deterministic content-hash serializer.
 
-## Provenance of the code itself
+**`@uidna/render`** — the `CaptureEvidence` port (viewports, DOM geometry rects, computed-style and
+a11y facts, screenshot object-storage refs, perceptual hashes), a validator, a fixture capture
+source, `computeVisualDistributions` and `selectAnchors`. Screenshot *bytes* are never stored in
+the genome, only refs.
 
-This repo was built largely by an autonomous agent loop over roughly five weeks in mid-2026
-(93 commits, 2026-06-15 to 2026-07-23). The loop's runbook and its issue-by-issue progress log
-were internal process documents keyed to a private tracker, and were removed when the repo was
-prepared for release.
+**`@uidna/reconcile`** — `reconcileField`, `reconcileTokens` (declared tokens × observed
+distributions), `reconcileComponents`, `computeDriftHints`, and `thresholds.ts`.
 
-[`docs/DESIGN.md`](docs/DESIGN.md) is the original product spec, trimmed of company-strategy,
-buyer, and business-metric sections. It describes intent, including scope that was never built —
-read it as the plan, not as a description of this code.
+**`@uidna/store`** — the largest package. Content-addressed immutable versions over an injected
+`SnapshotStore` port; the draft → in_review → approved state machine, where approval applies
+headless JSON `ReviewDecisions` and promotes confirmed facts to confidence 1.0 with provenance
+`human`; route exceptions; `diffSnapshots`; the versioned `getSnapshot` read contract, which never
+serves a draft; an append-only hash-chained authority log with revocation semantics;
+`retrieveGenomeSlice`, which returns only the genome slices a PR touches; a residency layer
+(tenant entitlement, pattern-based scrubbing, retention tiers); the design↔code drift gate, its
+base-vs-head delta, remediation projection, routing node and PR-comment renderer; design-source
+provenance enforcement, which can only ever *remove* blocking authority from a verdict; and two
+named projections (an A2A capability card and a local-check profile).
 
-Source comments and historical commit messages carry bare `#N` markers referring to issues in
-that private tracker. They cannot be resolved from the public repository and are retained as
-provenance rather than rewritten. Two corrections recorded in the code are worth reading if you
-want the honest version of how the design moved: the store identity correction in
-`packages/store/src/version-identity.ts`, and the DTCG naming and profile correction in
-`packages/context/DTCG_PROFILE.md`.
+**`@uidna/eval`** — runs reconciliation over labeled fixtures and reports resolved-fact
+precision/recall, conflict-detection recall, and confidence calibration (ECE, Brier, reliability
+bins), with a gate that can fail CI on a floor.
+
+**`@uidna/cli`** — argument parsing, the bounded directory walk (`scan.ts`), the merge into a draft
+genome (`genome.ts`), terminal rendering (`format.ts`), and the worker-backed `ConfigLoader`
+(`tailwind-config-loader.ts` + `worker/tailwind-config-worker.mjs`). `runCli` returns an exit code
+rather than calling `process.exit`, so the tests drive the same entry point a terminal does.
+
+Three design decisions are worth reading the code for:
+
+**Determinism is a hard constraint.** The same repository state must produce a byte-identical
+genome. Serialization sorts keys *and arrays* recursively and contains no timestamps; caches are
+invalidated by content hash, never by wall-clock TTL. Version identity is the SHA-256 of the genome
+content folded with only the *causal* stamps that can legitimately change it — and nothing
+incidental. That last clause was learned the hard way: content-only identity meant approving a
+genome without editing it produced the same hash as the unapproved draft, so an approval could
+collide with, and resolve to, the draft record. Lifecycle state is now part of identity
+(`packages/store/src/version-identity.ts`, `STORE_VERSION = "2"`).
+
+**Approval is revocable without mutating anything.** `ApprovalState` is terminal at `approved` and
+an approved snapshot is never edited, but approvals do need to be withdrawn. Authority lives in a
+separate append-only, hash-chained event log keyed by `(tenant, repo, dnaVersion)`, where each
+event pins its predecessor's hash, so reordering, dropping or backdating an event is detectable.
+Reads fail closed and *non-enumerating*: a revoked version is indistinguishable from one that never
+existed.
+
+**The drift gate is fair to the PR author.** Given a designer's DTCG export and the genome
+extracted from code, `computeDesignCodeDrift` treats design as authoritative and classifies every
+divergence as `value_mismatch`, `missing_in_code` or `undocumented_in_design`. `diffDrift` then
+partitions drift into introduced / resolved / persisting against the base branch and gates on the
+*introduced* set only, so a change is never blocked by pre-existing design debt. And
+`reviewDesignSourceDrift` refuses to gate at all on a malformed export: an unparseable export
+yields an empty design genome, and gating that against real code would flag every token as
+undocumented. A loud, confidently wrong verdict is worse than an abstention, so it returns a typed
+refusal.
+
+## Development
+
+```console
+$ pnpm test
+ Test Files  54 passed (54)
+      Tests  472 passed (472)
+   Duration  1.92s
+```
+
+```bash
+pnpm lint         # eslint . --max-warnings=0
+pnpm typecheck    # tsc -b (same as pnpm build)
+pnpm vitest run packages/cli/test/scan.test.ts    # one file
+pnpm vitest run packages/cli                      # one package
+```
+
+CI (`.github/workflows/ci.yml`) runs exactly `lint`, `typecheck`, `test` on pull requests and
+pushes to `main`, with `permissions: contents: read`.
+
+`pnpm eval:dtcg-corpus` is outside the gate and requires network access to `api.github.com`.
+
+If `node packages/cli/dist/bin.js` reports that it cannot find the module, `pnpm build` has not
+been run.
+
+## Limitations / Not implemented
+
+| Component | Status | Notes |
+|---|---|---|
+| DTCG 2025.10 resolver | Working | `ui-dna tokens`; conformance + adversarial goldens. |
+| Static extraction (CSS, Tailwind v3/v4, DTCG, brand, component libs) | Working | `ui-dna context`. |
+| Reconciliation + drift hints | Working | Static sources only, unless you supply pixel evidence yourself. |
+| Context block + content hashing | Working | `--out` writes a schema-valid draft genome. |
+| Tailwind v3 config evaluation | Working | Worker thread + timeout, behind `--exec-tailwind-config`. Isolation bounds failure, not privilege. |
+| Rendered evidence capture | Not implemented | `CaptureEvidence` (`packages/render/src/capture-evidence.ts`) is an input port; `fixtureCaptureSource` is a stub. Implement `CaptureSource` to feed the `pixels` half. |
+| Snapshot persistence | Not implemented | Only `inMemorySnapshotStore`. The port is `SnapshotStore` in `packages/store/src/store.ts`; restarting loses every genome. |
+| Sign-off UI | Not implemented | Human review is a headless JSON `ReviewDecisions` document (`packages/store/src/sign-off.ts`). Nothing renders it. |
+| Server / HTTP / MCP endpoint | Out of scope | The read contract is a function call, `getSnapshot`. The service that exposed it lived in a private repo. |
+| DTCG Resolver Module, external `$ref` | Out of scope | Returns `unsupported_resolver_module` / `unsupported_external_reference` by design. |
+| npm publication | Not implemented | All seven packages are `private: true` at `0.0.0`. Clone and build, or vendor the source. |
+
+### Caveats
+
+Component-library detection infers conventions from a dependency being present, not from how it is
+used. Route mapping targets Next.js App and Pages routers and nothing else. The residency layer's
+secret and PII scrubbing is pattern-based — defense in depth, not a guarantee. The A2A agent card
+(`packages/store/src/agent-card.ts`) is `draft-unapproved`: it describes contracts that exist and
+carries no new capability. The local-check profile (`getPointerLocalCheckProfile`) targets a
+deterministic offline-check client that never shipped; its component-hint family is deliberately
+empty because the genome never owned a stable rendered component signature, and its target-size and
+contrast entries are marked `policy_default` because they are WCAG defaults, not team assertions.
+The eval harness measures reconciliation against hand-labeled fixtures, not real repositories: the
+weights in `thresholds.ts` are reasoned defaults with the measurement apparatus built around them,
+never calibrated on production data.
+
+Bare `#N` markers in source comments and commit messages refer to issues in a private tracker that
+is not part of this release. They are retained as provenance and cannot be resolved from here.
+
+## The rest of the archive
+
+Nothing here imports any of these; the coupling was by data contract only, and the
+`SnapshotResponse` wire shape is pinned by a golden fixture
+(`packages/store/test/fixtures/golden-snapshot-response.json`) so a byte-compat test fails if the
+contract moves underneath a consumer.
+
+- [judgment-engine](https://github.com/apatureai/judgment-engine) — capture, grounded critique,
+  eval and feedback substrate. It **produced** the artifacts that arrive here as `CaptureEvidence`
+  and **consumed** approved genome slices. The static extractors in `@uidna/context` were built
+  there first and ported here.
+- [gate](https://github.com/apatureai/gate) — the GitHub PR review surface.
+- [mcp-review](https://github.com/apatureai/mcp-review) — the same review, in-loop over MCP.
+- [entropy-engine](https://github.com/apatureai/entropy-engine) — scans a codebase for design drift
+  and plans consolidation.
+- [ui-graph](https://github.com/apatureai/ui-graph) — a token-efficient, genome-aware scene graph.
+- [sigil](https://github.com/apatureai/sigil) — a fixture-driven model quality/efficiency audit
+  harness.
+
+## Contributing
+
+This repository is archived. Pull requests are not accepted and issues are not monitored. Forking
+is the intended path — the license permits it and the test suite runs offline, so a fork can be
+verified in one command. [CONTRIBUTING.md](CONTRIBUTING.md) documents the conventions the code was
+written to, for anyone continuing the history in a fork.
+
+## Security
+
+No credentials, network calls or telemetry exist in the library or CLI code, and the one
+network-touching script is opt-in. Do not point `--exec-tailwind-config` at a repository you do not
+trust. See [SECURITY.md](SECURITY.md) for the threat boundaries; note that no security updates will
+be published for this archived code.
 
 ## License
 

@@ -1,0 +1,9 @@
+/* Tailwind v4 consumed the ordinary way. There is no literal `@theme` block, so
+   there is no author-declared token here for `ui-dna` to read - the theme lives
+   inside the npm package, not in this repository. */
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}

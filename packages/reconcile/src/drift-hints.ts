@@ -46,6 +46,25 @@ function describe(hint: Omit<DriftHint, "message">): string {
   return `${hint.field}: ${hint.standardProvenance} says "${hint.standardValue}" but ${hint.driftingProvenance} shows "${hint.driftingValue}"`;
 }
 
+/**
+ * The candidate that actually won the value.
+ *
+ * `Conflict` records the winner's PROVENANCE, not its index, and two candidates
+ * can legitimately share one — a Tailwind `@theme` block and a `:root` block are
+ * both `code`. Taking the first match would then name the loser as the standard
+ * and invert the entire hint, so this re-applies the tie-break `reconcileField`
+ * used to pick the winner: within the winning provenance, highest confidence,
+ * then lowest value string.
+ */
+function standardCandidate(conflict: Conflict): Conflict["candidates"][number] | undefined {
+  return conflict.candidates
+    .filter((c) => c.provenance === conflict.winner)
+    .sort((a, b) => {
+      if (b.confidence !== a.confidence) return b.confidence - a.confidence;
+      return a.value < b.value ? -1 : a.value > b.value ? 1 : 0;
+    })[0];
+}
+
 /** The strongest candidate whose value differs from the winner's value. */
 function strongestDissenter(
   conflict: Conflict,
@@ -67,7 +86,7 @@ export function computeDriftHints(conflicts: Conflict[]): DriftHint[] {
   const hints: DriftHint[] = [];
 
   for (const conflict of conflicts) {
-    const standard = conflict.candidates.find((c) => c.provenance === conflict.winner);
+    const standard = standardCandidate(conflict);
     const standardValue = standard?.value ?? "";
     const dissenter = strongestDissenter(conflict, standardValue);
     const partial: Omit<DriftHint, "message"> = {

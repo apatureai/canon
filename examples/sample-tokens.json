@@ -1,0 +1,70 @@
+{
+  "$description": "Synthetic DTCG Format Module 2025.10 token file for `ui-dna tokens`. It is deliberately not clean: the last two tokens exist to show what the resolver refuses to promote.",
+  "color": {
+    "$type": "color",
+    "brand": {
+      "$value": { "colorSpace": "srgb", "components": [0.184, 0.435, 0.929], "hex": "#2f6fed" }
+    },
+    "brand-strong": {
+      "$value": { "colorSpace": "srgb", "components": [0.129, 0.325, 0.729], "hex": "#2153ba" }
+    },
+    "surface": {
+      "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" }
+    },
+    "text": {
+      "$value": { "colorSpace": "srgb", "components": [0.039, 0.039, 0.039], "hex": "#0a0a0a" }
+    },
+    "link": { "$value": "{color.brand}" },
+    "link-hover": { "$value": "{color.link}" },
+    "focus-ring": { "$value": { "$ref": "#/color/brand/$value" } },
+    "missing": { "$value": "{color.nowhere}" },
+    "loop-a": { "$value": "{color.loop-b}" },
+    "loop-b": { "$value": "{color.loop-a}" }
+  },
+  "space": {
+    "$type": "dimension",
+    "base": { "$value": { "value": 4, "unit": "px" } },
+    "gutter": { "$value": { "value": 16, "unit": "px" } },
+    "section": { "$value": { "value": 48, "unit": "px" } }
+  },
+  "radius": {
+    "$type": "dimension",
+    "control": { "$value": { "value": 6, "unit": "px" } },
+    "card": { "$value": { "value": 12, "unit": "px" } }
+  },
+  "font": {
+    "$type": "fontFamily",
+    "sans": { "$value": ["Inter", "system-ui", "sans-serif"] }
+  },
+  "typography": {
+    "$type": "dimension",
+    "size-body": { "$value": { "value": 16, "unit": "px" } },
+    "size-heading": { "$value": { "value": 30, "unit": "px" } }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "card": {
+      "$value": {
+        "color": { "colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0.08, "hex": "#000000" },
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 1, "unit": "px" },
+        "blur": { "value": 3, "unit": "px" },
+        "spread": { "value": 0, "unit": "px" }
+      }
+    }
+  },
+  "motion": {
+    "$type": "duration",
+    "fast": { "$value": { "value": 120, "unit": "ms" } },
+    "slow": { "$value": { "value": 320, "unit": "ms" } }
+  },
+  "component": {
+    "$extends": "#/space",
+    "$type": "dimension",
+    "button-padding": { "$value": "{space.gutter}" }
+  },
+  "broken": {
+    "$type": "dimension",
+    "typo": { "$value": { "value": "sixteen", "unit": "px" } }
+  }
+}

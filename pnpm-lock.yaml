@@ -10,6 +10,22 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      '@uidna/context':
+        specifier: workspace:*
+        version: link:packages/context
+      '@uidna/reconcile':
+        specifier: workspace:*
+        version: link:packages/reconcile
+      '@uidna/render':
+        specifier: workspace:*
+        version: link:packages/render
+      '@uidna/schema':
+        specifier: workspace:*
+        version: link:packages/schema
+      '@uidna/store':
+        specifier: workspace:*
+        version: link:packages/store
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -29,6 +45,21 @@ importers:
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@6.4.3(@types/node@26.1.1)(jiti@1.21.7)(yaml@2.9.0))
+
+  packages/cli:
+    dependencies:
+      '@uidna/context':
+        specifier: workspace:*
+        version: link:../context
+      '@uidna/reconcile':
+        specifier: workspace:*
+        version: link:../reconcile
+      '@uidna/schema':
+        specifier: workspace:*
+        version: link:../schema
+      tailwindcss-v3:
+        specifier: npm:tailwindcss@^3.4.19
+        version: tailwindcss@3.4.19(yaml@2.9.0)
 
   packages/context:
     dependencies:

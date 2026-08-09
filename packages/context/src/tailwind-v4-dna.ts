@@ -19,6 +19,8 @@ const THEME_CONFIDENCE = 0.7;
 
 export interface TailwindV4Tokens {
   tokens: DnaTokens;
+  /** True only when an actual `@theme` at-rule was parsed. See `TailwindV4Result`. */
+  hasTheme: boolean;
   /** Path from a `@config "..."` directive, if present (resolve via #1). */
   configPath: string | null;
 }
@@ -29,7 +31,7 @@ export interface TailwindV4Tokens {
  * group are dropped rather than guessed.
  */
 export function extractTailwindV4Tokens(css: string): TailwindV4Tokens {
-  const { tokens: raw, configPath } = extractTailwindV4(css);
+  const { tokens: raw, hasTheme, configPath } = extractTailwindV4(css);
   const tokens = emptyTokens();
 
   for (const [prop, value] of Object.entries(raw)) {
@@ -38,5 +40,5 @@ export function extractTailwindV4Tokens(css: string): TailwindV4Tokens {
     (tokens[group] as Record<string, Fact<string>>)[prop] = fact(value, THEME_CONFIDENCE, "code");
   }
 
-  return { tokens, configPath };
+  return { tokens, hasTheme, configPath };
 }

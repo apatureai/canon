@@ -14,6 +14,13 @@ import type { TokenMap } from "./tokens.js";
  */
 export interface TailwindV4Result {
   tokens: TokenMap;
+  /**
+   * True only when the CSS really contains an `@theme` AT-RULE. A caller must
+   * not infer this from the text `@theme` appearing in the source: it also
+   * appears in comments and prose, and claiming "@theme block" about a file
+   * that has none is a false statement about the reader's repository.
+   */
+  hasTheme: boolean;
   /** Path from a `@config "..."` directive, if present (resolve via #1). */
   configPath: string | null;
 }
@@ -21,10 +28,12 @@ export interface TailwindV4Result {
 export function extractTailwindV4(css: string): TailwindV4Result {
   const tokens: TokenMap = {};
   let configPath: string | null = null;
+  let hasTheme = false;
   const root = postcss.parse(css);
 
   root.walkAtRules((atRule: AtRule) => {
     if (atRule.name === "theme") {
+      hasTheme = true;
       atRule.walkDecls((decl) => {
         if (decl.prop.startsWith("--")) tokens[decl.prop] = decl.value.trim();
       });
@@ -34,5 +43,5 @@ export function extractTailwindV4(css: string): TailwindV4Result {
     }
   });
 
-  return { tokens, configPath };
+  return { tokens, hasTheme, configPath };
 }

@@ -17,7 +17,15 @@
     "clean": "tsc -b --clean",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
+    "ui-dna": "node packages/cli/dist/bin.js",
     "eval:dtcg-corpus": "pnpm typecheck && node scripts/dtcg-corpus-benchmark.mjs"
+  },
+  "dependencies": {
+    "@uidna/context": "workspace:*",
+    "@uidna/reconcile": "workspace:*",
+    "@uidna/render": "workspace:*",
+    "@uidna/schema": "workspace:*",
+    "@uidna/store": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

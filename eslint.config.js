@@ -3,7 +3,9 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "**/*.tsbuildinfo"] },
+  // `examples/` is sample INPUT for the CLI - a foreign project's files, not this
+  // repo's source. It is linted by being read, not by eslint.
+  { ignores: ["**/dist/**", "**/node_modules/**", "**/*.tsbuildinfo", "examples/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

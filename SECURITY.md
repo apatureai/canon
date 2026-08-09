@@ -32,27 +32,31 @@ this" below, and report those upstream.
 ## What this code actually does (so you can size the risk yourself)
 
 This repo is a set of pure TypeScript libraries that turn a frontend project's design information
-into a versioned "design genome": schema types, static token/brand extractors, evidence
-reconciliation, an immutable snapshot store, and an eval harness.
+into a versioned "design genome" — schema types, static token/brand extractors, evidence
+reconciliation, an immutable snapshot store, an eval harness — plus one command line
+(`@uidna/cli`) that reads files from disk and feeds them to those libraries.
 
 The honest risk surface, verified by reading `packages/*/src`:
 
-- **No ambient I/O.** Nothing in the library source reads the filesystem, opens a network
-  connection, spawns a child process, or reads environment variables or credentials. Callers pass
-  content in as strings and plain objects and get values back. There is no server, no CLI daemon,
-  and no browser automation here — rendered evidence arrives through the `@uidna/render` input
-  port as data that some other system captured.
+- **I/O is confined to one package.** Nothing in `@uidna/{schema,context,render,reconcile,store,eval}`
+  reads the filesystem, opens a network connection, spawns a child process, or reads environment
+  variables or credentials: callers pass content in as strings and plain objects and get values
+  back. `@uidna/cli` reads files (bounded by depth, file count and a 2 MiB per-file ceiling) and
+  writes only where `--out` points. There is no server and no daemon, and rendered evidence still
+  arrives through the `@uidna/render` input port as data some other system captured.
 - **It parses untrusted input by design.** CSS and CSS custom properties, DTCG `tokens.json`,
   YAML config, and resolved Tailwind theme objects — all of it originating from somebody else's
   repository. Parsing is regex-heavy in places. Treat every input as hostile: budget CPU/time,
   cap input size, and do not assume adversarial input parses quickly.
-- **One genuinely sharp edge:** `resolveTailwindV3FromFile(path, loader)` in
-  `packages/context/src/tailwind.ts` takes an injected `ConfigLoader`. A `tailwind.config.js` is
-  *executable code*. This repository ships only the `ConfigLoader` interface and the pure
-  resolve/flatten logic — **it does not ship a sandbox**. The worker-isolated production loader
-  referenced in the code comments lived elsewhere and is not part of this archive. If you wire up
-  a real loader, you are executing untrusted third-party code in your own process, and that
-  isolation is entirely your responsibility.
+- **One genuinely sharp edge: evaluating a Tailwind config.** A `tailwind.config.js` is
+  *executable code*. `packages/context/src/tailwind.ts` keeps that behind an injected
+  `ConfigLoader` port, and `packages/cli/src/tailwind-config-loader.ts` ships a real
+  implementation: the config is imported in a `worker_threads` worker with a wall-clock timeout,
+  and the CLI starts that worker only when you pass `--exec-tailwind-config`. **A worker thread is
+  isolation, not a sandbox.** It bounds hangs, throws and stack overflows; it does not remove
+  privilege — the config can still read files, spawn processes and open sockets as your user. Do
+  not point `--exec-tailwind-config` at a repository you would not `npm install`. If you need a
+  real boundary, run the whole CLI in a container.
 - **Secret/PII scrubbing is pattern-based.** `packages/store/src/residency.ts` redacts
   credential- and PII-shaped strings from egress and access logs. It is defense in depth against
   accidental leakage, not a guarantee. The test suite contains deliberately synthetic

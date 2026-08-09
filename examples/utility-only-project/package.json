@@ -1,0 +1,15 @@
+{
+  "name": "utility-only-project",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Synthetic front-end project that declares NO design tokens: Tailwind v4 pulled in with @import, styling done entirely in utility classes, and no component library `ui-dna` recognises. It exists so the honest-empty report has something reproducible to run against.",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
+    "vite": "^6.4.3"
+  }
+}

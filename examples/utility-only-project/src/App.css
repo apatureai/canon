@@ -1,0 +1,11 @@
+/* Every value is written inline against a class. Nothing here is a declared
+   design token: no `--custom-property` in :root, html or a theme scope. */
+.app {
+  display: flex;
+  gap: 1rem;
+}
+
+.card {
+  border-radius: 8px;
+  padding: 12px;
+}

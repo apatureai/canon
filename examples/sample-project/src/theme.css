@@ -1,0 +1,9 @@
+/* Tailwind v4 is CSS-first: the design tokens live in an @theme block.
+   --color-brand and --radius-card here do not match src/styles.css. */
+@theme {
+  --color-brand: #2f6fed;
+  --color-surface: #ffffff;
+  --radius-card: 12px;
+  --breakpoint-wide: 96rem;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
