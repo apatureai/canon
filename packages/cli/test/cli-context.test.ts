@@ -124,6 +124,34 @@ describe("ui-dna context", () => {
       /src\/index\.css\s+css-custom-properties\s+-\s+no custom properties in :root\/html or a theme scope/,
     );
     expect(result.stdout).toContain("resolved tokens (0)");
+    // A bare 0 reads like a broken scan. The report has to say, on the screen the
+    // user is already looking at, that only DECLARED tokens count.
+    expect(result.stdout).toContain("(none declared. ui-dna reads tokens a repository states outright");
+    expect(result.stdout).toContain("not infer a scale from utility classes or from rendered output");
+  });
+
+  it("explains a zero only when files were read, never when the walk found nothing", async () => {
+    // Sources found but nothing declared: explain what "declared" means.
+    const declaredNothing = makeTree({ "src/index.css": ".btn { color: #101010; }" });
+    try {
+      const result = await runCapture(["context", declaredNothing.root]);
+      expect(result.stdout).toContain("resolved tokens (0)");
+      expect(result.stdout).toContain("(none declared.");
+    } finally {
+      declaredNothing.cleanup();
+    }
+
+    // No candidate file at all: the sources block already says so, and repeating
+    // the declaration rule there would answer a question nobody asked.
+    const nothingToRead = makeTree({ "README.md": "# nothing to see" });
+    try {
+      const result = await runCapture(["context", nothingToRead.root]);
+      expect(result.stdout).toContain("sources (0 of 1 files walked)");
+      expect(result.stdout).toContain("resolved tokens (0)");
+      expect(result.stdout).not.toContain("(none declared.");
+    } finally {
+      nothingToRead.cleanup();
+    }
   });
 
   it("distinguishes 'walked your files, they declared nothing' from 'found no files'", async () => {

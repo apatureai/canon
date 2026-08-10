@@ -3,11 +3,26 @@
 **A strict DTCG 2025.10 design-token resolver, and a scanner that reads a project's declared design
 system out of its own files. It abstains and explains instead of guessing.**
 
-Point the CLI at a token file and it tells you exactly which tokens resolve, which ones it refuses
-to resolve, and why. Point it at a project directory and it collects every design source it can
-find (CSS custom properties, Tailwind v3 and v4, DTCG token files, a brand config, component
-libraries in `package.json`), reconciles the ones that disagree with each other, and writes a
-deterministic, content-addressed JSON snapshot with per-field confidence and provenance.
+**Read this before you point it at your own repo.** `ui-dna` reports the design tokens a repository
+*declares*: CSS custom properties in a `:root` / `html` / `.dark` / `[data-theme]` block, a Tailwind
+v4 `@theme` block, a Tailwind v3 config (behind `--exec-tailwind-config`), and DTCG or Style
+Dictionary token files. It does not infer a design system from rendered output or from utility
+classes in your JSX. So a Next.js or Vite app styled entirely in `p-4 rounded-lg text-slate-900`
+declares no tokens and correctly reports **`resolved tokens (0)`**, naming every file it read and
+why each one contributed nothing.
+
+That zero is the design, not a defect. Mining a de facto scale out of class usage would mean
+inventing a design system the team never agreed to, and stamping it with a confidence number that
+means nothing. This tool would rather abstain and say so. [Point it at your own
+repository](#3-point-it-at-your-own-repository) states the rule in full, and [roadmap item
+8](#roadmap) is where usage inference would go if someone designs it properly.
+
+Within that scope it is precise. Point the CLI at a token file and it tells you exactly which
+tokens resolve, which ones it refuses to resolve, and why. Point it at a project directory and it
+collects every design source it can find (CSS custom properties, Tailwind v3 and v4, DTCG token
+files, a brand config, component libraries in `package.json`), reconciles the ones that disagree
+with each other, and writes a deterministic, content-addressed JSON snapshot with per-field
+confidence and provenance.
 
 It never runs a browser, never calls a model, never edits your code, and needs no credentials or
 network access. It reads and it reports.
@@ -70,6 +85,10 @@ No credentials, no network, no browser, no model. `pnpm-lock.yaml` is committed,
 
 Two commands, about a minute, no configuration. Run everything from the repository root.
 
+Steps 1 and 2 run against checked-in fixtures that **do** declare tokens, so a first run shows
+resolution working end to end. Step 3 is the one to read before you point it at your own project,
+because it covers what a repository with no declared tokens returns and why.
+
 ```bash
 git clone https://github.com/apatureai/ui-dna.git
 cd ui-dna
@@ -127,8 +146,10 @@ Add `--json` for exact, unelided values, or `--strict` to exit 2 when any diagno
 
 ### 2. Scan a project
 
-`examples/sample-project` is a synthetic front end. Nothing in it is installed or built; only its
-design sources are read.
+`examples/sample-project` is a synthetic front end that declares tokens three ways at once (a
+`:root` block, a Tailwind v4 `@theme` block and a DTCG token file), plus a Tailwind v3 config that
+is reported but not evaluated unless you ask. That is why this run resolves tokens instead of
+reporting zero. Nothing in it is installed or built; only its design sources are read.
 
 ```console
 $ node packages/cli/dist/bin.js context examples/sample-project --out out/genome.json
@@ -230,7 +251,8 @@ a repository you would already run `npm install` in.
 
 ### 3. Point it at your own repository
 
-Read this first, because a *correct* run on a real project often finds nothing.
+This is the caveat from the top of the README, stated in full, because a *correct* run on a real
+project often finds nothing.
 
 `ui-dna` reads **declared** design tokens. It does not infer a design system from usage: it will not
 mine `p-4 rounded-lg text-slate-900` out of your JSX and call it a spacing scale. Concretely, you
@@ -245,7 +267,7 @@ So a plain Vite/React app that styles entirely in utility classes legitimately r
 looks like:
 
 ```console
-$ node packages/cli/dist/bin.js context examples/utility-only-project | head -9
+$ node packages/cli/dist/bin.js context examples/utility-only-project | head -20
 ui-dna context - examples/utility-only-project
 
 sources (3 of 3 files walked)
@@ -255,11 +277,24 @@ sources (3 of 3 files walked)
 
 resolved tokens (0)
   color         0
+  typography    0
+  spacing       0
+  radii         0
+  shadows       0
+  breakpoints   0
+  motion        0
+  (none declared. ui-dna reads tokens a repository states outright: a :root/html/.dark/
+   [data-theme] custom-property block, a Tailwind v4 @theme block, a DTCG or Style
+   Dictionary token file, or a Tailwind v3 config with --exec-tailwind-config. It does
+   not infer a scale from utility classes or from rendered output, so it abstains here
+   instead of guessing. Each source above states what it contributed.)
 ```
 
-Every candidate file the walk opened is listed with the reason it contributed nothing, so `0` tokens
-never has to be diagnosed. `sources (0 of N files walked)` is a different statement: no candidate
-file was found at all, which usually means the path is wrong.
+The report explains its own zero, so nobody has to find this section to interpret one. Every
+candidate file the walk opened is listed with the reason it contributed nothing, and the
+`(none declared. ...)` note prints whenever files were read but no token was declared.
+`sources (0 of N files walked)` is a different statement: no candidate file was found at all, which
+usually means the path is wrong, and that case prints its own message instead.
 
 ## Usage
 
@@ -523,7 +558,7 @@ A loud, confidently wrong verdict is worse than an abstention, so it returns a t
 ## Status
 
 Verified on 2026-08-09, Node 24.14.0, pnpm 9.15.0: lint clean, typecheck clean,
-**472 tests across 54 files passing** in about 2 seconds, all offline.
+**473 tests across 54 files passing** in about 2 seconds, all offline.
 
 | Area | Status |
 |---|---|
@@ -616,7 +651,7 @@ provenance, not instructions.
 ```console
 $ pnpm test
  Test Files  54 passed (54)
-      Tests  472 passed (472)
+      Tests  473 passed (473)
 ```
 
 ```bash

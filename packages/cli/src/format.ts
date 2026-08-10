@@ -163,6 +163,16 @@ export function formatContextReport(input: ContextReportInput): string {
   const total = counts.reduce((sum, entry) => sum + entry.count, 0);
   lines.push(`resolved tokens (${total})`);
   for (const { group, count } of counts) lines.push(`  ${pad(group, 12)}  ${count}`);
+  if (total === 0 && input.sources.length > 0) {
+    // The files were read; they declared nothing. Say what "declared" means here
+    // rather than leaving a bare 0 that reads like a failed scan. Only a
+    // DECLARATION site counts: utility classes and rendered output are not one.
+    lines.push("  (none declared. ui-dna reads tokens a repository states outright: a :root/html/.dark/");
+    lines.push("   [data-theme] custom-property block, a Tailwind v4 @theme block, a DTCG or Style");
+    lines.push("   Dictionary token file, or a Tailwind v3 config with --exec-tailwind-config. It does");
+    lines.push("   not infer a scale from utility classes or from rendered output, so it abstains here");
+    lines.push("   instead of guessing. Each source above states what it contributed.)");
+  }
   lines.push("");
 
   lines.push(`identity facts (${input.identityStated})`);

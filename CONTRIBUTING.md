@@ -25,7 +25,7 @@ pnpm clean       # tsc -b --clean
 ```
 
 Lint, typecheck and test are exactly what CI runs (`.github/workflows/ci.yml`). Last verified run on
-Node 24.14.0 and pnpm 9.15.0: lint clean, typecheck clean, 472 tests across 54 files in about two
+Node 24.14.0 and pnpm 9.15.0: lint clean, typecheck clean, 473 tests across 54 files in about two
 seconds. If something fails right after a clean clone, suspect your Node or pnpm version first.
 
 Run a subset while iterating:
