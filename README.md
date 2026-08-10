@@ -48,7 +48,7 @@ Details, with the seam to build against for each gap, are in
 
 | Tool | Floor | Check | Notes |
 |---|---|---|---|
-| Node | `>=24 <25` | `node -v  # need v24.x` | `.node-version` pins 24. Type stripping and `worker_threads` are both used. |
+| Node | `>=24` | `node -v  # need v24.x` | `.node-version` pins 24. Type stripping and `worker_threads` are both used. |
 | pnpm | 9.15.0 | `pnpm -v  # need 9.15.0` | Install with `corepack enable pnpm` or `npm i -g pnpm@9.15.0`. |
 
 Tested on macOS 14 (Darwin 24.6.0). CI runs the same commands on `ubuntu-latest`. Windows is

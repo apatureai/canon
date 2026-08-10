@@ -22,7 +22,7 @@ builds and tests offline after install.
 
 Requirements:
 
-- **Node 24.x** (`engines: >=24 <25`, pinned in `.node-version`)
+- **Node 24.x** (`engines: >=24`, pinned in `.node-version`)
 - **pnpm 9.15.0** (pinned via `packageManager`; `corepack enable` will pick it up)
 
 ```bash
