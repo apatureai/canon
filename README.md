@@ -656,8 +656,6 @@ contract moves underneath a consumer.
   there first and ported here.
 - [gate](https://github.com/apatureai/gate) — the GitHub PR review surface.
 - [mcp-review](https://github.com/apatureai/mcp-review) — the same review, in-loop over MCP.
-- [entropy-engine](https://github.com/apatureai/entropy-engine) — scans a codebase for design drift
-  and plans consolidation.
 - [ui-graph](https://github.com/apatureai/ui-graph) — a token-efficient, genome-aware scene graph.
 - [sigil](https://github.com/apatureai/sigil) — a fixture-driven model quality/efficiency audit
   harness.
