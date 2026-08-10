@@ -1,6 +1,6 @@
 {
   "name": "@uidna/reconcile",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "UI DNA reconciliation: merge code/config/pixels evidence for one logical field into a single resolved Fact with a recorded conflict trail. ui-dna owns reconciliation.",

@@ -1,6 +1,6 @@
 {
   "name": "@uidna/render",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "UI DNA rendered-evidence input port: the boundary-clean CaptureEvidence seam by which ui-dna CONSUMES verdict's captured artifacts (DOM geometry, screenshot refs, a11y/computed-style, phash). This repo never runs a browser — capture lives in the engine.",

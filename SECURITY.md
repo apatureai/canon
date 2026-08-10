@@ -2,11 +2,12 @@
 
 ## Supported versions
 
-`ui-dna` has not cut a tagged release yet and nothing is published to a registry: every workspace
-package is `private: true` at version `0.0.0`. Until the first release, **the supported version is
-the current `main` branch**. Fixes land on `main`; if you are running a fork or a vendored copy,
-rebase onto `main` to pick them up. Once packages are published, this section will name the
-supported release lines.
+`ui-dna` is tagged at `v0.1.0`, but nothing is published to a registry: every workspace package is
+still `private: true`, so the only install path is clone and build. **The supported version is the
+current `main` branch.** The `v0.1.0` tag is a point you can cite and diff against, not a
+maintained release line: fixes land on `main` and are not backported to the tag. If you are running
+a fork or a vendored copy, rebase onto `main` to pick them up. Once packages are published, this
+section will name the supported release lines.
 
 ## Reporting a vulnerability
 

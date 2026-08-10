@@ -1,6 +1,6 @@
 {
   "name": "@uidna/schema",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Canonical UI DNA schema: tokens, components, distributions, anchors, exceptions — with per-field confidence + provenance, version metadata, and approval state.",

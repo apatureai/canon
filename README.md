@@ -1,5 +1,7 @@
 # ui-dna
 
+[![CI](https://img.shields.io/github/actions/workflow/status/apatureai/canon/ci.yml?branch=main&label=CI)](https://github.com/apatureai/canon/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/apatureai/canon)](https://github.com/apatureai/canon/blob/main/LICENSE) [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://github.com/apatureai/canon/blob/main/.node-version)
+
 **A strict DTCG 2025.10 design-token resolver, and a scanner that reads a project's declared design
 system out of its own files. It abstains and explains instead of guessing.**
 
@@ -599,8 +601,8 @@ so a new backend has a ready-made conformance suite.
 `ui-dna review` subcommand that walks the low-confidence and conflicting facts in a terminal and
 emits that JSON would be a complete, high-value contribution with no new dependencies.
 
-**4. Publish the packages to npm.** All seven are `private: true` at `0.0.0`. This needs a version
-policy, a changelog and a release workflow, plus a decision about which packages are public API
+**4. Publish the packages to npm.** All seven are versioned `0.1.0` but still `private: true`. This
+needs a changelog and a release workflow, plus a decision about which packages are public API
 (`@uidna/cli` and `@uidna/schema` at minimum). Until then the install path is clone and build.
 
 **5. Serve the read contract.** `getSnapshot` is a function call. An HTTP or MCP server exposing the
