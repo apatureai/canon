@@ -1,7 +1,5 @@
 # ui-dna
 
-**Archived. Provided as-is, no updates expected.** Issues and pull requests are not monitored. Last verified working 2026-08-09 on macOS 14 (Darwin 24.6) + Node v24.14.0 + pnpm 9.15.0.
-
 A command line and TypeScript libraries that read a codebase's *de facto* design system (colors, spacing, type scale, radii, component conventions, brand voice) out of its own files.
 
 ## Why this exists
