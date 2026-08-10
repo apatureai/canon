@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
 
 /** An approved genome carrying a planted secret + PII and multi-route anchors. */
 function genome(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.identity.name = fact("Apature", 1, "human");
   d.identity.audience = fact("reach us at founder@apature.dev", 1, "human"); // PII to scrub
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
@@ -35,7 +35,7 @@ async function approvedStore() {
 
 /** A genome with secret patterns planted in IDENTIFIER / prose fields (keys, names, reasons). */
 function genomeWithSecretIdentifiers(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   // Secret in a token KEY (not just the value).
   d.tokens.color["--key-sk-ABCDEF0123456789XYZ"] = fact("#0a0a0a", 1, "config");
   // Secret in a component NAME / variant / prop.
@@ -67,7 +67,7 @@ async function approvedStoreWith(snapshot: DnaSnapshot) {
   return store;
 }
 
-const REPO = "apatureai/ui-dna";
+const REPO = "apatureai/canon";
 
 function policy(over: Partial<ResidencyPolicy> = {}): ResidencyPolicy {
   return { tenantId: "t1", entitledRepos: [REPO], retention: "retained", ...over };

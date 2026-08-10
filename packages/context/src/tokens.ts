@@ -2,7 +2,7 @@
  * Shared design-token model. Every static extractor (CSS custom properties,
  * Tailwind, tokens.json) normalizes into a flat `TokenMap` of name -> string
  * value before it is classified into the canonical `DnaTokens` groups and
- * stamped with confidence + provenance. Ported from judgment-engine's proven
+ * stamped with confidence + provenance. Ported from verdict's proven
  * `@engine/context` so UI DNA owns the canonical genome.
  */
 export type TokenMap = Record<string, string>;

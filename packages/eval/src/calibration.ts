@@ -1,5 +1,5 @@
 /**
- * Confidence calibration metrics (#28, PRD §9; mirrors judgment-engine #107's
+ * Confidence calibration metrics (#28, PRD §9; mirrors verdict #107's
  * ECE/Brier calibration, but over GENOME facts, not critique findings). A
  * resolved `Fact`'s `confidence` is a probability claim: "I'm 0.8 sure this is
  * the right value." Calibration measures whether that claim holds: is a

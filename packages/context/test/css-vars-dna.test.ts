@@ -48,7 +48,7 @@ describe("extractCssTokens", () => {
   });
 
   it("produces facts that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.tokens = extractCssTokens(`:root { --color-bg: #fff; --space-2: 8px; }`);
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

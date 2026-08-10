@@ -6,7 +6,7 @@
   "description": "A strict DTCG 2025.10 design-token resolver and project scanner that abstains and explains instead of guessing.",
   "license": "MIT",
   "author": "Aditya Prathapa",
-  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git" },
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/canon.git" },
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=24"

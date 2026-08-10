@@ -6,7 +6,7 @@
  * `map`, `maxPerPr`). The measured, bounded import-graph v1.5 path lives in
  * `import-graph-routes.ts`; this module remains its deterministic fallback.
  *
- * Ported from judgment-engine's proven `@engine/context` routes extractor
+ * Ported from verdict's proven `@engine/context` routes extractor
  * and extended with `layout.tsx` child-route mapping per
  * UI DNA issue #7. Pure, deterministic, no IO.
  */

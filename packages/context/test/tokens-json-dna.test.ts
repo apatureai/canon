@@ -92,7 +92,7 @@ describe("extractTokensJson", () => {
   });
 
   it("produces facts that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.tokens = extractTokensJson({ color: { bg: { $value: colorValue("#fff", [1, 1, 1]), $type: "color" } } });
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

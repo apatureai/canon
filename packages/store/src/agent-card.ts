@@ -117,7 +117,7 @@ export function buildUiDnaAgentCard(): ApatureAgentCardV1 {
     status: "draft-unapproved",
     registered: false,
     surface: "ui-dna",
-    repo: "apatureai/ui-dna",
+    repo: "apatureai/canon",
     issuer: "apature",
     cardVersion: "1",
     environment: "unbound",
@@ -132,7 +132,7 @@ export function buildUiDnaAgentCard(): ApatureAgentCardV1 {
       },
       {
         intent: "genome.grounding.retrieve",
-        description: "Retrieve grounding genome slices for judgment-engine critique.",
+        description: "Retrieve grounding genome slices for verdict critique.",
         input: "GenomeQuery",
         output: "GenomeSlice",
         access: "read_only",

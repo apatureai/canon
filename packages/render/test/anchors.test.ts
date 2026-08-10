@@ -73,7 +73,7 @@ describe("selectAnchors", () => {
   });
 
   it("produces anchors that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.anchors = selectAnchors(sampleCaptureEvidence());
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

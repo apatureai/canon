@@ -8,7 +8,7 @@ import { authorizeRead, type AuthorityStatus } from "./authority.js";
 /**
  * Versioned downstream READ contract (#25, PRD §4/§7). ui-dna owns the
  * downstream snapshot contract: it serves the versioned, APPROVED
- * `DnaSnapshot` to consumers (Gate, MCP Review, Entropy Engine, Source of Truth,
+ * `DnaSnapshot` to consumers (Gate, Bastion, Entropy Engine, Source of Truth,
  * DNA Consultant) as a stable, additive-only contract, the surface the engine's
  * genome-grounding retrieval reads through.
  *

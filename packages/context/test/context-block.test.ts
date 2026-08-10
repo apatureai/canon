@@ -8,7 +8,7 @@ import {
 } from "../src/index.js";
 
 function draftFromCss(css: string) {
-  const draft = emptyDraft("apatureai", "ui-dna", "test");
+  const draft = emptyDraft("apatureai", "canon", "test");
   draft.tokens = extractCssTokens(css);
   return draft;
 }
@@ -70,16 +70,16 @@ describe("serializeContextBlock — array order independence (#14)", () => {
   });
 
   it("hashes equal when component arrays differ only in order", () => {
-    const a = emptyDraft("apatureai", "ui-dna", "test");
-    const b = emptyDraft("apatureai", "ui-dna", "test");
+    const a = emptyDraft("apatureai", "canon", "test");
+    const b = emptyDraft("apatureai", "canon", "test");
     a.components = [comp("mui"), comp("radix"), comp("shadcn/ui")];
     b.components = [comp("shadcn/ui"), comp("mui"), comp("radix")]; // reordered, same set
     expect(buildContextBlock(a).contentHash).toBe(buildContextBlock(b).contentHash);
   });
 
   it("hashes equal when identity dos/donts and distribution sequences are reordered", () => {
-    const a = emptyDraft("apatureai", "ui-dna", "test");
-    const b = emptyDraft("apatureai", "ui-dna", "test");
+    const a = emptyDraft("apatureai", "canon", "test");
+    const b = emptyDraft("apatureai", "canon", "test");
     a.identity.dos = [fact("warm colors", 0.9, "human"), fact("legible numbers", 0.9, "human")];
     b.identity.dos = [fact("legible numbers", 0.9, "human"), fact("warm colors", 0.9, "human")];
     a.distributions.spacingIntervals = [4, 8, 16];
@@ -88,8 +88,8 @@ describe("serializeContextBlock — array order independence (#14)", () => {
   });
 
   it("still hashes differently when the array CONTENT differs (not just order)", () => {
-    const a = emptyDraft("apatureai", "ui-dna", "test");
-    const b = emptyDraft("apatureai", "ui-dna", "test");
+    const a = emptyDraft("apatureai", "canon", "test");
+    const b = emptyDraft("apatureai", "canon", "test");
     a.components = [comp("mui"), comp("radix")];
     b.components = [comp("mui"), comp("chakra")]; // different member
     expect(buildContextBlock(a).contentHash).not.toBe(buildContextBlock(b).contentHash);

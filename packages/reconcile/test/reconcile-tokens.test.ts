@@ -85,7 +85,7 @@ describe("reconcileTokens — passthrough + validity", () => {
     const tokens = emptyTokens();
     tokens.spacing["--space-4"] = fact("16px", 0.8, "config");
     const dist = { ...emptyDist(), spacingIntervals: [16], colorProportions: { "#abc": 0.9 } };
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.tokens = reconcileTokens(tokens, dist).tokens;
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
   "profileVersion": "1",
-  "repo": "apatureai/ui-dna",
+  "repo": "apatureai/canon",
   "dnaVersion": "dna_golden_v1",
-  "contentDigest": "sha256:10db2fe28ca5d51a88e9b1b3a1e1d85f44be28b2a1ccf3955c1e8a20d2eb55a1",
+  "contentDigest": "sha256:c8dc763fd12fec7a26bde8ebf019a66b949fcd946a1269293e64647aebec1933",
   "compactIndexes": {
     "colorTokens": [
       {

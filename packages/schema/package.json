@@ -6,7 +6,7 @@
   "description": "Canonical UI DNA schema: tokens, components, distributions, anchors, exceptions — with per-field confidence + provenance, version metadata, and approval state.",
   "license": "MIT",
   "author": "Aditya Prathapa",
-  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git", "directory": "packages/schema" },
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/canon.git", "directory": "packages/schema" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },

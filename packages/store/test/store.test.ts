@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { commitSnapshot, computeDnaVersion, inMemorySnapshotStore } from "../src/index.js";
 
 function draft() {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.tokens.color["--brand"] = fact("#bada55", 0.8, "config");
   return d;
 }
@@ -63,7 +63,7 @@ describe("commitSnapshot — append-only, content-addressed, idempotent", () => 
     const second = await commitSnapshot(store, draft());
     expect(second.created).toBe(false);
     expect(second.dnaVersion).toBe(first.dnaVersion);
-    expect((await store.list("apatureai/ui-dna")).length).toBe(1);
+    expect((await store.list("apatureai/canon")).length).toBe(1);
   });
 
   it("yields a new immutable version when the genome changes", async () => {
@@ -73,7 +73,7 @@ describe("commitSnapshot — append-only, content-addressed, idempotent", () => 
     changed.tokens.color["--brand"] = fact("#000000", 0.8, "config");
     const v2 = await commitSnapshot(store, changed);
     expect(v2.dnaVersion).not.toBe(v1.dnaVersion);
-    expect((await store.list("apatureai/ui-dna")).length).toBe(2);
+    expect((await store.list("apatureai/canon")).length).toBe(2);
   });
 
   it("does not mutate the caller's snapshot and freezes the stored one", async () => {

@@ -90,8 +90,8 @@ resolution working end to end. Step 3 is the one to read before you point it at 
 because it covers what a repository with no declared tokens returns and why.
 
 ```bash
-git clone https://github.com/apatureai/ui-dna.git
-cd ui-dna
+git clone https://github.com/apatureai/canon.git
+cd canon
 pnpm install --frozen-lockfile
 pnpm build          # tsc -b; the CLI runs from packages/cli/dist, so this is not optional
 ```
@@ -694,12 +694,12 @@ Nothing here imports any of these; the coupling is by data contract only, and th
 (`packages/store/test/fixtures/golden-snapshot-response.json`) so a byte-compat test fails if the
 contract moves underneath a consumer.
 
-- [judgment-engine](https://github.com/apatureai/judgment-engine): capture, grounded critique, eval
+- [verdict](https://github.com/apatureai/verdict): capture, grounded critique, eval
   and feedback substrate. It produces the artifacts that arrive here as `CaptureEvidence` and
   consumes approved snapshot slices.
 - [gate](https://github.com/apatureai/gate): a GitHub PR review surface.
-- [mcp-review](https://github.com/apatureai/mcp-review): the same review, in-loop over MCP.
-- [ui-graph](https://github.com/apatureai/ui-graph): a token-efficient scene graph.
+- [bastion](https://github.com/apatureai/bastion): the same review, in-loop over MCP.
+- [lattice](https://github.com/apatureai/lattice): a token-efficient scene graph.
 - [sigil](https://github.com/apatureai/sigil): a fixture-driven model quality and efficiency audit
   harness.
 

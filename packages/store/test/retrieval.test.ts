@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
 
 /** An approved genome with tokens across groups, components, multi-route anchors, and an exception. */
 function genome(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.identity.name = fact("Apature", 1, "human");
   d.identity.tone = fact("calm, precise", 1, "human");
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
@@ -45,7 +45,7 @@ async function approvedStore() {
 
 /** A genome carrying a secret in a token value + key, used to assert the trust boundary. */
 function genomeWithSecret(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
   d.tokens.color["--leaked"] = fact("token sk-ABCDEF0123456789XYZ embedded", 0.5, "config");
   d.tokens.color["--key-sk-ABCDEF0123456789XYZ"] = fact("#fff", 0.5, "config");
@@ -61,20 +61,20 @@ async function approvedStoreWithSecret() {
 describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () => {
   it("returns the bearing slice + the approved dnaVersion to stamp", async () => {
     const { store, dnaVersion } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", {
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", {
       routes: ["/"],
       components: ["Button"],
       tokenGroups: ["color"],
     });
     expect(slice).not.toBeNull();
     expect(slice?.dnaVersion).toBe(dnaVersion);
-    expect(slice?.repo).toBe("apatureai/ui-dna");
+    expect(slice?.repo).toBe("apatureai/canon");
     expect(slice?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: STORE_VERSION });
   });
 
   it("narrows tokens to the requested groups (other groups empty)", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { tokenGroups: ["color"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { tokenGroups: ["color"] });
     expect(Object.keys(slice!.tokens.color).sort()).toEqual(["--accent", "--brand"]);
     expect(slice!.tokens.spacing).toEqual({});
     expect(slice!.tokens.radii).toEqual({});
@@ -82,7 +82,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("returns ALL token groups when none are requested", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { routes: ["/"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { routes: ["/"] });
     expect(Object.keys(slice!.tokens.color)).toHaveLength(2);
     expect(Object.keys(slice!.tokens.spacing)).toEqual(["--gap"]);
     expect(Object.keys(slice!.tokens.radii)).toEqual(["--md"]);
@@ -90,19 +90,19 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("selects only conventions whose name is in scope", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { components: ["Dialog", "Button"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { components: ["Dialog", "Button"] });
     expect(slice!.components.map((c) => c.name)).toEqual(["Button", "Dialog"]); // name-sorted
   });
 
   it("selects only anchors on the in-scope routes", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { routes: ["/"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { routes: ["/"] });
     expect(slice!.anchors.map((a) => a.ref)).toEqual(["s3://anchors/home-1", "s3://anchors/home-2"]);
   });
 
   it("annotates in-scope exceptions so critique doesn't flag intentional deviation", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { routes: ["/promo", "/"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { routes: ["/promo", "/"] });
     expect(slice!.exceptions).toEqual([
       { route: "/promo", reason: "seasonal campaign, intentionally off-brand", inScope: true },
     ]);
@@ -110,7 +110,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("carries product identity whole (always bears on judgment)", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", {});
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", {});
     expect(slice!.identity.name?.value).toBe("Apature");
     expect(slice!.identity.tone?.value).toBe("calm, precise");
   });
@@ -118,8 +118,8 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
   it("is deterministic: same query + snapshot -> byte-identical slice", async () => {
     const { store } = await approvedStore();
     const q = { routes: ["/", "/settings"], components: ["Button", "Dialog"], tokenGroups: ["color" as const] };
-    const a = await retrieveGenomeSlice(store, "apatureai/ui-dna", q);
-    const b = await retrieveGenomeSlice(store, "apatureai/ui-dna", q);
+    const a = await retrieveGenomeSlice(store, "apatureai/canon", q);
+    const b = await retrieveGenomeSlice(store, "apatureai/canon", q);
     expect(JSON.stringify(a)).toBe(JSON.stringify(b));
   });
 
@@ -127,7 +127,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
     const { store } = await approvedStore();
     const slice = await retrieveGenomeSlice(
       store,
-      "apatureai/ui-dna",
+      "apatureai/canon",
       { routes: ["/"], components: ["Button", "Dialog", "Tooltip"] },
       { maxAnchors: 1, maxComponents: 2 },
     );
@@ -138,14 +138,14 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("reads a pinned approved version", async () => {
     const { store, dnaVersion } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { routes: ["/"] }, { version: dnaVersion });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { routes: ["/"] }, { version: dnaVersion });
     expect(slice?.dnaVersion).toBe(dnaVersion);
   });
 
   it("NEVER retrieves a draft snapshot (reuses the isApproved gate)", async () => {
     const store = inMemorySnapshotStore();
     await commitSnapshot(store, genome()); // committed but still draft
-    expect(await retrieveGenomeSlice(store, "apatureai/ui-dna", { routes: ["/"] })).toBeNull();
+    expect(await retrieveGenomeSlice(store, "apatureai/canon", { routes: ["/"] })).toBeNull();
   });
 
   it("returns null for an unknown repo", async () => {
@@ -155,7 +155,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("empty query retrieves identity + all tokens but no route/component-scoped slices", async () => {
     const { store } = await approvedStore();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", {});
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", {});
     expect(slice!.components).toEqual([]);
     expect(slice!.anchors).toEqual([]);
     expect(slice!.exceptions).toEqual([]);
@@ -164,7 +164,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("SCRUBS by default: a secret-pattern value does NOT reach the engine-facing slice", async () => {
     const store = await approvedStoreWithSecret();
-    const slice = await retrieveGenomeSlice(store, "apatureai/ui-dna", { tokenGroups: ["color"] });
+    const slice = await retrieveGenomeSlice(store, "apatureai/canon", { tokenGroups: ["color"] });
     // Secret in a value is redacted before the engine ever sees it.
     expect(slice!.tokens.color["--leaked"]?.value).toBe("token [redacted] embedded");
     // Secret in a token KEY is redacted too.
@@ -175,7 +175,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
 
   it("retrieveRawGenomeSlice is the explicit trust-internal raw path (unscrubbed)", async () => {
     const store = await approvedStoreWithSecret();
-    const raw = await retrieveRawGenomeSlice(store, "apatureai/ui-dna", { tokenGroups: ["color"] });
+    const raw = await retrieveRawGenomeSlice(store, "apatureai/canon", { tokenGroups: ["color"] });
     // The raw path intentionally preserves the original value (use inside the boundary only).
     expect(raw!.tokens.color["--leaked"]?.value).toBe("token sk-ABCDEF0123456789XYZ embedded");
   });
@@ -183,7 +183,7 @@ describe("retrieveGenomeSlice — genome-grounding retrieval surface (#27)", () 
   it("raw and scrubbed paths share the approved-only gate (no draft via either)", async () => {
     const store = inMemorySnapshotStore();
     await commitSnapshot(store, genomeWithSecret()); // draft
-    expect(await retrieveGenomeSlice(store, "apatureai/ui-dna", {})).toBeNull();
-    expect(await retrieveRawGenomeSlice(store, "apatureai/ui-dna", {})).toBeNull();
+    expect(await retrieveGenomeSlice(store, "apatureai/canon", {})).toBeNull();
+    expect(await retrieveRawGenomeSlice(store, "apatureai/canon", {})).toBeNull();
   });
 });

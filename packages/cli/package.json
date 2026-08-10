@@ -6,7 +6,7 @@
   "description": "UI DNA command line: the filesystem entry point. Resolves a DTCG token file from disk and builds a design-system context block from a project directory. Every read of the filesystem in this repo lives here; the libraries stay pure.",
   "license": "MIT",
   "author": "Aditya Prathapa",
-  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git", "directory": "packages/cli" },
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/canon.git", "directory": "packages/cli" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },

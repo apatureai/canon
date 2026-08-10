@@ -13,7 +13,7 @@ import type { SnapshotStore } from "./store.js";
 
 /**
  * Genome-grounding RETRIEVAL surface (#27, PRD §2/§4/§7). The PRODUCER side that
- * judgment-engine #104 consumes: given a review context (the routes / components
+ * verdict #104 consumes: given a review context (the routes / components
  * / token-groups a PR touches, the diff→route output of #7), return only the
  * RELEVANT slices of the approved genome (the tokens, conventions, anchors,
  * exceptions, identity that bear on those surfaces) instead of the whole

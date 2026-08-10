@@ -22,7 +22,7 @@ describe("extractComponentConventions", () => {
   });
 
   it("produces conventions that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.components = extractComponentConventions({ dependencies: { "@mui/material": "^5" } });
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

@@ -43,7 +43,7 @@ brand:
   });
 
   it("produces facts that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.identity = extractBrandIdentity(yml);
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

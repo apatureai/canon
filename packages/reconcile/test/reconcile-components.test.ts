@@ -99,7 +99,7 @@ describe("reconcileComponents — unused dep", () => {
 
 describe("reconcileComponents — validity + determinism", () => {
   it("produces components that validate against the schema when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.components = reconcileComponents([detected("radix")], sampleCaptureEvidence()).components;
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

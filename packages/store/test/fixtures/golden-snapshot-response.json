@@ -3,13 +3,13 @@
     "schemaVersion": "1",
     "storeVersion": "2"
   },
-  "repo": "apatureai/ui-dna",
+  "repo": "apatureai/canon",
   "dnaVersion": "GOLDEN_DNA_VERSION",
-  "contentDigest": "sha256:6445810ccf41e06e5acef2651556ed989dcb6d1f86e89205e2f014f415e322cd",
+  "contentDigest": "sha256:2c5064414f7a2e79ee6c5f2dd989cba41f00963e3147e84205717a21673608fa",
   "snapshot": {
     "repository": {
       "owner": "apatureai",
-      "name": "ui-dna"
+      "name": "canon"
     },
     "identity": {
       "name": null,

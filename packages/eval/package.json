@@ -6,7 +6,7 @@
   "description": "UI DNA eval: reconciliation accuracy (resolved-fact precision/recall, conflict recall) + confidence calibration (ECE/Brier/reliability) over labeled genome fixtures, with a CI gate floor. Measures the precedence ladder instead of assuming it.",
   "license": "MIT",
   "author": "Aditya Prathapa",
-  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git", "directory": "packages/eval" },
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/canon.git", "directory": "packages/eval" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },

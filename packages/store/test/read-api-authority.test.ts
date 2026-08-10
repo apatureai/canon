@@ -20,7 +20,7 @@ import {
  */
 
 function baseSnapshot(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.identity.tone = fact("calm, precise", 1, "human");
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
   const resolved = extractTokensJson({
@@ -47,7 +47,7 @@ function resolverFrom(map: Record<string, AuthorityStatus>): AuthorityStatusReso
   return (dnaVersion) => map[dnaVersion] ?? "effective";
 }
 
-const REPO = "apatureai/ui-dna";
+const REPO = "apatureai/canon";
 
 describe("getSnapshot authority enforcement (#64) — pinned reads", () => {
   it("serves an effective pinned version", async () => {

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { diffSnapshots } from "../src/index.js";
 
 function base(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.tokens.color["--brand"] = fact("#bada55", 0.8, "config");
   d.tokens.spacing["--gap"] = fact("8px", 0.6, "pixels");
   return d;

@@ -18,7 +18,7 @@ const golden = JSON.parse(
 
 /** The exact snapshot the golden fixture pins (approved, with one human + one config fact). */
 function goldenSnapshot(): DnaSnapshot {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.identity.tone = fact("calm, precise", 1, "human");
   d.tokens.color["--brand"] = fact("#0a0a0a", 1, "human");
   const resolved = extractTokensJson({
@@ -52,7 +52,7 @@ async function storeWithApproved() {
 describe("getSnapshot — downstream read contract", () => {
   it("matches the golden wire fixture byte-for-byte (downstream byte-compat)", async () => {
     const { store, dnaVersion } = await storeWithApproved();
-    const response = await getSnapshot(store, "apatureai/ui-dna");
+    const response = await getSnapshot(store, "apatureai/canon");
     expect(response).not.toBeNull();
 
     // Substitute the content-addressed dnaVersion into the golden placeholders.
@@ -64,17 +64,17 @@ describe("getSnapshot — downstream read contract", () => {
 
   it("stamps the contract version (additive negotiation header)", async () => {
     const { store } = await storeWithApproved();
-    const response = await getSnapshot(store, "apatureai/ui-dna");
+    const response = await getSnapshot(store, "apatureai/canon");
     expect(response?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: STORE_VERSION });
   });
 
   it("emits the approved-only envelope required by Source of Truth ingest", async () => {
     const { store, dnaVersion } = await storeWithApproved();
-    const response = await getSnapshot(store, "apatureai/ui-dna", { version: dnaVersion });
+    const response = await getSnapshot(store, "apatureai/canon", { version: dnaVersion });
 
     expect(response).not.toBeNull();
     expect(response?.contract).toEqual({ schemaVersion: SCHEMA_VERSION, storeVersion: "2" });
-    expect(response?.repo).toBe("apatureai/ui-dna");
+    expect(response?.repo).toBe("apatureai/canon");
     expect(response?.dnaVersion).toBe(response?.snapshot.metadata.dnaVersion);
     expect(response?.contentDigest).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(response?.snapshot.metadata.approvalState).toBe("approved");
@@ -84,20 +84,20 @@ describe("getSnapshot — downstream read contract", () => {
 
   it("returns a pinned immutable version when requested", async () => {
     const { store, dnaVersion } = await storeWithApproved();
-    const response = await getSnapshot(store, "apatureai/ui-dna", { version: dnaVersion });
+    const response = await getSnapshot(store, "apatureai/canon", { version: dnaVersion });
     expect(response?.dnaVersion).toBe(dnaVersion);
   });
 
   it("NEVER serves a draft/in_review snapshot downstream", async () => {
     const store = inMemorySnapshotStore();
     await commitSnapshot(store, goldenSnapshot()); // committed but still draft
-    expect(await getSnapshot(store, "apatureai/ui-dna")).toBeNull();
+    expect(await getSnapshot(store, "apatureai/canon")).toBeNull();
   });
 
   it("rejects a pinned version that is not approved", async () => {
     const store = inMemorySnapshotStore();
     const { dnaVersion } = await commitSnapshot(store, goldenSnapshot()); // draft
-    expect(await getSnapshot(store, "apatureai/ui-dna", { version: dnaVersion })).toBeNull();
+    expect(await getSnapshot(store, "apatureai/canon", { version: dnaVersion })).toBeNull();
   });
 
   it("returns null for an unknown repo", async () => {
@@ -110,7 +110,7 @@ describe("getSnapshot — downstream read contract", () => {
     const v2src = goldenSnapshot();
     v2src.tokens.spacing["--gap"] = fact("12px", 0.75, "config");
     const { commit } = await approveSnapshot(store, requestReview(v2src));
-    const response = await getSnapshot(store, "apatureai/ui-dna");
+    const response = await getSnapshot(store, "apatureai/canon");
     expect(response?.dnaVersion).toBe(commit.dnaVersion);
     expect(response?.snapshot.tokens.spacing["--gap"]?.value).toBe("12px");
   });

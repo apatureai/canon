@@ -9,7 +9,7 @@ import type { TokenMap } from "./tokens.js";
  * tokens, and surfaces any `@config` path so the caller can also resolve it via
  * the v3 resolveConfig path (#1).
  *
- * Ported from judgment-engine's proven `@engine/context`:
+ * Ported from verdict's proven `@engine/context`:
  * pure (PostCSS only), fully testable without a build step.
  */
 export interface TailwindV4Result {

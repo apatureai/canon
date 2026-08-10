@@ -47,7 +47,7 @@ describe("extractTailwindV3Tokens", () => {
   });
 
   it("produces facts that pass schema validation when merged into a draft", () => {
-    const draft = emptyDraft("apatureai", "ui-dna", "test");
+    const draft = emptyDraft("apatureai", "canon", "test");
     draft.tokens = extractTailwindV3Tokens(config);
     expect(validateSnapshot(draft)).toEqual({ ok: true });
   });

@@ -12,7 +12,7 @@ import {
 } from "../src/index.js";
 
 function draft() {
-  const d = emptyDraft("apatureai", "ui-dna", "extract-1");
+  const d = emptyDraft("apatureai", "canon", "extract-1");
   d.tokens.color["--brand"] = fact("#bada55", 0.7, "config");
   d.tokens.spacing["--gap"] = fact("8px", 0.6, "pixels");
   d.identity.name = fact("Apature", 0.6, "code");
@@ -152,7 +152,7 @@ describe("approveSnapshot", () => {
     const reviewCommit = await commitSnapshot(store, reviewing);
 
     const approved = await approveSnapshot(store, reviewing, { decisions: [] });
-    const records = await store.list("apatureai/ui-dna");
+    const records = await store.list("apatureai/canon");
 
     expect(new Set([draftCommit.dnaVersion, reviewCommit.dnaVersion, approved.commit.dnaVersion]).size).toBe(3);
     expect(records.map((record) => record.snapshot.metadata.approvalState)).toEqual([
@@ -163,7 +163,7 @@ describe("approveSnapshot", () => {
     expect(approved.commit.created).toBe(true);
     expect(isApproved(approved.snapshot)).toBe(true);
 
-    const served = await getSnapshot(store, "apatureai/ui-dna", {
+    const served = await getSnapshot(store, "apatureai/canon", {
       version: approved.commit.dnaVersion,
     });
     expect(served?.dnaVersion).toBe(approved.commit.dnaVersion);

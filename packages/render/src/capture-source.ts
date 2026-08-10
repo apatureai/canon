@@ -2,7 +2,7 @@ import type { CaptureEvidence, RouteCapture } from "./capture-evidence.js";
 
 /**
  * `CaptureSource` is the injected port that yields `CaptureEvidence`. Production
- * wires the judgment-engine capture adapter behind this interface; tests inject
+ * wires the verdict capture adapter behind this interface; tests inject
  * a stub fixture. ui-dna code depends only on this seam, so capture stays in the
  * engine and this repo stays pure/deterministic (PRD §7): **no browser or
  * network lives here**.

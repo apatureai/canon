@@ -6,7 +6,7 @@
   "description": "UI DNA extraction pipeline: static design-token + brand extractors (CSS custom properties, tokens.json, .designreview.yml, ...) that emit schema facts with confidence + provenance.",
   "license": "MIT",
   "author": "Aditya Prathapa",
-  "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git", "directory": "packages/context" },
+  "repository": { "type": "git", "url": "git+https://github.com/apatureai/canon.git", "directory": "packages/context" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },

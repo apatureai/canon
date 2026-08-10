@@ -3,7 +3,7 @@
  * extracted into: product identity, tokens, component conventions, visual
  * distributions, rendered anchors, and exceptions. EVERY inferred field carries
  * its **confidence** and **provenance** (where it came from) so downstream
- * products (Gate, MCP Review, Entropy Engine, Source of Truth, DNA Consultant)
+ * products (Gate, Bastion, Entropy Engine, Source of Truth, DNA Consultant)
  * can weight it and surface it for human sign-off. That traceability is the
  * moat, not the extraction itself.
  *
