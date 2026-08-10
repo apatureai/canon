@@ -35,8 +35,8 @@ pnpm clean       # tsc -b --clean
 ```
 
 Lint, typecheck and test are exactly what CI runs (`.github/workflows/ci.yml`). As of the last
-verified run on Node 24.14.0 the tree is green: lint clean, typecheck clean, 461 tests across
-53 files in about 2 seconds. If something fails right after a clean clone, suspect your Node or
+verified run on Node 24.14.0 the tree is green: lint clean, typecheck clean, 472 tests across
+54 files in about 2 seconds. If something fails right after a clean clone, suspect your Node or
 pnpm version first.
 
 ### The one extra script

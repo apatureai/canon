@@ -32,7 +32,7 @@ gated on.
   across runs.
 - Ships all of the above as a library (`@uidna/schema`, `@uidna/context`, `@uidna/render`,
   `@uidna/reconcile`, `@uidna/store`, `@uidna/eval`, `@uidna/cli`) with 472 tests that run offline
-  in about three seconds.
+  in about two seconds.
 
 ## What it does not do
 
@@ -69,8 +69,8 @@ pnpm build
 `pnpm build` is `tsc -b` across the workspace. The CLI runs from `packages/cli/dist`, so the build
 is part of installation, not an optional step.
 
-There are three ways to invoke it, all equivalent. The transcripts below use the first because it
-is the one that has no wrapper in the output:
+There are three ways to invoke it, all equivalent. Two of them need no setup, and the transcripts
+below use the first because it is the one that puts no wrapper in the output:
 
 ```bash
 node packages/cli/dist/bin.js tokens examples/sample-tokens.json   # explicit
@@ -261,7 +261,7 @@ So a plain Vite/React app that styles entirely in utility classes legitimately r
 result looks like:
 
 ```console
-$ node packages/cli/dist/bin.js context examples/utility-only-project
+$ node packages/cli/dist/bin.js context examples/utility-only-project | head -9
 ui-dna context - examples/utility-only-project
 
 sources (3 of 3 files walked)
@@ -272,6 +272,10 @@ sources (3 of 3 files walked)
 resolved tokens (0)
   color         0
 ```
+
+Drop the `| head -9` and the report continues through the remaining group counts, zero identity
+facts and component libraries, an empty conflicts, drift and diagnostics section apiece, and the
+context block.
 
 Every candidate file the walk opened is listed with the reason it contributed nothing, so `0`
 tokens never has to be diagnosed. `sources (0 of N files walked)` is a different statement: it
@@ -555,8 +559,9 @@ bins), with a gate that can fail CI on a floor.
 
 **`@uidna/cli`** covers argument parsing, the bounded directory walk (`scan.ts`), the merge into a
 draft genome (`genome.ts`), terminal rendering (`format.ts`), and the worker-backed `ConfigLoader`
-(`tailwind-config-loader.ts` + `worker/tailwind-config-worker.mjs`). `runCli` returns an exit code
-rather than calling `process.exit`, so the tests drive the same entry point a terminal does.
+(`tailwind-config-loader.ts`, which spawns `packages/cli/worker/tailwind-config-worker.mjs`).
+`runCli` returns an exit code rather than calling `process.exit`, so the tests drive the same
+entry point a terminal does.
 
 Three design decisions are worth reading the code for:
 
