@@ -27,7 +27,7 @@ describe("validateCaptureEvidence", () => {
 
   it("reports structural problems with a path (geometry rect must be numeric)", () => {
     const ev = sampleCaptureEvidence();
-    // @ts-expect-error — deliberately corrupt the rect for the negative case
+    // @ts-expect-error: deliberately corrupt the rect for the negative case
     ev.captures[0].geometry[0].rect.width = "wide";
     const result = validateCaptureEvidence(ev);
     expect(result.ok).toBe(false);

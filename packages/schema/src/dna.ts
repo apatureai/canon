@@ -4,7 +4,7 @@
  * distributions, rendered anchors, and exceptions. EVERY inferred field carries
  * its **confidence** and **provenance** (where it came from) so downstream
  * products (Gate, MCP Review, Entropy Engine, Source of Truth, DNA Consultant)
- * can weight it and surface it for human sign-off — that traceability is the
+ * can weight it and surface it for human sign-off. That traceability is the
  * moat, not the extraction itself.
  *
  * `SCHEMA_VERSION` is bumped on any breaking change; the schema evolves
@@ -28,7 +28,7 @@ export interface Fact<T> {
  * A recorded reconciliation conflict (PRD §5/§7): two or more evidence sources
  * disagreed on one logical field, and the reconciler kept the higher-trust
  * value while surfacing the disagreement for sign-off / drift. The trail is the
- * moat — downstream can show "code says X, pixels say Y" instead of silently
+ * moat: downstream can show "code says X, pixels say Y" instead of silently
  * picking one. Additive to the schema; produced by `@uidna/reconcile`.
  */
 export interface Conflict {

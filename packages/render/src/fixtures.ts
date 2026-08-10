@@ -1,7 +1,7 @@
 import { CAPTURE_VERSION, type CaptureEvidence } from "./capture-evidence.js";
 
 /**
- * A small, deterministic `CaptureEvidence` fixture for tests and local dev — the
+ * A small, deterministic `CaptureEvidence` fixture for tests and local dev, the
  * stand-in for real engine capture so UD3 modules and the input port can be
  * exercised with no browser. Two routes at one desktop viewport.
  */

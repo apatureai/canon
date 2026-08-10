@@ -10,7 +10,7 @@ import type { TokenMap } from "./tokens.js";
  * `tailwind.config.{js,ts}` is EXECUTABLE code, so loading it is isolated behind
  * a `ConfigLoader` seam (below): the production loader runs it in a sandboxed
  * worker (same isolation class as render capture), and tests inject a stub that
- * returns a plain config object — so **no untrusted code is ever executed in
+ * returns a plain config object, so **no untrusted code is ever executed in
  * tests**. The pure resolve + flatten is fully testable with a config object.
  *
  * Ported from judgment-engine's proven `@engine/context`.

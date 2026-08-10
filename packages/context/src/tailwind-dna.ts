@@ -10,7 +10,7 @@ import { CONFIG_CONFIDENCE } from "./internal.js";
 
 /**
  * Map resolved Tailwind v3 tokens onto the canonical `DnaTokens` groups
- * (PRD §5), stamping each as a `Fact<string>` with provenance "config" — the
+ * (PRD §5), stamping each as a `Fact<string>` with provenance "config". The
  * tokens come from the project's authored `tailwind.config`, a declared design
  * config (stronger than ad-hoc CSS vars), so confidence sits with tokens.json.
  *
@@ -55,7 +55,7 @@ export function extractTailwindV3Tokens(userConfig: unknown): DnaTokens {
 
 /**
  * Map a Tailwind v3 config FILE onto canonical DNA tokens via an injected
- * `ConfigLoader` (production: sandboxed worker; tests: a stub — never executes
+ * `ConfigLoader` (production: sandboxed worker; tests: a stub that never executes
  * real config). Returns empty tokens when the loader/resolve fails.
  */
 export async function extractTailwindV3TokensFromFile(

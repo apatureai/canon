@@ -10,7 +10,7 @@ import type { TokenMap } from "./tokens.js";
  * the v3 resolveConfig path (#1).
  *
  * Ported from judgment-engine's proven `@engine/context`:
- * pure (PostCSS only) — fully testable without a build step.
+ * pure (PostCSS only), fully testable without a build step.
  */
 export interface TailwindV4Result {
   tokens: TokenMap;

@@ -4,7 +4,7 @@ import { serializeGenomeContent } from "./version-identity.js";
 /**
  * Version-to-version genome change detection (#26, PRD §4/§7). `diffSnapshots`
  * computes a structured, deterministic changeset between two immutable snapshot
- * versions — what changed in the genome (added/removed/changed facts across
+ * versions: what changed in the genome (added/removed/changed facts across
  * tokens, components, identity, exceptions, distributions). Feeds Entropy Engine
  * (drift consolidation) and the Consultant (carry-forward), and gives reviewers
  * a "what changed since the approved version" view.
@@ -154,7 +154,7 @@ function diffDistributions(a: DnaSnapshot, b: DnaSnapshot, out: FieldChange[]): 
 /**
  * Diff two snapshots into a deterministic, field-sorted changeset. `metadataOnly`
  * is true when the resolved genome content is byte-identical (only metadata
- * version/approval stamps differ) — reusing the #22 content/identity split.
+ * version/approval stamps differ), reusing the #22 content/identity split.
  */
 export function diffSnapshots(a: DnaSnapshot, b: DnaSnapshot): SnapshotDiff {
   const changes: FieldChange[] = [];

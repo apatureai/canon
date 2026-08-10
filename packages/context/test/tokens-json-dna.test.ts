@@ -34,7 +34,7 @@ describe("extractTokensJson", () => {
   });
 
   it("disambiguates a DTCG `dimension` radius by its name (radii, not spacing)", () => {
-    // DTCG 2025.10 has no `borderRadius` $type — a conformant radius token is
+    // DTCG 2025.10 has no `borderRadius` $type: a conformant radius token is
     // `$type: "dimension"`, the same as spacing. The name is the only signal, so
     // a `dimension` token that names itself a radius must land in `radii` (where
     // code-side extraction puts it), not silently in `spacing`.
@@ -52,7 +52,7 @@ describe("extractTokensJson", () => {
   });
 
   it("disambiguates a DTCG `dimension` typographic length by its name (typography, not spacing)", () => {
-    // DTCG has no `fontSize` $type either — font-size / line-height / letter-spacing
+    // DTCG has no `fontSize` $type either. Font-size / line-height / letter-spacing
     // are `dimension`, same as spacing. A `dimension` that names itself typographic
     // must ground as `typography`, where code-side extraction files it.
     const tokens = extractTokensJson({

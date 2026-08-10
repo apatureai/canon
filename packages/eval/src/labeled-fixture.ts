@@ -7,7 +7,7 @@ import type { DnaTokens, VisualDistributions } from "@uidna/schema";
  * This is what makes the precedence ladder MEASURED rather than assumed.
  *
  * Synthetic for now (hand-labeled fixtures). The PRODUCTION gate needs REAL
- * customer labels — the team-acceptance signal from sign-off (PRD §9, like #9) —
+ * customer labels, the team-acceptance signal from sign-off (PRD §9, like #9),
  * before these thresholds gate a release on real data; see the harness note.
  */
 

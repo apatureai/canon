@@ -11,7 +11,7 @@ export function fact<T>(value: T, confidence: number, provenance: Provenance): F
   return { value, confidence: c, provenance };
 }
 
-/** An empty draft snapshot for a repo — extractors fill it field by field. */
+/** An empty draft snapshot for a repo; extractors fill it field by field. */
 export function emptyDraft(owner: string, name: string, extractionVersion: string): DnaSnapshot {
   return {
     repository: { owner, name },

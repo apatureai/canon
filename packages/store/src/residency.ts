@@ -8,7 +8,7 @@ import type { SnapshotStore } from "./store.js";
  * before a snapshot leaves the store:
  *
  * - READ-ONLY: the layer only reads (`getSnapshot`) and returns a deep-cloned,
- *   scrubbed snapshot — there is NO write path back into the store, and the
+ *   scrubbed snapshot. There is NO write path back into the store, and the
  *   served copy is a clone so a consumer can't mutate the immutable version
  *   (a test asserts mutating the served snapshot doesn't touch the store).
  * - TENANT-SCOPING: a tenant may only read repos it's entitled to; a request
@@ -17,25 +17,25 @@ import type { SnapshotStore } from "./store.js";
  *   anchor descriptions are redacted before serving (no private source content
  *   leaves; anchors already store only object-storage `ref`s, not bytes).
  * - RETENTION: anchor `ref`s + capture evidence are bound to the customer's
- *   tier — the free/default tier serves NO anchor refs (0 retention); paid
+ *   tier: the free/default tier serves NO anchor refs (0 retention); paid
  *   tiers serve them within the window. Consistent with engine #51 retention.
  * - ROUTE ALLOW/DENY: the customer's anchor-eligibility list (#17) is honored
- *   end-to-end — a served anchor on a denied route is dropped.
+ *   end-to-end, so a served anchor on a denied route is dropped.
  * - PROVENANCE LOGGING: an injected logger records WHO read WHAT version
  *   without leaking private source content (only repo + version + counts).
  *
  * Self-hosted extraction seam: this layer takes an injected `SnapshotStore`
- * port and a `ResidencyPolicy` value — no managed-only assumptions — so the
+ * port and a `ResidencyPolicy` value, with no managed-only assumptions, so the
  * same enforcement runs in-VPC against a self-hosted store (mirrors engine #79).
  */
 
 /** Retention tier for screenshot/anchor evidence (PRD §8: retention follows the customer tier). */
 export type RetentionTier = "none" | "retained";
 
-/** A redacting access-log sink. Receives only non-sensitive metadata — never source content. */
+/** A redacting access-log sink. Receives only non-sensitive metadata, never source content. */
 export type AccessLogger = (event: AccessLogEvent) => void;
 
-/** What an access produced — safe to log (no fact values, selectors, or source). */
+/** What an access produced. Safe to log (no fact values, selectors, or source). */
 export interface AccessLogEvent {
   tenantId: string;
   repo: string;
@@ -80,7 +80,7 @@ const REDACTION_MARKER = "[redacted]";
 
 /**
  * Built-in secret/PII signatures redacted from every served string. Conservative
- * and deterministic — common token/key prefixes, bearer headers, emails, and
+ * and deterministic: common token/key prefixes, bearer headers, emails, and
  * private-key blocks. Customer policies can add more via `redactPatterns`.
  */
 const BUILTIN_REDACTIONS: RegExp[] = [
@@ -116,7 +116,7 @@ function makeScrubber(extra: RegExp[] = []): Scrubber {
 /**
  * Scrub a string Fact into a fresh (always-cloned) Fact, counting a redaction
  * when the value changed. Always cloning keeps the served snapshot a true deep
- * copy — a consumer can mutate it without ever reaching the frozen store object.
+ * copy, so a consumer can mutate it without ever reaching the frozen store object.
  */
 function scrubFact(f: Fact<string>, s: Scrubber, count: { n: number }): Fact<string> {
   const { value, redacted } = s.scrub(f.value);
@@ -146,7 +146,7 @@ function scrubKeys(rec: Record<string, number>, s: Scrubber, count: { n: number 
  * Scrub a token record's VALUES *and KEYS*: a token NAME (e.g. `--leak-sk-...`)
  * is served verbatim downstream, so a secret pattern in the key must be redacted
  * too. Keys are re-collated after scrubbing (a collision after redaction keeps
- * the last entry — deterministic over `Object.entries` order).
+ * the last entry, deterministic over `Object.entries` order).
  */
 function scrubRecord(
   rec: Record<string, Fact<string>>,
@@ -186,8 +186,8 @@ function retainAnchors(anchors: RenderedAnchor[], policy: ResidencyPolicy): Rend
 }
 
 /**
- * Field-level scrub of a whole snapshot into a deep-cloned, secret/PII-free copy
- * — EVERY served-verbatim field (token keys + values, identity strings, component
+ * Field-level scrub of a whole snapshot into a deep-cloned, secret/PII-free copy.
+ * EVERY served-verbatim field (token keys + values, identity strings, component
  * name/variants/props/usageExamples, anchor route/description, exception
  * route/reason) is run through the scrubber. Tenant/retention/route policy is
  * NOT applied here (that's residency-specific); this is the shared trust-boundary
@@ -200,7 +200,7 @@ function scrubSnapshotWith(
   const count = { n: 0 };
   const scrubbed: DnaSnapshot = {
     // repository.owner/name is the caller-supplied lookup id (structurally non-
-    // secret) — scrubbed too so the "zero secret-pattern egress in ANY served
+    // secret) is scrubbed too, so the "zero secret-pattern egress in ANY served
     // field" guarantee is literal.
     repository: {
       owner: scrubString(snapshot.repository.owner, s, count),
@@ -229,13 +229,13 @@ function scrubSnapshotWith(
       ...snapshot.distributions,
       spacingIntervals: [...snapshot.distributions.spacingIntervals],
       typeScale: [...snapshot.distributions.typeScale],
-      // colorProportions KEYS (hex-color strings) are served verbatim — scrub
+      // colorProportions KEYS (hex-color strings) are served verbatim, so scrub
       // them too so the zero-egress guarantee covers every served string.
       colorProportions: scrubKeys(snapshot.distributions.colorProportions, s, count),
       radiusPatterns: [...snapshot.distributions.radiusPatterns],
     },
     anchors: snapshot.anchors.map((a) => scrubAnchor(a, s, count)),
-    // An exception route/reason is served verbatim — scrub both.
+    // An exception route/reason is served verbatim, so scrub both.
     exceptions: snapshot.exceptions.map((e) => ({
       route: scrubString(e.route, s, count),
       reason: scrubString(e.reason, s, count),
@@ -262,7 +262,7 @@ function toResidentSnapshot(
   s: Scrubber,
 ): { snapshot: DnaSnapshot; redactedCount: number } {
   const { snapshot: scrubbed, redactedCount } = scrubSnapshotWith(snapshot, s);
-  // Retention/allow-deny over the already-scrubbed anchors (filter only — never unredacts).
+  // Retention/allow-deny over the already-scrubbed anchors (filter only, never unredacts).
   return { snapshot: { ...scrubbed, anchors: retainAnchors(scrubbed.anchors, policy) }, redactedCount };
 }
 
@@ -275,7 +275,7 @@ export function isEntitled(policy: ResidencyPolicy, repo: string): boolean {
  * Read a repo's approved snapshot under a residency policy: enforces tenant
  * entitlement, then scrubs secrets/PII, applies anchor retention + route
  * allow/deny, and returns a deep-cloned (store-safe) `SnapshotResponse`. Returns
- * null when the tenant isn't entitled or no approved snapshot exists — a draft
+ * null when the tenant isn't entitled or no approved snapshot exists; a draft
  * is never served (the read contract's `isApproved` gate still applies). Logs
  * redacted access metadata when a `log` sink is given. No write path exists.
  */

@@ -4,7 +4,7 @@ import type { DnaSnapshot } from "@uidna/schema";
 /**
  * Deterministic context-block assembly + content-hash cache invalidation
  * (PRD §5, §6.6, §7). The extracted UI DNA content is serialized
- * deterministically — recursively sorted keys, no timestamps, sorted arrays —
+ * deterministically (recursively sorted keys, no timestamps, sorted arrays),
  * so the same repo state produces a byte-identical block across PRs. The cache
  * is keyed on the SHA-256 of that serialization (NOT a wall-clock TTL), so a
  * downstream snapshot is recomputed only when the repo's tokens/brand/components
@@ -19,7 +19,7 @@ export const CONTEXT_VERSION = "1";
 
 export interface ContextBlock {
   contextVersion: string;
-  /** sha256 of the serialized block — the cache key / invalidation token. */
+  /** sha256 of the serialized block: the cache key / invalidation token. */
   contentHash: string;
   /** Deterministic, byte-stable serialization of the extracted DNA content. */
   serialized: string;
@@ -31,7 +31,7 @@ export interface ContextBlock {
  * (already-canonicalized) elements. The extracted-content arrays here
  * (components, anchors, exceptions, identity dos/donts, distribution sequences)
  * are sets of facts, not positional data, so two snapshots that differ only in
- * array order are semantically equal and must hash identically (#14) — extractor
+ * array order are semantically equal and must hash identically (#14). Extractor
  * order today is stable, but the hash no longer depends on that.
  */
 export function canonicalize(value: unknown): unknown {
@@ -59,7 +59,7 @@ export function canonicalize(value: unknown): unknown {
  *
  * Deliberately excludes `metadata` (schema/dna/extraction/model versions +
  * approval state): those are lifecycle stamps, not extracted content, and must
- * not perturb the content hash — otherwise bumping `dnaVersion` or approving a
+ * not perturb the content hash; otherwise bumping `dnaVersion` or approving a
  * snapshot would spuriously bust the cache. The `contextVersion` (format stamp)
  * IS included, so a serialization-format change busts every entry.
  */

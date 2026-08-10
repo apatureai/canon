@@ -12,8 +12,8 @@ import {
 } from "@uidna/context";
 
 /**
- * Filesystem discovery for the `ui-dna context` command. This module — and only
- * this module — knows that a design system lives in files. `@uidna/context`
+ * Filesystem discovery for the `ui-dna context` command. This module, and only
+ * this module, knows that a design system lives in files. `@uidna/context`
  * stays a set of pure string→facts extractors; everything here is "which bytes
  * do we hand it, and what do we call the source afterwards".
  *
@@ -61,7 +61,7 @@ export interface ScanResult {
   /**
    * Every candidate file that was opened and handed to an extractor, whether or
    * not it yielded a fact. A file that declares nothing is reported with
-   * `tokens: 0` and a note saying so — the alternative, dropping it silently,
+   * `tokens: 0` and a note saying so. The alternative, dropping it silently,
    * makes "no sources" indistinguishable from "the walk never found your files".
    *
    * Sorted by path then kind, so two runs over the same tree report identically.
@@ -188,7 +188,7 @@ function walk(dir: string, root: string, depth: number, state: WalkState, option
 /**
  * Read a project directory and produce every design-token fact its static
  * sources declare, each stamped with the file it came from. Contributions are
- * NOT merged here — merging is reconciliation's job, and two files disagreeing
+ * NOT merged here: merging is reconciliation's job, and two files disagreeing
  * about one token is a result worth reporting, not a collision to silently
  * resolve during a directory walk.
  */

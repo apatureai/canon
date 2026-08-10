@@ -5,11 +5,11 @@ import { commitSnapshot, type CommitResult, type SnapshotStore } from "./store.j
 /**
  * Sign-off workflow (#23, PRD §4/§6): the human review that transitions a
  * snapshot draft → in_review → approved, and on approval lifts confirmed
- * `Fact`s to confidence 1.0 with provenance `human` — the top rung the reconcile
+ * `Fact`s to confidence 1.0 with provenance `human`, the top rung the reconcile
  * ladder (#18) reserves for sign-off. Structured review is headless (a plain
  * JSON `ReviewDecisions`), not UI-coupled; no customer code is written.
  *
- * Approval produces a NEW immutable version via `@uidna/store` — an approved
+ * Approval produces a NEW immutable version via `@uidna/store`; an approved
  * snapshot is never mutated in place.
  */
 

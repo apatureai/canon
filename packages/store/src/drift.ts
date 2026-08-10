@@ -8,7 +8,7 @@ import { canonicalColor, type DnaTokens } from "@uidna/schema";
  * (symmetric, for versioning). This is a different, product-meaningful question:
  * where has the CODE genome drifted from the DESIGN genome, treating **design as
  * the source of truth**. It is the primitive behind the design-system drift
- * gate — the axis a code-only reviewer cannot see: a PR that hardcodes a value
+ * gate, the axis a code-only reviewer cannot see: a PR that hardcodes a value
  * the design system already defines, or invents a token the design never
  * sanctioned.
  *
@@ -45,9 +45,9 @@ export interface DriftEntry {
   group: TokenGroup;
   name: string;
   kind: DriftKind;
-  /** The design's (authoritative) value — present for `value_mismatch` and `missing_in_code`. */
+  /** The design's (authoritative) value, present for `value_mismatch` and `missing_in_code`. */
   design?: string;
-  /** The code's value — present for `value_mismatch` and `undocumented_in_design`. */
+  /** The code's value, present for `value_mismatch` and `undocumented_in_design`. */
   code?: string;
 }
 
@@ -56,7 +56,7 @@ export interface DesignCodeDrift {
   /** Every divergent token, ordered by group then token name (stable). */
   entries: DriftEntry[];
   summary: {
-    /** Tokens present in both with an equal value — no drift. */
+    /** Tokens present in both with an equal value: no drift. */
     aligned: number;
     valueMismatch: number;
     missingInCode: number;
@@ -108,7 +108,7 @@ const WEIGHT_KEYWORDS: Readonly<Record<string, string>> = { normal: "400", bold:
  * Canonicalize a `typography` token value for comparison, inferring the sub-kind
  * from the value SHAPE (the group mixes families, sizes, and weights with no
  * per-value type signal). Only UNAMBIGUOUS normalizations, else null (→ exact):
- *   - **weight**: `normal` = `400`, `bold` = `700`, and a bare `100`–`900` stays
+ *   - **weight**: `normal` = `400`, `bold` = `700`, and a bare `100` to `900` stays
  *     numeric (`lighter`/`bolder` are relative → left exact).
  *   - **size / line-height**: a `<number><unit?>` reuses `canonicalDimension`.
  *   - **family**: a single family with surrounding quotes strips them
@@ -124,7 +124,7 @@ function canonicalTypography(value: string): string | null {
   const dim = canonicalDimension(value);
   if (dim !== null) return dim; // font-size / line-height with a unit
 
-  // A single font family, optionally quoted — strip a matching quote pair.
+  // A single font family, optionally quoted: strip a matching quote pair.
   const quoted = /^(["'])(.*)\1$/.exec(value);
   if (quoted) return quoted[2] ?? null;
   if (/^[A-Za-z][\w -]*$/.test(value)) return value; // plain single-family identifier
@@ -207,7 +207,7 @@ export function computeDesignCodeDrift(design: DnaTokens, code: DnaTokens): Desi
 
 /**
  * Wrap a bare drift-entry list as a `DesignCodeDrift` (recomputing the summary)
- * so a subset of entries — e.g. the drift a change introduced — can be scored by
+ * so a subset of entries (e.g. the drift a change introduced) can be scored by
  * the gate / remediation. `aligned` is 0 by construction (only divergent entries).
  */
 export function driftFromEntries(entries: DriftEntry[]): DesignCodeDrift {
@@ -252,7 +252,7 @@ export interface DriftGateVerdict {
   decision: "block" | "warn" | "pass";
   blocking: DriftEntry[];
   warnings: DriftEntry[];
-  /** Entries whose kind is in neither policy list — reported, not gated. */
+  /** Entries whose kind is in neither policy list: reported, not gated. */
   ignored: DriftEntry[];
 }
 

@@ -2,14 +2,14 @@
  * Design-source provenance enforcement (decision D2, PRD §4/§7).
  * The design↔code drift gate is only as authoritative
  * as the design export it grounds against. A drift finding says "the code uses
- * `#3B82F6` but the design system defines `color.brand.primary = #2563EB`" — but
+ * `#3B82F6` but the design system defines `color.brand.primary = #2563EB`". But
  * *says who?* If the export's origin is unverified (an arbitrary DTCG file, not
  * the team's actual design source of truth), the finding is arguable and must not
  * fail a PR. D2 makes that enforceable: the drift gate keeps BLOCKING authority
  * only when the design export's provenance meets a required verification bar.
  *
  * Mirrors the D1 citation-gate principle exactly: provenance can only ever
- * REMOVE gating authority from an under-verified review — it never ADDS a block.
+ * REMOVE gating authority from an under-verified review; it never ADDS a block.
  * Below the bar, the caller chooses `advisory` (keep the findings, cap the
  * verdict at `warn` so it surfaces but never fails the PR) or `refuse` (don't
  * gate at all, return `unverified_design_source`).
@@ -17,7 +17,7 @@
  * Dependency-inverted: it takes the drift gate's OUTPUT (`DesignSourceGate`, from
  * `reviewDesignSourceDrift`) plus a provenance descriptor the CALLER establishes
  * (a connector/CI asserts the origin; this module does not verify signatures) and
- * enforces the policy over it. No parse, no I/O — pure and deterministic. A
+ * enforces the policy over it. No parse, no I/O: pure and deterministic. A
  * malformed export (`invalid_design_source`) is passed through untouched: it was
  * never gated, so provenance is moot.
  */
@@ -33,11 +33,11 @@ import type { DriftGateVerdict } from "./drift.js";
 
 /**
  * How the design export's origin was established, weakest → strongest:
- *   - `unverified` — origin unknown (an arbitrary document);
- *   - `declared`   — the caller declared a source id, but it is not verified;
- *   - `attested`   — a trusted connector/CI asserted the origin (e.g. the Figma
+ *   - `unverified`: origin unknown (an arbitrary document);
+ *   - `declared`:   the caller declared a source id, but it is not verified;
+ *   - `attested`:   a trusted connector/CI asserted the origin (e.g. the Figma
  *     app auth'd to the team's file, a signed CI step);
- *   - `signed`     — a cryptographic attestation binds the bytes to the source.
+ *   - `signed`:     a cryptographic attestation binds the bytes to the source.
  */
 export type ProvenanceVerification = "unverified" | "declared" | "attested" | "signed";
 
@@ -63,9 +63,9 @@ export interface DesignSourceProvenancePolicy {
   minVerification: Exclude<ProvenanceVerification, "unverified">;
   /**
    * What to do when provenance is below the bar:
-   *   - `advisory` — keep the drift findings but cap the verdict at `warn` (never
+   *   - `advisory`: keep the drift findings but cap the verdict at `warn` (never
    *     fail the PR on an under-verified design source);
-   *   - `refuse`   — do not gate; return `unverified_design_source`.
+   *   - `refuse`:   do not gate; return `unverified_design_source`.
    */
   belowBar: "advisory" | "refuse";
 }
@@ -107,7 +107,7 @@ export interface UnverifiedDesignSource {
 export interface AdvisoryDesignSourceGate extends Omit<DesignSourceGate, "status"> {
   status: "gated_advisory";
   provenance: DesignSourceProvenance;
-  /** Always false here — the reason the verdict was capped. */
+  /** Always false here; it is the reason the verdict was capped. */
   provenanceSufficient: false;
   /** The verdict the drift would have produced with full authority (e.g. `block`). */
   ungatedVerdict: DriftGateVerdict;
@@ -130,7 +130,7 @@ export type ProvenancedDriftOutcome =
  * Enforce design-source provenance over a drift gate outcome. When the export
  * met the verification bar, the gate keeps full authority. When it did not, the
  * verdict is either softened to advisory (verdict capped at `warn`, findings kept)
- * or the gate is refused — per policy. A block is NEVER added; provenance can only
+ * or the gate is refused, per policy. A block is NEVER added; provenance can only
  * remove authority. `invalid_design_source` passes through unchanged. Deterministic.
  */
 export function enforceDesignSourceProvenance(
@@ -138,7 +138,7 @@ export function enforceDesignSourceProvenance(
   provenance: DesignSourceProvenance,
   policy: DesignSourceProvenancePolicy = DEFAULT_PROVENANCE_POLICY,
 ): ProvenancedDriftOutcome {
-  // A malformed export was never gated — provenance is moot; pass it through.
+  // A malformed export was never gated, so provenance is moot; pass it through.
   if (outcome.status === "invalid_design_source") return outcome;
 
   if (provenanceMeetsBar(provenance, policy)) {
@@ -175,7 +175,7 @@ export interface VerifiedDesignSourceDelta extends DesignSourceDriftDelta {
 export interface AdvisoryDesignSourceDelta extends Omit<DesignSourceDriftDelta, "status"> {
   status: "delta_advisory";
   provenance: DesignSourceProvenance;
-  /** Always false here — the reason the delta verdict was capped. */
+  /** Always false here; it is the reason the delta verdict was capped. */
   provenanceSufficient: false;
   /** The verdict the introduced-drift delta would have produced with full authority. */
   ungatedVerdict: DriftGateVerdict;
@@ -188,7 +188,7 @@ export type ProvenancedDriftDeltaOutcome =
   | InvalidDesignSource;
 
 /**
- * Enforce design-source provenance over the FAIR (base-vs-head) drift delta — the
+ * Enforce design-source provenance over the FAIR (base-vs-head) drift delta, the
  * surface a PR gate actually uses (it fires only on drift the change introduced).
  * The delta's fair verdict is computed on the introduced set; provenance then
  * gates whether that verdict carries authority, exactly as for the point-in-time

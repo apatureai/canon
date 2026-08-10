@@ -14,7 +14,7 @@ import type { FieldLabel, LabeledReconcileFixture } from "./labeled-fixture.js";
  * - confidence CALIBRATION (ECE / Brier) over every labeled resolved fact.
  *
  * The output informs the precedence ladder (#18): the weights become measured.
- * Pure + deterministic + offline — no live capture or model, so it can gate CI.
+ * Pure + deterministic + offline: no live capture or model, so it can gate CI.
  */
 
 /** Every resolved token field flattened to `field -> Fact`, matching label keys. */
@@ -35,9 +35,9 @@ export interface ReconcileAccuracy {
   labeled: number;
   /** Predicted fields whose resolved value matched the label. */
   correct: number;
-  /** correct / predicted — when we resolve a labeled field, how often is the value right. */
+  /** correct / predicted: when we resolve a labeled field, how often is the value right. */
   precision: number;
-  /** correct / labeled — of all labeled fields, how many we resolved correctly. */
+  /** correct / labeled. Of all labeled fields, how many we resolved correctly. */
   recall: number;
   /** Labeled fields expecting a conflict (denominator for conflict recall). */
   conflictsExpected: number;
@@ -50,7 +50,7 @@ export interface ReconcileAccuracy {
 export interface ReconcileEvalReport {
   accuracy: ReconcileAccuracy;
   calibration: CalibrationReport;
-  /** Per-fixture accuracy, in fixture order — for drilling into a regression. */
+  /** Per-fixture accuracy, in fixture order, for drilling into a regression. */
   perFixture: { name: string; accuracy: ReconcileAccuracy }[];
 }
 
@@ -90,7 +90,7 @@ function scoreFixture(
     if (label.expectConflict && conflictFields.has(label.field)) tally.conflictsCaught++;
 
     const fact = resolved.get(label.field);
-    if (!fact) continue; // labeled field not resolved — missed (hurts recall, not precision)
+    if (!fact) continue; // labeled field not resolved: missed (hurts recall, not precision)
     tally.predicted++;
     const isCorrect = fact.value === label.expectedValue;
     if (isCorrect) tally.correct++;

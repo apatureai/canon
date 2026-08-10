@@ -1,14 +1,14 @@
 /**
- * Drift comment renderer — the human-readable PR comment for the design-system
+ * Drift comment renderer: the human-readable PR comment for the design-system
  * drift gate (PRD §4/§9), the drift-axis sibling of the rendered-review comment.
  * The drift gate node produces an agent-actionable remediation plan; this renders
  * the same result as deterministic Markdown a reviewer reads: the verdict, the
  * drift THIS change introduced (each headlined by the design token it broke), and
  * the counts. Pre-existing drift is not gated and is only counted.
  *
- * Every token headline names the exact `group.name` — un-arguable, the drift
+ * Every token headline names the exact `group.name`: un-arguable, the drift
  * axis's version of D1 ("which of your tokens it broke"), never prose. Pure and
- * deterministic; no I/O — the delivery surface posts the string.
+ * deterministic; no I/O. The delivery surface posts the string.
  */
 
 import type { DriftGateNodeResult, DriftGateVerdictDecision } from "./drift-gate-node.js";

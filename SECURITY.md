@@ -11,7 +11,7 @@ receives no security support**:
   turned off; the pinned versions in `pnpm-lock.yaml` were current in mid-2026 and will age.
 - There is no bug bounty, and no reward of any kind is offered.
 
-No package here was ever published to a registry — every workspace package is `private: true` at
+No package here was ever published to a registry: every workspace package is `private: true` at
 version `0.0.0`. There is no released artifact for anyone to be exposed to transitively. The only
 way to be affected by this code is to deliberately vendor or fork it.
 
@@ -22,18 +22,18 @@ If you find something and want it on the record, open a private report through G
 
 Please be realistic about what happens next. There is no response SLA, no triage rotation, and no
 committed fix. A credible report will most likely result in a note added to this file or the
-README so that people who fork the code know what they are inheriting — not a patch. Do not use a
+README so that people who fork the code know what they are inheriting, not a patch. Do not use a
 private report as a way to hold a finding for embargo; you are free to disclose publicly whenever
 you like.
 
-Do not report vulnerabilities in the *dependencies* listed in `pnpm-lock.yaml` — see "If you run
+Do not report vulnerabilities in the *dependencies* listed in `pnpm-lock.yaml`. See "If you run
 this" below, and report those upstream.
 
 ## What this code actually does (so you can size the risk yourself)
 
 This repo is a set of pure TypeScript libraries that turn a frontend project's design information
-into a versioned "design genome" — schema types, static token/brand extractors, evidence
-reconciliation, an immutable snapshot store, an eval harness — plus one command line
+into a versioned "design genome" (schema types, static token/brand extractors, evidence
+reconciliation, an immutable snapshot store, an eval harness), plus one command line
 (`@uidna/cli`) that reads files from disk and feeds them to those libraries.
 
 The honest risk surface, verified by reading `packages/*/src`:
@@ -45,7 +45,7 @@ The honest risk surface, verified by reading `packages/*/src`:
   writes only where `--out` points. There is no server and no daemon, and rendered evidence still
   arrives through the `@uidna/render` input port as data some other system captured.
 - **It parses untrusted input by design.** CSS and CSS custom properties, DTCG `tokens.json`,
-  YAML config, and resolved Tailwind theme objects — all of it originating from somebody else's
+  YAML config, and resolved Tailwind theme objects, all of it originating from somebody else's
   repository. Parsing is regex-heavy in places. Treat every input as hostile: budget CPU/time,
   cap input size, and do not assume adversarial input parses quickly.
 - **One genuinely sharp edge: evaluating a Tailwind config.** A `tailwind.config.js` is
@@ -54,7 +54,7 @@ The honest risk surface, verified by reading `packages/*/src`:
   implementation: the config is imported in a `worker_threads` worker with a wall-clock timeout,
   and the CLI starts that worker only when you pass `--exec-tailwind-config`. **A worker thread is
   isolation, not a sandbox.** It bounds hangs, throws and stack overflows; it does not remove
-  privilege — the config can still read files, spawn processes and open sockets as your user. Do
+  privilege. The config can still read files, spawn processes and open sockets as your user. Do
   not point `--exec-tailwind-config` at a repository you would not `npm install`. If you need a
   real boundary, run the whole CLI in a container.
 - **Secret/PII scrubbing is pattern-based.** `packages/store/src/residency.ts` redacts

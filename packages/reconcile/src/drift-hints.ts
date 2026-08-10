@@ -6,7 +6,7 @@ import type { Conflict, Provenance } from "@uidna/schema";
  * "the code/config declares X, but rendered reality shows Y". This is where the
  * decided "config wins the Fact, pixel disagreement becomes drift" lands.
  *
- * Drift is advisory ONLY — it never mutates the resolved snapshot or canonizes
+ * Drift is advisory ONLY; it never mutates the resolved snapshot or canonizes
  * the drifting value (PRD §4: this repo never writes customer code and never
  * declares a messy legacy pattern canonical without sign-off). Pure +
  * deterministic.
@@ -25,7 +25,7 @@ export interface DriftHint {
   /** Provenance of the disagreeing value, if any. */
   driftingProvenance: Provenance | null;
   /**
-   * 0..1 strength of the drift signal — how much confidence the disagreement
+   * 0..1 strength of the drift signal: how much confidence the disagreement
    * cost the standard (the magnitude of the recorded confidenceDelta).
    */
   confidence: number;
@@ -50,7 +50,7 @@ function describe(hint: Omit<DriftHint, "message">): string {
  * The candidate that actually won the value.
  *
  * `Conflict` records the winner's PROVENANCE, not its index, and two candidates
- * can legitimately share one — a Tailwind `@theme` block and a `:root` block are
+ * can legitimately share one. A Tailwind `@theme` block and a `:root` block are
  * both `code`. Taking the first match would then name the loser as the standard
  * and invert the entire hint, so this re-applies the tie-break `reconcileField`
  * used to pick the winner: within the winning provenance, highest confidence,

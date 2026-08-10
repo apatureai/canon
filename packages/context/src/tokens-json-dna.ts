@@ -7,7 +7,7 @@ import { CONFIG_CONFIDENCE } from "./internal.js";
 
 /**
  * Map a `tokens.json` document onto the canonical `DnaTokens` groups (PRD §5),
- * stamping every value as a `Fact<string>` with provenance "config" — a
+ * stamping every value as a `Fact<string>` with provenance "config". A
  * tokens.json is an explicit, declared design-token file, a stronger signal than
  * CSS vars inferred from code, so it earns a higher confidence.
  *
@@ -62,7 +62,7 @@ export function extractTokensJsonWithDiagnostics(doc: unknown): ExtractTokensRes
 
   for (const { name, value, type } of resolution.tokens) {
     // DTCG 2025.10 types border-radius AND typographic lengths (font-size,
-    // line-height, letter-spacing) as `dimension` — the SAME `$type` as spacing —
+    // line-height, letter-spacing) as `dimension`, the SAME `$type` as spacing,
     // so `groupFromType` alone would file all of them under `spacing`. The token
     // NAME is the only disambiguator the format offers, so for a `dimension` token
     // let a more specific name-group (`radii` or `typography`) win over the

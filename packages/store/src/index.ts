@@ -120,8 +120,8 @@ export {
   type DriftGateVerdict,
 } from "./drift.js";
 
-// Drift delta (PRD §4/§7): the base-vs-head diff that makes the drift gate FAIR —
-// drift entries partition into introduced / resolved / persisting, and the
+// Drift delta (PRD §4/§7): the base-vs-head diff that makes the drift gate FAIR.
+// Drift entries partition into introduced / resolved / persisting, and the
 // verdict gates on the INTRODUCED set only (a change never blocks on pre-existing
 // design-code debt). Drift entries have a natural group+name+kind key; the key
 // is a policy input for stricter matching.
@@ -133,8 +133,8 @@ export {
   type DriftDelta,
 } from "./drift-delta.js";
 
-// Drift remediation: the agent-actionable output of the drift gate —
-// each gated drift entry projected into a cited, eyes-not-hands fix instruction
+// Drift remediation: the agent-actionable output of the drift gate.
+// Each gated drift entry projected into a cited, eyes-not-hands fix instruction
 // ("replace the hardcoded value with the design token"), partitioned blocking vs
 // advisory. The drift-axis analog of the rendered-review fix spec. Composes evaluateDriftGate.
 export {
@@ -146,8 +146,8 @@ export {
   type AxisFixItem,
 } from "./drift-remediation.js";
 
-// Drift gate node (agentic-SDLC graph): the drift axis as a CONDITIONAL node —
-// the fair drift verdict + routing edge (fix vs proceed) + the cited remediation
+// Drift gate node (agentic-SDLC graph): the drift axis as a CONDITIONAL node,
+// with the fair drift verdict + routing edge (fix vs proceed) + the cited remediation
 // back-edge for the introduced drift. Composes diffDrift + buildDriftRemediation.
 export {
   evaluateDriftGateNode,
@@ -157,12 +157,12 @@ export {
 } from "./drift-gate-node.js";
 
 // Drift comment (delivery parity): the human-readable PR comment for the drift
-// gate — the drift-axis sibling of the rendered-review comment. Introduced drift
+// gate, the drift-axis sibling of the rendered-review comment. Introduced drift
 // headlined by the design token it broke; pre-existing counted, not gated.
 export { renderDriftComment } from "./drift-comment.js";
 
-// Design-source drift gate: the end-to-end capability —
-// parse a design-tool DTCG export into a design genome and gate the code genome's
+// Design-source drift gate: the end-to-end capability.
+// Parse a design-tool DTCG export into a design genome and gate the code genome's
 // drift against it (+ a fair base-vs-head delta variant). Refuses to gate a
 // fundamentally malformed export (would flag everything) rather than mislead.
 export {

@@ -1,8 +1,8 @@
 # ui-dna
 
-**Archived — provided as-is, no updates expected.** Issues and pull requests are not monitored. Last verified working 2026-08-09 on macOS 14 (Darwin 24.6) + Node v24.14.0 + pnpm 9.15.0.
+**Archived. Provided as-is, no updates expected.** Issues and pull requests are not monitored. Last verified working 2026-08-09 on macOS 14 (Darwin 24.6) + Node v24.14.0 + pnpm 9.15.0.
 
-A command line and TypeScript libraries that read a codebase's *de facto* design system — colors, spacing, type scale, radii, component conventions, brand voice — out of its own files.
+A command line and TypeScript libraries that read a codebase's *de facto* design system (colors, spacing, type scale, radii, component conventions, brand voice) out of its own files.
 
 ## Why this exists
 
@@ -12,23 +12,23 @@ request's rendered UI against the repository's own design system. It answered th
 product was wound down; this repository is released under MIT as a working snapshot.
 
 The interesting part was never "parse a Tailwind config". It is what to do when a repository's
-design sources contradict each other — and how to produce something a team would agree to be
+design sources contradict each other, and how to produce something a team would agree to be
 gated on.
 
 ## What it does
 
 - Resolves a **DTCG Format Module 2025.10** token file from disk: chained curly aliases,
   same-document RFC 6901 `$ref` including property-level references, `$root`, group `$extends`,
-  inherited types, deterministic derivation chains — and 11 diagnostic codes for everything it
+  inherited types, deterministic derivation chains, plus 11 diagnostic codes for everything it
   refuses to resolve.
-- Extracts a design system from a **project directory**: CSS custom properties (including
+- Extracts a design system from a project directory: CSS custom properties (including
   `.dark` / `[data-theme]` / `prefers-color-scheme` scopes), Tailwind v4 `@theme` blocks,
   Tailwind v3 configs, DTCG/Style Dictionary token files, component libraries from
   `package.json`, and a hand-written `.designreview.yml` brand block.
 - **Reconciles** sources that disagree: resolves the value by provenance precedence, computes
   confidence separately (agreement reinforces, disagreement degrades), and records every
   candidate it considered instead of silently picking one.
-- Emits a **content-addressed context block** and a schema-valid draft genome as JSON, byte-stable
+- Emits a content-addressed context block and a schema-valid draft genome as JSON, byte-stable
   across runs.
 - Ships all of the above as a library (`@uidna/schema`, `@uidna/context`, `@uidna/render`,
   `@uidna/reconcile`, `@uidna/store`, `@uidna/eval`, `@uidna/cli`) with 472 tests that run offline
@@ -69,8 +69,8 @@ pnpm build
 `pnpm build` is `tsc -b` across the workspace. The CLI runs from `packages/cli/dist`, so the build
 is part of installation, not an optional step.
 
-**Three ways to invoke it**, all equivalent. The transcripts below use the first because it is the
-one that has no wrapper in the output:
+There are three ways to invoke it, all equivalent. The transcripts below use the first because it
+is the one that has no wrapper in the output:
 
 ```bash
 node packages/cli/dist/bin.js tokens examples/sample-tokens.json   # explicit
@@ -78,7 +78,7 @@ pnpm ui-dna tokens examples/sample-tokens.json                     # root script
 ```
 
 Nothing here was published to npm, so there is no `npm i -g ui-dna`. If you want the command on
-your `PATH`, symlink the built entry point yourself — it has a shebang and works from any working
+your `PATH`, symlink the built entry point yourself; it has a shebang and works from any working
 directory:
 
 ```bash
@@ -137,7 +137,7 @@ diagnostics (4)
 
 **Success looks like:** `resolved tokens (22)` and `diagnostics (4)`. The four broken tokens
 (`color.missing`, `color.loop-a`, `color.loop-b`, `broken.typo`) are in the diagnostics list and
-absent from the resolved list — a resolver that reported 26 tokens would have guessed.
+absent from the resolved list. A resolver that reported 26 tokens would have guessed.
 
 ### 2. Extract a design system from a project
 
@@ -196,7 +196,7 @@ wrote draft genome  out/genome.json
 ```
 
 **Success looks like:** `sources (6 of 6 files walked)`, `conflicts (2)`, the `sha256:da5aa778…` content hash, and a
-file at `out/genome.json`. Run it twice — the hash is identical, because it is computed over
+file at `out/genome.json`. Run it twice and the hash is identical, because it is computed over
 canonicalized extracted content with no timestamps in it.
 
 Read one fact out of the genome to see the shape:
@@ -212,7 +212,7 @@ $ node -e "const g=require('./out/genome.json'); console.log(g.tokens.color['--c
 
 That is the whole idea: every field carries where it came from and how sure the extractor is. The
 brand token's confidence sits *below* either source that declared it, because two files disagreed
-about it — and both candidate values are still in the report.
+about it, and both candidate values are still in the report.
 
 ### Optional: evaluate the Tailwind config
 
@@ -240,7 +240,7 @@ timeout: that bounds *failure* (a config that throws or hangs fails the load ins
 CLI down), not *privilege*. The config runs as ordinary Node code. Only point it at a repository
 you would already run `npm install` in.
 
-The `| head -12` is only there to keep the transcript short — the full report continues with the
+The `| head -12` is only there to keep the transcript short; the full report continues with the
 rest of the group counts, the conflicts, and the context block.
 
 ### 3. Point it at your own repository
@@ -253,7 +253,7 @@ not mine `p-4 rounded-lg text-slate-900` out of your JSX and call it a spacing s
 you get tokens from a `:root`/`html`/`.dark`/`[data-theme]` block of `--custom-properties`, a
 literal Tailwind v4 `@theme { … }` block, a DTCG/Style Dictionary token file, or a Tailwind v3
 config **with `--exec-tailwind-config`**. Consuming Tailwind v4 as `@import "tailwindcss"` declares
-nothing in your repository — that theme lives inside the npm package — and a `package.json` only
+nothing in your repository (that theme lives inside the npm package), and a `package.json` only
 contributes component conventions for shadcn/ui, Radix, MUI, Chakra and Mantine.
 
 So a plain Vite/React app that styles entirely in utility classes legitimately reports zero tokens.
@@ -274,7 +274,7 @@ resolved tokens (0)
 ```
 
 Every candidate file the walk opened is listed with the reason it contributed nothing, so `0`
-tokens never has to be diagnosed. `sources (0 of N files walked)` is a different statement — it
+tokens never has to be diagnosed. `sources (0 of N files walked)` is a different statement: it
 means no candidate file was found at all, and is worth re-checking the path over. `--json` carries
 the same data (`filesWalked`, plus every source including the zero-token ones) for scripts.
 
@@ -327,7 +327,7 @@ anywhere; `tailwind.config.{js,cjs,mjs,ts,mts,cts}` anywhere; `package.json` and
 `coverage`, `.next`, `.nuxt`, `.turbo`, `.cache`, `vendor` and `tmp` are never entered. Files over
 2 MiB and unparseable files are listed as `skipped`, never guessed at.
 
-**Every candidate file is reported, including the ones that declared nothing** — with `0` tokens
+**Every candidate file is reported, including the ones that declared nothing**, with `0` tokens
 and the reason. The header reads `sources (K of N files walked)`, so "your stylesheets declare no
 tokens" and "no stylesheet was found" are never the same output. A repository with hundreds of
 declaration-free stylesheets gets a bounded sample plus a count in the terminal table; `--json`
@@ -335,7 +335,7 @@ always lists every one.
 
 ### The confidence ladder
 
-Every extracted fact is a `Fact<T>` — `{ value, confidence, provenance }`. The conventions these
+Every extracted fact is a `Fact<T>`: `{ value, confidence, provenance }`. The conventions these
 settled on, in descending order:
 
 | Source | Provenance | Confidence |
@@ -347,16 +347,16 @@ settled on, in descending order:
 | Raw CSS custom properties | `code` | 0.6 |
 | Component library present in `package.json` | `code` | 0.5 |
 
-When several sources claim one field, `reconcileField` resolves the **value** by precedence —
-human > config > code > pixels, so what a browser renders never silently overwrites a declared
-token — and computes **confidence** separately. Agreement between two independent sources
+When several sources claim one field, `reconcileField` resolves the **value** by precedence
+(human > config > code > pixels, so what a browser renders never silently overwrites a declared
+token) and computes **confidence** separately. Agreement between two independent sources
 reinforces confidence above what either alone would justify (bounded below 1.0). Disagreement keeps
 the winning value but degrades its confidence in proportion to the strength of the dissent, and
 emits a `Conflict` listing every candidate. Every tunable lives in one file,
 `packages/reconcile/src/thresholds.ts`, so `@uidna/eval` can measure them against labeled fixtures
 instead of leaving them as taste.
 
-Conflicts are then promoted into advisory `DriftHint`s — `config says X but pixels show Y`, or a
+Conflicts are then promoted into advisory `DriftHint`s: `config says X but pixels show Y`, or a
 *dead token* the codebase declares that nothing rendered ever uses. Drift never mutates the
 resolved genome and never canonizes the drifting value.
 
@@ -370,7 +370,7 @@ resolved genome and never canonizes the drifting value.
 - deterministic alias/extension derivation chains and byte-stable key/token/diagnostic ordering;
 - fail-closed diagnostics for unresolved, circular, type-invalid, malformed, external and
   over-budget references;
-- classic Style Dictionary `value` nodes remain an explicit compatibility path — they carry
+- classic Style Dictionary `value` nodes remain an explicit compatibility path; they carry
   `type: null` when undeclared and are not described as DTCG-conformant.
 
 The [Resolver Module](https://www.designtokens.org/TR/2025.10/resolver/)'s sets, modifiers,
@@ -388,11 +388,11 @@ examples and the required failure taxonomy. A separate corpus benchmark
 (`pnpm eval:dtcg-corpus`) fetches 20 public token files from GitHub by immutable blob SHA;
 **it is the only thing in the repository that touches the network** and is deliberately outside
 CI. Baseline recorded 2026-07-12 on Node 25.2.1: 20/20 blobs fetched and parsed, repeated output
-byte-identical, p95 resolution 2.11–3.15 ms, peak heap 17.15–17.54 MiB (ceilings 100 ms / 64 MiB);
-1,629 raw token-shaped nodes yielded 384 strict-profile tokens and 1,223 diagnostics. That last
-number is compatibility evidence, not an accuracy score: most public repositories still use
-pre-2025 scalar `$value` shapes or split aliases across files, and this profile abstains rather
-than stringify them.
+byte-identical, p95 resolution 2.11 to 3.15 ms, peak heap 17.15 to 17.54 MiB (ceilings 100 ms /
+64 MiB); 1,629 raw token-shaped nodes yielded 384 strict-profile tokens and 1,223 diagnostics.
+That last number is compatibility evidence, not an accuracy score: most public repositories still
+use pre-2025 scalar `$value` shapes or split aliases across files, and this profile abstains
+rather than stringify them.
 
 ### Using it as a library
 
@@ -401,7 +401,7 @@ path is clone → build → import, or vendor the source you want. Every extract
 not a path; `@uidna/cli` is the only package that reads a disk.
 
 The block below is `examples/library-example.ts`, checked in and runnable as-is once `pnpm build`
-has run — extract → reconcile → drift → version → sign off → serve, in one file:
+has run. It goes extract → reconcile → drift → version → sign off → serve, in one file:
 
 ```console
 $ node examples/library-example.ts
@@ -447,7 +447,7 @@ That `null` before approval is the point: a draft genome is never visible downst
 
 **Where the `@uidna/*` specifiers resolve.** Inside this repository they resolve everywhere,
 including the root, because the root `package.json` declares the workspace packages as
-dependencies — which is why the file above runs from the repository root with no extra setup. They
+dependencies, which is why the file above runs from the repository root with no extra setup. They
 resolve to `packages/<name>/dist`, so `pnpm build` is a prerequisite. **Outside** this repository
 they resolve nowhere: nothing was published to npm. Copy the file into your own project and you
 must rewrite each `@uidna/x` to a path into the built package, e.g.
@@ -477,7 +477,7 @@ default gate:
          ▼                                            ▼
    @uidna/context                                @uidna/render
    Fact<T> @ code|config|human                   Fact<T> @ pixels
-   confidence 0.5–0.9                            VisualDistributions, RenderedAnchor[]
+   confidence 0.5-0.9                            VisualDistributions, RenderedAnchor[]
          └───────────────┬────────────────────────────┘
                          ▼
                   @uidna/reconcile
@@ -511,17 +511,17 @@ packages/
   cli/         @uidna/cli        the filesystem entry point (`ui-dna`)
 examples/      sample-tokens.json, sample-project/ (a rich synthetic project),
                utility-only-project/ (one that declares nothing), library-example.ts
-scripts/       dtcg-corpus-benchmark.mjs — the network-touching corpus check
+scripts/       dtcg-corpus-benchmark.mjs, the network-touching corpus check
 ```
 
-**`@uidna/schema`** — `DnaSnapshot` and its parts: product identity, tokens (color, typography,
+**`@uidna/schema`** holds `DnaSnapshot` and its parts: product identity, tokens (color, typography,
 spacing, radii, shadows, breakpoints, motion), component conventions, visual distributions,
 rendered anchors, exceptions, metadata. `Fact<T>` carries `{ value, confidence, provenance }`;
 `Conflict` records a reconciliation disagreement. Plus `fact()`, `emptyDraft()`, `isApproved()`,
 `validateSnapshot()` and a shared color canonicalizer so the drift gate and the reconciler agree on
 what "the same color" means. `SCHEMA_VERSION = "1"`; evolution is additive-only within a version.
 
-**`@uidna/context`** — pure extractors, each split into a source-format parser plus a thin
+**`@uidna/context`** holds the pure extractors, each split into a source-format parser plus a thin
 `*-dna.ts` that maps its output onto schema facts: Tailwind v3 via Tailwind's own `resolveConfig`
 behind an injected `ConfigLoader` port, Tailwind v4 `@theme` via PostCSS, CSS custom properties
 including theme-scoped blocks, DTCG/Style Dictionary token files, component-library detection
@@ -530,15 +530,15 @@ mapping for Next.js App and Pages routers with an import-graph pass that falls b
 deterministically when resolution coverage is below threshold. Also `buildContextBlock`, the
 deterministic content-hash serializer.
 
-**`@uidna/render`** — the `CaptureEvidence` port (viewports, DOM geometry rects, computed-style and
-a11y facts, screenshot object-storage refs, perceptual hashes), a validator, a fixture capture
-source, `computeVisualDistributions` and `selectAnchors`. Screenshot *bytes* are never stored in
-the genome, only refs.
+**`@uidna/render`** defines the `CaptureEvidence` port (viewports, DOM geometry rects,
+computed-style and a11y facts, screenshot object-storage refs, perceptual hashes), a validator, a
+fixture capture source, `computeVisualDistributions` and `selectAnchors`. Screenshot *bytes* are
+never stored in the genome, only refs.
 
-**`@uidna/reconcile`** — `reconcileField`, `reconcileTokens` (declared tokens × observed
+**`@uidna/reconcile`** contains `reconcileField`, `reconcileTokens` (declared tokens × observed
 distributions), `reconcileComponents`, `computeDriftHints`, and `thresholds.ts`.
 
-**`@uidna/store`** — the largest package. Content-addressed immutable versions over an injected
+**`@uidna/store`** is the largest package. Content-addressed immutable versions over an injected
 `SnapshotStore` port; the draft → in_review → approved state machine, where approval applies
 headless JSON `ReviewDecisions` and promotes confirmed facts to confidence 1.0 with provenance
 `human`; route exceptions; `diffSnapshots`; the versioned `getSnapshot` read contract, which never
@@ -549,12 +549,12 @@ base-vs-head delta, remediation projection, routing node and PR-comment renderer
 provenance enforcement, which can only ever *remove* blocking authority from a verdict; and two
 named projections (an A2A capability card and a local-check profile).
 
-**`@uidna/eval`** — runs reconciliation over labeled fixtures and reports resolved-fact
+**`@uidna/eval`** runs reconciliation over labeled fixtures and reports resolved-fact
 precision/recall, conflict-detection recall, and confidence calibration (ECE, Brier, reliability
 bins), with a gate that can fail CI on a floor.
 
-**`@uidna/cli`** — argument parsing, the bounded directory walk (`scan.ts`), the merge into a draft
-genome (`genome.ts`), terminal rendering (`format.ts`), and the worker-backed `ConfigLoader`
+**`@uidna/cli`** covers argument parsing, the bounded directory walk (`scan.ts`), the merge into a
+draft genome (`genome.ts`), terminal rendering (`format.ts`), and the worker-backed `ConfigLoader`
 (`tailwind-config-loader.ts` + `worker/tailwind-config-worker.mjs`). `runCli` returns an exit code
 rather than calling `process.exit`, so the tests drive the same entry point a terminal does.
 
@@ -563,7 +563,7 @@ Three design decisions are worth reading the code for:
 **Determinism is a hard constraint.** The same repository state must produce a byte-identical
 genome. Serialization sorts keys *and arrays* recursively and contains no timestamps; caches are
 invalidated by content hash, never by wall-clock TTL. Version identity is the SHA-256 of the genome
-content folded with only the *causal* stamps that can legitimately change it — and nothing
+content folded with only the *causal* stamps that can legitimately change it, and nothing
 incidental. That last clause was learned the hard way: content-only identity meant approving a
 genome without editing it produced the same hash as the unapproved draft, so an approval could
 collide with, and resolve to, the draft record. Lifecycle state is now part of identity
@@ -630,7 +630,7 @@ been run.
 
 Component-library detection infers conventions from a dependency being present, not from how it is
 used. Route mapping targets Next.js App and Pages routers and nothing else. The residency layer's
-secret and PII scrubbing is pattern-based — defense in depth, not a guarantee. The A2A agent card
+secret and PII scrubbing is pattern-based: defense in depth, not a guarantee. The A2A agent card
 (`packages/store/src/agent-card.ts`) is `draft-unapproved`: it describes contracts that exist and
 carries no new capability. The local-check profile (`getPointerLocalCheckProfile`) targets a
 deterministic offline-check client that never shipped; its component-hint family is deliberately
@@ -650,20 +650,20 @@ Nothing here imports any of these; the coupling was by data contract only, and t
 (`packages/store/test/fixtures/golden-snapshot-response.json`) so a byte-compat test fails if the
 contract moves underneath a consumer.
 
-- [judgment-engine](https://github.com/apatureai/judgment-engine) — capture, grounded critique,
-  eval and feedback substrate. It **produced** the artifacts that arrive here as `CaptureEvidence`
-  and **consumed** approved genome slices. The static extractors in `@uidna/context` were built
-  there first and ported here.
-- [gate](https://github.com/apatureai/gate) — the GitHub PR review surface.
-- [mcp-review](https://github.com/apatureai/mcp-review) — the same review, in-loop over MCP.
-- [ui-graph](https://github.com/apatureai/ui-graph) — a token-efficient, genome-aware scene graph.
-- [sigil](https://github.com/apatureai/sigil) — a fixture-driven model quality/efficiency audit
+- [judgment-engine](https://github.com/apatureai/judgment-engine) was the capture, grounded
+  critique, eval and feedback substrate. It **produced** the artifacts that arrive here as
+  `CaptureEvidence` and **consumed** approved genome slices. The static extractors in
+  `@uidna/context` were built there first and ported here.
+- [gate](https://github.com/apatureai/gate) was the GitHub PR review surface.
+- [mcp-review](https://github.com/apatureai/mcp-review) ran the same review, in-loop over MCP.
+- [ui-graph](https://github.com/apatureai/ui-graph) is a token-efficient, genome-aware scene graph.
+- [sigil](https://github.com/apatureai/sigil) is a fixture-driven model quality/efficiency audit
   harness.
 
 ## Contributing
 
 This repository is archived. Pull requests are not accepted and issues are not monitored. Forking
-is the intended path — the license permits it and the test suite runs offline, so a fork can be
+is the intended path: the license permits it and the test suite runs offline, so a fork can be
 verified in one command. [CONTRIBUTING.md](CONTRIBUTING.md) documents the conventions the code was
 written to, for anyone continuing the history in a fork.
 
@@ -676,4 +676,4 @@ be published for this archived code.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

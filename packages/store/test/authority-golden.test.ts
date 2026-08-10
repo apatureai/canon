@@ -65,8 +65,8 @@ describe("authority-status golden vectors (#72 — the cross-repo mirror source)
         const status = store.status(step.event.key);
         expect(status.status, `${name}/${step.event.eventId} status`).toBe(step.expected.status);
         expect(status.sequence, `${name}/${step.event.eventId} sequence`).toBe(step.expected.sequence);
-        // Recorded hash must match BOTH the store's head and a live recomputation
-        // — a hand-edited or stale fixture fails even if self-consistent.
+        // Recorded hash must match BOTH the store's head and a live recomputation,
+        // so a hand-edited or stale fixture fails even if self-consistent.
         expect(status.headEventHash, `${name}/${step.event.eventId} head`).toBe(step.expected.headEventHash);
         expect(hashAuthorityEvent(step.event), `${name}/${step.event.eventId} recompute`).toBe(
           step.expected.headEventHash,
@@ -102,7 +102,7 @@ describe("authority-status golden vectors (#72 — the cross-repo mirror source)
   });
 
   it("the authorizeRead decision matrix matches on every (status, mode) pair", () => {
-    expect(golden.readDecisions).toHaveLength(6); // 3 statuses × 2 modes — full matrix
+    expect(golden.readDecisions).toHaveLength(6); // 3 statuses × 2 modes, the full matrix
     for (const entry of golden.readDecisions) {
       expect(authorizeRead(entry.status, entry.mode), `${entry.status}/${entry.mode}`).toEqual(entry.expected);
     }

@@ -1,5 +1,5 @@
 /**
- * Drift gate node — the design-code drift axis as a conditional node in an
+ * Drift gate node: the design-code drift axis as a conditional node in an
  * agentic-SDLC graph (PRD §4). Like the rendered-review gate node, a graph
  * routes on the drift a change INTRODUCED: `pass/warn →
  * proceed`, `block → route-to-fix`, with the fix node's back-edge being the
@@ -7,7 +7,7 @@
  * and the cycle back being a re-run of the drift gate after the fix.
  *
  * It composes the fair drift delta (`diffDrift`) with the remediation projection
- * (`buildDriftRemediation`) — routing and remediation are both computed on the
+ * (`buildDriftRemediation`). Routing and remediation are both computed on the
  * introduced drift, never the repo's pre-existing token debt. Eyes-not-hands:
  * the back-edge cites tokens, never edits. Pure and deterministic.
  */
@@ -37,7 +37,7 @@ export interface DriftGateNodeResult {
   verdict: DriftGateVerdictDecision;
   /** The conditional edge: `fix` (send to the fix node) or `proceed`. */
   route: DriftGateRoute;
-  /** The fix node's input — cited, blockers-first drift remediation (never a code edit). */
+  /** The fix node's input: cited, blockers-first drift remediation (never a code edit). */
   remediation: DriftRemediationPlan;
   introducedCount: number;
   resolvedCount: number;

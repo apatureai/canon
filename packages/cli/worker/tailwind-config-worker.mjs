@@ -9,7 +9,7 @@ import resolveConfig from "tailwindcss-v3/resolveConfig.js";
  * a worker thread rather than in the CLI's own thread: the parent keeps a
  * timeout and can terminate a config that hangs or blows the stack, and a throw
  * inside the config never takes the CLI down. This is ISOLATION, not a security
- * sandbox — the config still runs with full Node privileges. The CLI therefore
+ * sandbox: the config still runs with full Node privileges. The CLI therefore
  * requires an explicit `--exec-tailwind-config` flag before it will start this
  * worker at all.
  *

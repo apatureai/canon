@@ -10,7 +10,7 @@ import { clampDelta, DISAGREEMENT_DEGRADE, MIN_DEGRADED_CONFIDENCE } from "./thr
 
 /**
  * Token reconciliation (#19): merge the code/config-extracted `DnaTokens`
- * (#1–#4) against the rendered `VisualDistributions` (#16) into a single
+ * (#1 to #4) against the rendered `VisualDistributions` (#16) into a single
  * resolved `DnaTokens` + `Conflict[]`, via `reconcileField`.
  *
  * Per declared token (in a render-backed group):
@@ -18,7 +18,7 @@ import { clampDelta, DISAGREEMENT_DEGRADE, MIN_DEGRADED_CONFIDENCE } from "./thr
  * - the pixels NEVER exhibit its value (dead declared token) → keep the value,
  *   degrade confidence, record a conflict (the #21 dead-token signal);
  * - groups the render can't speak to (shadows/breakpoints/motion) pass through
- *   unchanged — pixels have nothing to say.
+ *   unchanged, because pixels have nothing to say.
  *
  * Then any strong rendered value with NO declared token is surfaced as a real
  * `pixels` candidate Fact (never silently dropped) for sign-off.

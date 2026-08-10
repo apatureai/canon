@@ -4,9 +4,9 @@ import type { TokenMap } from "./tokens.js";
 /**
  * Extract CSS custom properties (design tokens) from global stylesheets with
  * PostCSS (PRD §6). Collects `--*` declarations from `:root`/`html` (base) and
- * theme-scoped blocks — `[data-theme=...]`, `.dark`/`.light`, and
+ * theme-scoped blocks: `[data-theme=...]`, `.dark`/`.light`, and
  * `@media (prefers-color-scheme: ...)`. Component-scoped custom props on other
- * selectors are intentionally ignored — they are not design tokens.
+ * selectors are intentionally ignored; they are not design tokens.
  *
  * Ported from judgment-engine's proven `@engine/context` css-vars extractor
  * pure, deterministic, no IO.
@@ -28,7 +28,7 @@ function themeFromSelector(selector: string): string | null {
 
 /**
  * A selector is "theme-scoped" (a design-token scope) only when it is the theme
- * selector *itself* — `.dark`, `.light`, or `[data-theme=...]` — with no
+ * selector *itself* (`.dark`, `.light`, or `[data-theme=...]`) with no
  * descendant/compound component target. `.dark .button` and `.dark.fancy` are
  * component-scoped and must NOT contribute theme tokens.
  */

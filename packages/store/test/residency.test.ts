@@ -51,7 +51,7 @@ function genomeWithSecretIdentifiers(): DnaSnapshot {
   ];
   // Secret in an exception ROUTE / REASON.
   d.exceptions = [{ route: "/promo-sk-ABCDEF0123456789XYZ", reason: "contact founder@apature.dev" }];
-  // Secret in a colorProportions KEY (#43 — structurally non-secret, scrubbed for literal zero-egress).
+  // Secret in a colorProportions KEY (#43: structurally non-secret, scrubbed for literal zero-egress).
   d.distributions.colorProportions = { "sk-ABCDEF0123456789XYZ": 0.5 };
   return d;
 }
@@ -132,7 +132,7 @@ describe("getResidentSnapshot — genome residency / security (#30)", () => {
   it("scrubs secret patterns from repository owner/name (#43)", async () => {
     const snapshot = genomeWithSecretRepo();
     const store = await approvedStoreWith(snapshot);
-    // The lookup key is the ORIGINAL (unscrubbed) repo id — entitle that.
+    // The lookup key is the ORIGINAL (unscrubbed) repo id, so entitle that.
     const repo = "owner-sk-ABCDEF0123456789XYZ/repo-ghp_ABCDEFGHIJKLMNOPQRST";
     const res = await getResidentSnapshot(store, policy({ entitledRepos: [repo] }), repo);
     expect(res?.snapshot.repository).toEqual({ owner: "owner-[redacted]", name: "repo-[redacted]" });

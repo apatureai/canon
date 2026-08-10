@@ -5,7 +5,7 @@ import { makeTree, runCapture } from "./helpers.js";
 /**
  * `ui-dna tokens` over the file the README tells a reader to run. If these
  * assertions drift from `examples/sample-tokens.json`, the documented transcript
- * is wrong — which is the failure mode this suite exists to catch.
+ * is wrong, which is the failure mode this suite exists to catch.
  */
 describe("ui-dna tokens", () => {
   it("resolves the shipped sample token file and reports its alias trail", async () => {

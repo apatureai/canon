@@ -63,7 +63,7 @@ function checkCapture(path: string, capture: RouteCapture, errors: string[]): vo
 }
 
 /**
- * Validate a `CaptureEvidence` bundle's structural invariants — used by the
+ * Validate a `CaptureEvidence` bundle's structural invariants, used by the
  * round-trip test to confirm a fixture parses + validates with NO live capture.
  * Pure; the contract grows alongside the UD3 reconciler.
  */

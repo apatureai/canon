@@ -9,7 +9,7 @@ import { makeTree, REPO_ROOT, runCapture } from "./helpers.js";
  * `ui-dna context` over `examples/sample-project`, which is the transcript the
  * README shows. The sample project deliberately contains one Tailwind v4
  * `@theme` block and one `:root` block that disagree, so the reconciliation
- * path — not just the extraction path — is exercised end to end.
+ * path, not just the extraction path, is exercised end to end.
  */
 describe("ui-dna context", () => {
   it("reports every static source it found in the sample project", async () => {

@@ -9,7 +9,7 @@ import { computeDnaVersion } from "./version-identity.js";
  * is append-only and idempotent: re-committing identical content + causal
  * stamps + lifecycle state is a no-op returning the same version.
  *
- * Persistence is behind an injected `SnapshotStore` port — tests use the
+ * Persistence is behind an injected `SnapshotStore` port. Tests use the
  * in-memory deterministic impl; production wires object storage as a thin
  * adapter (no live IO here).
  */
@@ -53,7 +53,7 @@ export interface CommitResult {
 
 /**
  * Commit a resolved snapshot: stamp it with its content-addressed `dnaVersion`,
- * freeze it, and append it if new. Idempotent — committing the same resolved
+ * freeze it, and append it if new. Idempotent: committing the same resolved
  * content + causal stamps again returns the existing version without mutating
  * anything; any genome, causal stamp, or lifecycle-state change yields a new
  * immutable version.
@@ -80,7 +80,7 @@ export async function commitSnapshot(
   return { dnaVersion, created: false, stored: existing ?? stored };
 }
 
-/** A deterministic in-memory `SnapshotStore` for tests/dev — append-only, immutable. */
+/** A deterministic in-memory `SnapshotStore` for tests/dev: append-only and immutable. */
 export function inMemorySnapshotStore(): SnapshotStore {
   const byRepo = new Map<string, Map<string, StoredSnapshot>>();
   const order = new Map<string, string[]>();

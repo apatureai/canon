@@ -29,8 +29,8 @@ export interface ReconcileComponentsResult {
 /**
  * DOM-signature fragments per detected library id (lowercased substring match
  * over `selector + role`). shadcn/Radix are primitive-driven and emit
- * Radix-family DOM markers (`data-radix-*`, `data-state`), so those — NOT bare
- * ARIA roles — are the usage signal: a plain `role="button"` element appears on
+ * Radix-family DOM markers (`data-radix-*`, `data-state`), so those, NOT bare
+ * ARIA roles, are the usage signal: a plain `role="button"` element appears on
  * any site and would falsely confirm a declared-but-unused Radix/shadcn dep, so
  * "observed usage" must reflect the actual library. The styled libraries carry
  * class-name prefixes.
@@ -60,7 +60,7 @@ function allGeometry(evidence: CaptureEvidence): GeometryNode[] {
   return evidence.captures.flatMap((c) => c.geometry);
 }
 
-/** Distinct roles observed for a library, sorted — enriches the convention. */
+/** Distinct roles observed for a library, sorted; enriches the convention. */
 function observedRoles(nodes: GeometryNode[]): string[] {
   const roles = new Set<string>();
   for (const n of nodes) if (n.role) roles.add(n.role);
@@ -83,7 +83,7 @@ export function reconcileComponents(
       // CONFIRMED on rendered routes: reinforce confidence, lift provenance to
       // pixels (observed), enrich variants/usageExamples with observed roles.
       // Reinforce toward the ceiling, but never LOWER a detection already above it
-      // (negative headroom) — pixel confirmation must not penalize confidence.
+      // (negative headroom): pixel confirmation must not penalize confidence.
       const headroom = MAX_REINFORCED_CONFIDENCE - conv.confidence;
       const confidence = Math.max(
         conv.confidence,

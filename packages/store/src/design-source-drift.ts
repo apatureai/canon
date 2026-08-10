@@ -1,21 +1,21 @@
 /**
- * Design-source drift gate — the end-to-end capability (PRD §4/§7). Given a
+ * Design-source drift gate, the end-to-end capability (PRD §4/§7). Given a
  * raw design-tool token export (a DTCG
  * document from Figma / Tokens Studio / etc.) and the code's extracted genome,
  * decide the design↔code conformance gate: "the code uses `#3B82F6` but the
  * design system defines `color.brand.primary = #2563EB`. Off-token."
  *
  * It composes the pieces that already exist rather than re-deriving them:
- *   - `extractTokensJsonWithDiagnostics` (@uidna/context) — parse the DTCG export
+ *   - `extractTokensJsonWithDiagnostics` (@uidna/context) parses the DTCG export
  *     into a `DnaTokens` design genome, with per-token diagnostics;
- *   - `computeDesignCodeDrift` — asymmetric design-authoritative drift;
- *   - `evaluateDriftGate` — the neutral block/warn/pass gate;
- *   - `diffDrift` — the fair base-vs-head delta.
+ *   - `computeDesignCodeDrift` computes asymmetric design-authoritative drift;
+ *   - `evaluateDriftGate` applies the neutral block/warn/pass gate;
+ *   - `diffDrift` takes the fair base-vs-head delta.
  *
  * The one thing a bare composition would miss, and the reason this is a function
  * and not a one-liner: it must REFUSE to gate on a fundamentally malformed export.
  * If the export isn't a usable token document, `extractTokensJson` yields an
- * empty genome — and gating an empty design against real code would flag EVERY
+ * empty genome, and gating an empty design against real code would flag EVERY
  * token as `undocumented_in_design`, a loud and misleading verdict. So a blocking
  * diagnostic (`invalid_document` / `invalid_structure`) returns a typed refusal
  * instead. Non-blocking, per-token diagnostics (an unresolved alias, a bad value)

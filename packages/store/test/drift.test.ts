@@ -1,6 +1,6 @@
 /**
  * Design↔code drift: where the CODE genome diverges from the DESIGN genome
- * (design authoritative). Distinct from diffSnapshots (symmetric versioning) —
+ * (design authoritative). Distinct from diffSnapshots (symmetric versioning):
  * this classifies drift: value_mismatch, missing_in_code, undocumented_in_design.
  * The primitive behind the design-system drift gate.
  */
@@ -168,8 +168,8 @@ describe("computeDesignCodeDrift — hex color equivalence (no false value_misma
   });
 
   it("treats rgb()/rgba() as equal to the equivalent hex (no false mismatch)", () => {
-    // design tokens are typically hex; hand-written CSS is often rgb() — the same
-    // colour must not read as drift.
+    // design tokens are typically hex; hand-written CSS is often rgb(), and the
+    // same colour must not read as drift.
     expect(computeDesignCodeDrift(tokens({ c: "#ffffff" }), tokens({ c: "rgb(255,255,255)" })).conformant).toBe(true);
     expect(computeDesignCodeDrift(tokens({ c: "#2563eb" }), tokens({ c: "rgb(37, 99, 235)" })).conformant).toBe(true);
     // alpha: rgba(...,0.5) == #rrggbb80; and opaque hex6 == hex8-with-ff-alpha.
@@ -184,7 +184,7 @@ describe("computeDesignCodeDrift — hex color equivalence (no false value_misma
   });
 
   it("does not coerce unrecognized colour formats (hsl vs hex still reported)", () => {
-    // Scope boundary: hsl()/named colours fall back to exact compare — no false
+    // Scope boundary: hsl()/named colours fall back to exact compare, so no false
     // equivalence, and the ORIGINAL strings are reported.
     const r = computeDesignCodeDrift(tokens({ c: "#ffffff" }), tokens({ c: "hsl(0,0%,100%)" }));
     expect(r.summary.valueMismatch).toBe(1);

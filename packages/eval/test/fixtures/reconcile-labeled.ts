@@ -8,7 +8,7 @@ import {
 /**
  * The FROZEN labeled reconciliation fixture set the #28 CI gate runs against.
  * Each case is hand-labeled with the human-confirmed truth for every resolved
- * field — so reconciliation accuracy + calibration are MEASURED, not assumed.
+ * field, so reconciliation accuracy + calibration are MEASURED, not assumed.
  *
  * SYNTHETIC for now. The production gate needs REAL customer labels (the
  * team-acceptance / manual-edit signal from sign-off, PRD §9, like #9) before

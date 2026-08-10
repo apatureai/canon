@@ -28,7 +28,7 @@ function normalizeName(name: string): string {
  * Classify a token by its name onto a canonical group, or `null` if no prefix
  * matches. Matches at a token boundary so `color-bg`/`color` hit `color` but
  * `colorize` does not. Works on CSS var names (`--color-bg`) and dotted
- * tokens.json paths (`color.brand.primary`) alike — the first path segment is
+ * tokens.json paths (`color.brand.primary`) alike; the first path segment is
  * what carries the group intent.
  */
 export function classifyTokenName(name: string): keyof DnaTokens | null {

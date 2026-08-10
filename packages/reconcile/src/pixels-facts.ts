@@ -4,7 +4,7 @@ import { clampConfidence } from "./thresholds.js";
 /**
  * Turn a `VisualDistributions` (#16, observed render reality) into per-group
  * `pixels`-provenance candidate Facts, with confidence COMPUTED from the
- * distribution's stability/coverage — NOT a fixed ladder rung (the decided
+ * distribution's stability/coverage, NOT a fixed ladder rung (the decided
  * rule). A value that dominates its distribution (a high share of observations)
  * is a more stable, higher-confidence pixels candidate than a one-off.
  *
@@ -27,7 +27,7 @@ function scale(share: number): number {
 function numericFacts(values: number[]): Record<string, Fact<string>> {
   const out: Record<string, Fact<string>> = {};
   if (values.length === 0) return out;
-  // Coverage share: each distinct interval's weight is 1/N — a sequence with
+  // Coverage share: each distinct interval's weight is 1/N. A sequence with
   // fewer distinct intervals means each is more canonical (more stable), so a
   // single dominant interval scores near the ceiling and a long tail scores low.
   const share = 1 / values.length;
@@ -39,7 +39,7 @@ function numericFacts(values: number[]): Record<string, Fact<string>> {
 
 function colorFacts(proportions: Record<string, number>): Record<string, Fact<string>> {
   // Key by the SAME canonical form the declared-token side uses
-  // (`canonicalColor`, via `canonicalTokenValue`) so matching is symmetric — a
+  // (`canonicalColor`, via `canonicalTokenValue`) so matching is symmetric: a
   // rendered shorthand `#fff` and a declared `#ffffff` (or vice versa) resolve
   // to one key instead of reading as a false disagreement / dead token. Keying
   // by `color.toLowerCase()` alone only unified case, not shorthand, so an
@@ -97,7 +97,7 @@ const ROOT_FONT_PX = 16;
 /**
  * A TOTAL colour key for matching a rendered colour to a declared token. Uses the
  * shared canonicalizer (`@uidna/schema` `canonicalColor`, #97) so hex, shorthand,
- * case, AND `rgb()/rgba()` all collapse to one `#rrggbbaa` key — `#fff` /
+ * case, AND `rgb()/rgba()` all collapse to one `#rrggbbaa` key, so `#fff` /
  * `#ffffff` / `rgb(255,255,255)` are one observation, not a false disagreement /
  * dead token. Anything the shared canonicalizer does not recognize (named
  * colours, `hsl()`) falls back to the trimmed/lowercased string as its key.

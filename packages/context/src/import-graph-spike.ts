@@ -7,7 +7,7 @@
  * **barrel files** (re-export hubs), **dynamic imports**, and **monorepo**
  * package boundaries.
  *
- * This is a deliberately small, pure, fixture-driven probe — NOT the production
+ * This is a deliberately small, pure, fixture-driven probe, NOT the production
  * graph builder. It resolves the import specifiers of a single source file
  * against relative paths and tsconfig `paths` aliases, and classifies each
  * specifier so we can MEASURE how often each hard case occurs. The go/no-go
@@ -25,10 +25,10 @@ export interface TsconfigPaths {
 }
 
 export type ImportKind =
-  | "relative" // ./x, ../x — directly resolvable
-  | "alias" // matches a tsconfig paths alias — resolvable with the alias table
-  | "bare" // bare package specifier (react, @scope/pkg) — external, stop the walk
-  | "dynamic"; // import('...') — resolvable only if the specifier is a literal
+  | "relative" // ./x, ../x: directly resolvable
+  | "alias" // matches a tsconfig paths alias, resolvable with the alias table
+  | "bare" // bare package specifier (react, @scope/pkg); external, stop the walk
+  | "dynamic"; // import('...'), resolvable only if the specifier is a literal
 
 export interface ResolvedImport {
   specifier: string;
@@ -119,7 +119,7 @@ export interface FeasibilityReport {
 
 /**
  * Aggregate resolved imports across a set of source files into a feasibility
- * report — the measured evidence behind the go/no-go recommendation.
+ * report, the measured evidence behind the go/no-go recommendation.
  */
 export function assessImportGraphFeasibility(
   files: Array<{ path: string; source: string }>,

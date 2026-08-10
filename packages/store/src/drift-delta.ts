@@ -1,13 +1,13 @@
 /**
- * Drift delta — the base-vs-head comparison that makes the drift gate FAIR
+ * Drift delta: the base-vs-head comparison that makes the drift gate FAIR
  * (PRD §4/§7, ARCHITECTURE §3). `evaluateDriftGate` blocks on every drift entry,
  * which would fail every PR on pre-existing design-code debt. A real gate blocks
  * on the drift a change **introduces**. This partitions two drift reports (the
  * base commit's design↔code drift and the head commit's) into introduced /
  * resolved / persisting, and gates on the introduced set only.
  *
- * Unlike a rendered-UI finding, a drift entry has a NATURAL stable identity —
- * its `group` + `name` + `kind` — so matching across commits needs no
+ * Unlike a rendered-UI finding, a drift entry has a NATURAL stable identity,
+ * its `group` + `name` + `kind`, so matching across commits needs no
  * fingerprint heuristic. The key is still an input (dependency inversion) so a
  * team can key more strictly (e.g. include the code value, so re-drifting an
  * already-drifting token to a new wrong value counts as introduced).
@@ -28,7 +28,7 @@ import {
 /** A stable-across-commits identity for a drift entry. */
 export type DriftKey = (entry: DriftEntry) => string;
 
-/** Keys on the drift LOCATION and kind — a token that was already drifting the
+/** Keys on the drift LOCATION and kind. A token that was already drifting the
  * same way is pre-existing debt, even if its exact off-token value changed. */
 export const defaultDriftKey: DriftKey = (e) => `${e.group}|${e.name}|${e.kind}`;
 
@@ -38,14 +38,14 @@ export interface DriftDeltaOptions {
 }
 
 export interface DriftDelta {
-  /** Drift present at head but not base — what THIS change introduced. */
+  /** Drift present at head but not base: what THIS change introduced. */
   introduced: DriftEntry[];
-  /** Drift present at base but not head — what it fixed. */
+  /** Drift present at base but not head, i.e. what it fixed. */
   resolved: DriftEntry[];
-  /** Drift present in both — pre-existing debt, not this change's fault. */
+  /** Drift present in both: pre-existing debt, not this change's fault. */
   persisting: DriftEntry[];
   /**
-   * The gate verdict computed on the INTRODUCED entries only — the fair CI
+   * The gate verdict computed on the INTRODUCED entries only, the fair CI
    * outcome. A change that only inherits pre-existing drift does not block.
    */
   verdict: DriftGateVerdict;

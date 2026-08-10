@@ -75,7 +75,7 @@ describe("reconcileComponents — confirmed usage (#38)", () => {
   it("a bare role=button element does NOT confirm a declared-but-unused Radix/shadcn dep (#38)", () => {
     const { components, conflicts } = reconcileComponents([detected("radix")], evidenceWith([bareButtonNode]));
     const radix = components.find((c) => c.name === "radix");
-    expect(radix?.confidence).toBeLessThan(0.5); // degraded — not observed
+    expect(radix?.confidence).toBeLessThan(0.5); // degraded, not observed
     expect(radix?.provenance).toBe("code"); // not lifted
     expect(conflicts.some((c) => c.field === "components.radix")).toBe(true);
   });

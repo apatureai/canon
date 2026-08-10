@@ -1,10 +1,10 @@
 import type { CaptureEvidence, RouteCapture } from "./capture-evidence.js";
 
 /**
- * `CaptureSource` — the injected port that yields `CaptureEvidence`. Production
+ * `CaptureSource` is the injected port that yields `CaptureEvidence`. Production
  * wires the judgment-engine capture adapter behind this interface; tests inject
  * a stub fixture. ui-dna code depends only on this seam, so capture stays in the
- * engine and this repo stays pure/deterministic (PRD §7) — **no browser or
+ * engine and this repo stays pure/deterministic (PRD §7): **no browser or
  * network lives here**.
  */
 export interface CaptureSource {
@@ -17,7 +17,7 @@ export interface CaptureSource {
 }
 
 /**
- * A stub `CaptureSource` backed by a fixed `CaptureEvidence` fixture — the
+ * A stub `CaptureSource` backed by a fixed `CaptureEvidence` fixture, the
  * test/dev seam so UD3 modules can be exercised with no live capture. Returns
  * only the captures whose route is in the requested set (or all, if `routes` is
  * empty), so tests can assert route filtering deterministically.

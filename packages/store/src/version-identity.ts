@@ -5,9 +5,9 @@ import type { ApprovalState, DnaSnapshot } from "@uidna/schema";
 /**
  * Content-addressed `dnaVersion` identity (#22, PRD §7). The version of a
  * resolved snapshot is the SHA-256 of its canonical content folded together
- * with the CAUSAL version stamps that can legitimately change the genome —
- * schema, extraction, and model versions — plus the immutable lifecycle state
- * of the stored record — and NOTHING incidental.
+ * with the CAUSAL version stamps that can legitimately change the genome
+ * (schema, extraction, and model versions), plus the immutable lifecycle state
+ * of the stored record, and NOTHING incidental.
  *
  * Deliberately EXCLUDED from the hash: `dnaVersion` itself (it IS the output)
  * and any wall-clock / run-UUID / incidental metadata. Lifecycle state is

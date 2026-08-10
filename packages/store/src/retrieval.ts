@@ -14,14 +14,14 @@ import type { SnapshotStore } from "./store.js";
 /**
  * Genome-grounding RETRIEVAL surface (#27, PRD §2/§4/§7). The PRODUCER side that
  * judgment-engine #104 consumes: given a review context (the routes / components
- * / token-groups a PR touches — the diff→route output of #7), return only the
+ * / token-groups a PR touches, the diff→route output of #7), return only the
  * RELEVANT slices of the approved genome (the tokens, conventions, anchors,
  * exceptions, identity that bear on those surfaces) instead of the whole
  * snapshot. This keeps the genome the source of grounding
  * while bounding what the engine has to read.
  *
  * Retrieval is over the APPROVED, version-pinned snapshot served by the #25 read
- * contract (`getSnapshot`) — a draft/in_review snapshot is NEVER retrieved (the
+ * contract (`getSnapshot`); a draft/in_review snapshot is NEVER retrieved (the
  * `isApproved` gate is reused, not re-implemented). The returned `dnaVersion`
  * lets the engine stamp the review. Excepted routes
  * (#24) in scope are annotated so critique does not flag intentional deviation.
@@ -55,7 +55,7 @@ export interface RetrieveOptions {
 
 /** An exception in scope, surfaced so critique treats the route as intentional deviation, not drift. */
 export interface AnnotatedException extends DnaException {
-  /** Always true here — present so consumers can branch on it without re-deriving scope. */
+  /** Always true here, present so consumers can branch on it without re-deriving scope. */
   inScope: true;
 }
 
@@ -63,9 +63,9 @@ export interface AnnotatedException extends DnaException {
 export interface GenomeSlice {
   contract: ContractVersion;
   repo: string;
-  /** The approved version this slice was cut from — the engine stamps the review with it. */
+  /** The approved version this slice was cut from; the engine stamps the review with it. */
   dnaVersion: string;
-  /** Product identity always bears on judgment (small, sets tone/dos/donts) — carried whole. */
+  /** Product identity always bears on judgment (small, sets tone/dos/donts), so it is carried whole. */
   identity: ProductIdentity;
   /** Tokens for the requested groups (all groups when none requested). Other groups are empty. */
   tokens: DnaTokens;
@@ -167,14 +167,14 @@ async function retrieve(
   scrub: boolean,
 ): Promise<GenomeSlice | null> {
   const response = await getSnapshot(store, repo, { version: opts.version });
-  if (!response) return null; // no approved snapshot — never serve a draft
+  if (!response) return null; // no approved snapshot; never serve a draft
   const snapshot = scrub ? scrubSnapshot(response.snapshot, opts.redactPatterns) : response.snapshot;
   return buildSlice(response.contract, response.repo, response.dnaVersion, snapshot, query, opts);
 }
 
 /**
  * Retrieve the bearing slice of a repo's APPROVED genome for one review context,
- * SCRUBBED by default — the engine-facing grounding surface. The slice is cut
+ * SCRUBBED by default, the engine-facing grounding surface. The slice is cut
  * from a secret/PII-scrubbed copy of the approved snapshot, so the genome never
  * reaches the model carrying secrets (the trust boundary, PRD §8). Reads the
  * latest approved snapshot (or the pinned approved `version`) through the #25
@@ -195,7 +195,7 @@ export async function retrieveGenomeSlice(
 /**
  * Explicit trust-INTERNAL raw retrieval: the same approved, version-pinned slice
  * but WITHOUT secret/PII scrubbing. Use only inside the trust boundary (never on
- * a path that reaches a model). The `isApproved` gate still applies — a draft is
+ * a path that reaches a model). The `isApproved` gate still applies, so a draft is
  * never served. The default engine-facing surface is `retrieveGenomeSlice`.
  */
 export async function retrieveRawGenomeSlice(

@@ -1,17 +1,17 @@
 /**
- * Canonical colour value — the single shared colour canonicalizer used across
+ * Canonical colour value: the single shared colour canonicalizer used across
  * ui-dna (issue #97). Both the design↔code drift gate (`@uidna/store`, for strict
  * value equality) and token reconciliation (`@uidna/reconcile`, for matching a
  * rendered colour to a declared token) need "are these two colour strings the
- * same colour?", and they must agree — so it lives here, in the leaf package both
- * depend on, rather than as two divergent copies.
+ * same colour?", and they must agree. It therefore lives here, in the leaf package
+ * both depend on, rather than as two divergent copies.
  *
  * It canonicalizes hex (3/4/6/8-digit) and comma-form `rgb()/rgba()` to a single
  * `#rrggbbaa` form (lowercase, opaque alpha `ff`), so equal spellings compare
  * equal: `#FFF` = `#ffffff` = `#ffffffff` = `rgb(255,255,255)` = `rgba(255,255,255,1)`,
  * and `rgba(0,0,0,.5)` = `#00000080`. Returns null for anything it does not
  * recognize (`hsl()`, named colours, the modern space syntax) so callers fall
- * back to their own handling — no false equivalence, no unit/colour-space guessing.
+ * back to their own handling: no false equivalence, no unit/colour-space guessing.
  */
 
 /** A `0-100%` or `0-255` colour channel → a byte, or null if out of range / malformed. */

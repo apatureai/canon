@@ -1,5 +1,5 @@
 /**
- * The context extractors' shared internals — isRecord and CONFIG_CONFIDENCE —
+ * The context extractors' shared internals, isRecord and CONFIG_CONFIDENCE,
  * extracted from byte-identical copies (brand/tokens-json and tailwind-dna/
  * tokens-json-dna). Pins the plain-object guard and the config-provenance
  * confidence both pairs of extractors depend on.

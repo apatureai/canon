@@ -1,7 +1,7 @@
 import type { Provenance } from "@uidna/schema";
 
 /**
- * Reconciliation thresholds — ALL tunables in one place so #28 can calibrate
+ * Reconciliation thresholds. ALL tunables in one place so #28 can calibrate
  * them from labeled fixtures without touching the resolution logic. Keep this
  * the single source of truth for every magic number `reconcileField` uses.
  */
@@ -36,7 +36,7 @@ export const MAX_REINFORCED_CONFIDENCE = 0.98;
 /**
  * Disagreement degradation: when the winner and a dissenting source disagree,
  * the resolved confidence is the winner's, scaled down by the disagreement
- * margin times this weight (the winner's VALUE is kept regardless — never
+ * margin times this weight (the winner's VALUE is kept regardless, never
  * flipped to the dissenter).
  */
 export const DISAGREEMENT_DEGRADE = 0.5;
@@ -53,7 +53,7 @@ export function clampConfidence(c: number): number {
  * Clamp a `Conflict.confidenceDelta` into its valid range. A delta is the
  * difference of two clamped confidences, so it lives in [-1, 1]; a non-finite
  * delta (only reachable by bypassing the `fact()` constructor) collapses to 0.
- * Defensive — the constructor already clamps NaN→0 upstream.
+ * Defensive: the constructor already clamps NaN→0 upstream.
  */
 export function clampDelta(d: number): number {
   if (!Number.isFinite(d)) return 0;

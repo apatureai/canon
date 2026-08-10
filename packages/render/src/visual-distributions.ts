@@ -4,9 +4,9 @@ import type { CaptureEvidence, ComputedStyleFact, GeometryNode } from "./capture
 /**
  * Visual-distribution analysis (PRD §5, §7). From the `CaptureEvidence`
  * DOM-geometry + computed-style facts, compute the canonical
- * `VisualDistributions` — the "rendered reality" half the reconciler (UD3)
+ * `VisualDistributions`, the "rendered reality" half the reconciler (UD3)
  * weighs against the code-inferred tokens (UD1). Pure + deterministic: identical
- * evidence in → byte-identical distributions out (sorted, rounded — no float
+ * evidence in → byte-identical distributions out (sorted and rounded, so no float
  * churn). Consumes only the `@uidna/render` port; no IO.
  *
  * Signal sources within the evidence:
@@ -15,7 +15,7 @@ import type { CaptureEvidence, ComputedStyleFact, GeometryNode } from "./capture
  * - type scale         ← computed-style `font-size` facts
  * - radius patterns    ← computed-style `border-radius` facts
  * - color proportions  ← computed-style `color`/`background-color` facts
- * Distributions are empty/null where the evidence carries no such signal — never
+ * Distributions are empty/null where the evidence carries no such signal: never
  * invented, never NaN.
  */
 

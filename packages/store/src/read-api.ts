@@ -9,7 +9,7 @@ import { authorizeRead, type AuthorityStatus } from "./authority.js";
  * Versioned downstream READ contract (#25, PRD §4/§7). ui-dna owns the
  * downstream snapshot contract: it serves the versioned, APPROVED
  * `DnaSnapshot` to consumers (Gate, MCP Review, Entropy Engine, Source of Truth,
- * DNA Consultant) as a stable, additive-only contract — the surface the engine's
+ * DNA Consultant) as a stable, additive-only contract, the surface the engine's
  * genome-grounding retrieval reads through.
  *
  * Read semantics: latest APPROVED snapshot by default, or a pinned immutable
@@ -52,7 +52,7 @@ export interface GetSnapshotOptions {
   version?: string;
   /**
    * Consult approval-authority status before serving (#64). When supplied, a
-   * `revoked` version is NEVER served (fail closed, non-enumerating — a revoked
+   * `revoked` version is NEVER served (fail closed and non-enumerating, so a revoked
    * read is indistinguishable from not-found); a `superseded` version is served
    * only on a pinned read (reproducibility), never as `latest`; and `latest`
    * resolves to the newest version that is still `effective`. When omitted, the
@@ -83,13 +83,13 @@ function responseFor(repo: string, dnaVersion: string, snapshot: DnaSnapshot): S
 /**
  * Read a repo's downstream snapshot: the pinned `version` if given (only when
  * approved), else the latest APPROVED version. Returns null when no approved
- * snapshot matches — a draft/in_review snapshot is NEVER served downstream.
+ * snapshot matches; a draft/in_review snapshot is NEVER served downstream.
  *
  * When `opts.resolveAuthority` is supplied, approval authority (#64) is enforced
  * on top of the content-level `approved` gate: a `revoked` version is never
  * served (fail closed on both latest and pinned), a `superseded` version is
  * pin-readable only, and `latest` skips any non-`effective` version. A withheld
- * read returns null non-enumerating — a revoked/withdrawn version is
+ * read returns null non-enumerating, so a revoked/withdrawn version is
  * indistinguishable from absent to an ordinary consumer.
  */
 export async function getSnapshot(
@@ -110,7 +110,7 @@ export async function getSnapshot(
   let approved = (await store.list(repo)).filter((r) => isApproved(r.snapshot));
   if (opts.resolveAuthority) {
     const resolve = opts.resolveAuthority;
-    // Latest must be a still-effective version — skip superseded and revoked.
+    // Latest must be a still-effective version, so skip superseded and revoked.
     approved = approved.filter((r) => authorizeRead(resolve(r.dnaVersion), "latest").serve);
   }
   const latest = approved[approved.length - 1];

@@ -61,7 +61,7 @@ describe("getSnapshot authority enforcement (#64) — pinned reads", () => {
     const store = inMemorySnapshotStore();
     const v = await approveVersion(store, "8px");
     const res = await getSnapshot(store, REPO, { version: v, resolveAuthority: resolverFrom({ [v]: "revoked" }) });
-    // Indistinguishable from an unknown version — same null both ways.
+    // Indistinguishable from an unknown version: same null both ways.
     const unknown = await getSnapshot(store, REPO, { version: "does-not-exist", resolveAuthority: resolverFrom({}) });
     expect(res).toBeNull();
     expect(unknown).toBeNull();

@@ -68,8 +68,8 @@ describe("reconcileTokens — shorthand/units don't read as false disagreements 
   });
 
   // The reverse of the #37 case: the shorthand is on the RENDERED side. This
-  // direction was silently broken — the pixels-fact key was only lowercased, not
-  // shorthand-expanded like the declared side — so a rendered #fff never matched
+  // direction was silently broken: the pixels-fact key was only lowercased, not
+  // shorthand-expanded like the declared side, so a rendered #fff never matched
   // a declared longhand token and was mis-reported as a dead token.
   it("a #ffffff declared token is CONFIRMED by a rendered shorthand #fff (no conflict)", () => {
     const tokens = emptyTokens();

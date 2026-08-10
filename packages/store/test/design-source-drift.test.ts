@@ -20,7 +20,7 @@ function colorValue(hex: string) {
 }
 // A minimal DTCG 2025.10 export: one color token → tokens.color["color.primary"].
 const designExport = { color: { primary: { $value: colorValue("#2563EB"), $type: "color" } } };
-// The design genome the export parses to — derived so we never hard-code the
+// The design genome the export parses to, derived so we never hard-code the
 // context package's name mapping.
 const design: DnaTokens = extractTokensJson(designExport);
 
@@ -60,7 +60,7 @@ describe("reviewDesignSourceDrift — gate the code against a design export", ()
 
 describe("reviewDesignSourceDriftDelta — fair base-vs-head against a design export", () => {
   it("blocks only on drift the head INTRODUCES, not pre-existing debt", () => {
-    // base already drifts one token; head drifts a further edit of it — but since
+    // base already drifts one token; head drifts a further edit of it, but since
     // the design/base already diverge, the fair gate must not double-blame base debt.
     const base = design; // conformant base
     const head = mutateFirstColor(design, "#FF0000"); // head introduces a value_mismatch

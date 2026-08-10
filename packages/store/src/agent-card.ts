@@ -6,13 +6,13 @@ import { STORE_VERSION } from "./version-identity.js";
  * ui-dna A2A capability descriptor: the agent-card contract by which sibling
  *
  * Apature surfaces DISCOVER and call the genome read/grounding contract as an
- * agent capability — without inventing a second wire path to the genome.
+ * agent capability, without inventing a second wire path to the genome.
  *
  * The card is a DESCRIPTOR, not a permission grant, and not a runtime service:
- * under the static-registry model it advertises the EXISTING contracts —
+ * under the static-registry model it advertises the EXISTING contracts:
  *   - genome snapshot read  → `getSnapshot` / `SnapshotResponse` (read-api.ts)
  *   - genome-slice grounding → `retrieveGenomeSlice` / `GenomeSlice` (retrieval.ts)
- * — and stamps the same `@uidna/schema` + `@uidna/store` versions those
+ * and it stamps the same `@uidna/schema` + `@uidna/store` versions those
  * contracts already speak. It carries ZERO new capability.
  *
  * Status is `draft-unapproved`: no card was ever approved for registration, so
@@ -33,7 +33,7 @@ export interface CardSafety {
 
 /**
  * A named capability the card advertises. Each points at an EXISTING contract by
- * its input/output type names + speaks the stamped versions — no new wire path.
+ * its input/output type names + speaks the stamped versions, with no new wire path.
  */
 export interface CardCapability {
   /** Named intent type, e.g. `genome.snapshot.read`. */
@@ -108,7 +108,7 @@ const UI_DNA_FORBIDDEN = Object.freeze([
 /**
  * Build ui-dna's descriptor. Capabilities are typed against the existing read
  * (`SnapshotResponse`) and grounding (`GenomeSlice`) contracts; versions come
- * from the same constants those contracts stamp — the card can never drift from
+ * from the same constants those contracts stamp, so the card can never drift from
  * the contract it advertises.
  */
 export function buildUiDnaAgentCard(): ApatureAgentCardV1 {

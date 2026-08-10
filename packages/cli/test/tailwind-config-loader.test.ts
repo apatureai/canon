@@ -5,8 +5,8 @@ import { createWorkerConfigLoader } from "../src/index.js";
 import { makeTree } from "./helpers.js";
 
 /**
- * The worker-backed `ConfigLoader`. These tests DO execute a config file — that
- * is the whole point of the port — but only configs written by the test itself,
+ * The worker-backed `ConfigLoader`. These tests DO execute a config file, which
+ * is the whole point of the port, but only configs written by the test itself,
  * into a throwaway directory.
  */
 describe("createWorkerConfigLoader", () => {

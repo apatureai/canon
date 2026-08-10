@@ -2,7 +2,7 @@ import { parse } from "yaml";
 import { isRecord } from "./internal.js";
 
 /**
- * `.designreview.yml` brand-block extraction (PRD §5.2) — the highest-leverage
+ * `.designreview.yml` brand-block extraction (PRD §5.2), the highest-leverage
  * human-written context, "the highest-leverage twenty lines a user writes". The
  * brand dimension is suppressed entirely when the block is absent
  * (`extractBrandBlock` returns null), so downstream products never invent

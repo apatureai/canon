@@ -2,9 +2,9 @@
  * Confidence calibration metrics (#28, PRD §9; mirrors judgment-engine #107's
  * ECE/Brier calibration, but over GENOME facts, not critique findings). A
  * resolved `Fact`'s `confidence` is a probability claim: "I'm 0.8 sure this is
- * the right value." Calibration measures whether that claim holds — is a
+ * the right value." Calibration measures whether that claim holds: is a
  * 0.8-confidence fact correct ~80% of the time. Without it the precedence ladder
- * (the 0.5–0.9 weights in `@uidna/reconcile/thresholds`) is guessed constants.
+ * (the 0.5 to 0.9 weights in `@uidna/reconcile/thresholds`) is guessed constants.
  *
  * Pure + deterministic: same labeled predictions → same metrics. No IO, no model.
  */
@@ -35,7 +35,7 @@ export interface CalibrationReport {
   mce: number;
   /** Brier score: mean squared error of confidence vs the 0/1 outcome (lower is better). */
   brier: number;
-  /** The reliability table — non-empty bins, in ascending confidence order. */
+  /** The reliability table: non-empty bins, in ascending confidence order. */
   bins: ReliabilityBin[];
 }
 

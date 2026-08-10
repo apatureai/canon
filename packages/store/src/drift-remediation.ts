@@ -1,10 +1,10 @@
 /**
- * Drift remediation — the agent-actionable output of the drift gate (PRD §4).
+ * Drift remediation: the agent-actionable output of the drift gate (PRD §4).
  * The drift gate says a token drifted; in the
  * AI-native loop a coding agent needs to be told precisely what to do about it.
  * This projects each gated drift entry into a cited, eyes-not-hands fix
  * instruction the agent applies ("replace the hardcoded `#3B82F6` with the
- * `color.brand.primary` token") — the design-axis analog of the rendered-review
+ * `color.brand.primary` token"), the design-axis analog of the rendered-review
  * fix spec.
  *
  * It stays inside the eyes-not-hands boundary by construction: a remediation
@@ -39,14 +39,14 @@ export interface DriftRemediation {
   designValue: string | null;
   /** The code's current value, when known (value_mismatch / undocumented_in_design). */
   codeValue: string | null;
-  /** Cited, agent-actionable instruction — names the token, never a code edit. */
+  /** Cited, agent-actionable instruction; names the token, never a code edit. */
   instruction: string;
 }
 
 export interface DriftRemediationPlan {
-  /** Blocking drift, in stable group-then-name order — remediate these first. */
+  /** Blocking drift, in stable group-then-name order. Remediate these first. */
   blocking: DriftRemediation[];
-  /** Advisory drift (warnings) — surface for a human / careful application. */
+  /** Advisory drift (warnings), surfaced for a human / careful application. */
   advisory: DriftRemediation[];
 }
 
@@ -103,11 +103,11 @@ export function buildDriftRemediation(
  * this shape (structural typing / dependency inversion).
  */
 export interface AxisFixItem {
-  /** WHAT to fix — the cited design token `group.name` (the un-arguable anchor). */
+  /** WHAT to fix: the cited design token `group.name` (the un-arguable anchor). */
   ref: string;
   /** The agent-actionable fix instruction. */
   instruction: string;
-  /** Whether an agent can deterministically apply it (always true for drift — token-cited). */
+  /** Whether an agent can deterministically apply it (always true for drift, which is token-cited). */
   grounded: boolean;
   /** Whether it corresponds to a blocking (vs warning) drift entry. */
   blocking: boolean;
@@ -115,7 +115,7 @@ export interface AxisFixItem {
 
 /**
  * Project a drift remediation plan into combined-review `AxisFixItem`s so the
- * drift axis can populate the unified cross-axis fix plan — the design-axis analog
+ * drift axis can populate the unified cross-axis fix plan, the design-axis analog
  * of the rendered-review axis's own fix-item projection. Every drift remediation is `grounded`
  * (it cites a design token and carries a deterministic action, so an agent can
  * apply it); the gate's blocking/advisory split maps to `blocking`. The token

@@ -1,19 +1,19 @@
 import type { Provenance } from "@uidna/schema";
 
 /**
- * `CaptureEvidence` — the typed INPUT PORT by which ui-dna consumes
+ * `CaptureEvidence` is the typed INPUT PORT by which ui-dna consumes
  * judgment-engine's rendered-evidence artifacts (PRD §4, §7). The engine OWNS
  * capture (Playwright viewports, DOM
  * geometry, a11y + computed-style, screenshot storage, phash); ui-dna OWNS
  * reconciliation and reads it through this seam. **This repo never runs a
- * browser** — these are plain serializable types describing already-captured
+ * browser**: these are plain serializable types describing already-captured
  * data, MOCKED in tests.
  *
  * The shapes mirror the engine surfaces named in issue #15 (cross-repo, not
  * reimplemented here): DOM geometry map (engine #18), 3 viewports @ DSF 2
  * (#11), a11y tree + computed-style (#19), downscale/tiling (#16/#17), phash
  * stability (#15). They are additive to and consistent with `@uidna/schema`
- * (e.g. screenshot `ref` matches `RenderedAnchor.ref` — bytes are NOT stored).
+ * (e.g. screenshot `ref` matches `RenderedAnchor.ref`; bytes are NOT stored).
  */
 
 /**
@@ -78,8 +78,8 @@ export interface RouteCapture {
   route: string;
   viewport: Viewport;
   /**
-   * Object-storage reference to the screenshot/crop (bytes are NOT stored here
-   * — mirrors `@uidna/schema` `RenderedAnchor.ref`).
+   * Object-storage reference to the screenshot/crop (bytes are NOT stored here,
+   * mirroring `@uidna/schema` `RenderedAnchor.ref`).
    */
   screenshotRef: string;
   /** DOM geometry map for this route@viewport (engine #18). */
@@ -92,8 +92,8 @@ export interface RouteCapture {
 
 /**
  * The full bundle of rendered evidence the engine captured for a repo snapshot,
- * keyed by the extraction it belongs to. `provenance` is always "pixels" — this
- * is observed-from-render evidence, the counterpart to the "code"/"config"
+ * keyed by the extraction it belongs to. `provenance` is always "pixels", because
+ * this is observed-from-render evidence, the counterpart to the "code"/"config"
  * facts the static extractors emit.
  */
 export interface CaptureEvidence {

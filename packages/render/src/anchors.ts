@@ -4,7 +4,7 @@ import type { CaptureEvidence, RouteCapture } from "./capture-evidence.js";
 /**
  * Rendered-anchor selection (PRD §5, §8). Deterministically SELECT the
  * screenshot crops that best demonstrate canonical patterns from already-
- * captured evidence and emit them as `RenderedAnchor[]` — each carrying an
+ * captured evidence and emit them as `RenderedAnchor[]`, each carrying an
  * object-storage `ref` (bytes are NOT inlined), the `route`, a `description`,
  * and `pixels` provenance. This is selection over the `@uidna/render` port, NOT
  * capture; no IO here.
@@ -20,7 +20,7 @@ export interface SelectAnchorsOptions {
   allowRoutes?: string[];
   /** Routes excluded from anchoring (deny-list); applied after the allow-list. */
   denyRoutes?: string[];
-  /** Max anchors per route (default 1 — one canonical crop per route). */
+  /** Max anchors per route (default 1, one canonical crop per route). */
   maxPerRoute?: number;
   /** Max anchors in the whole snapshot (default 12). */
   maxTotal?: number;
