@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Apature UI DNA - canonical design-genome schema, extraction, versioning, and downstream read contract.",
+  "description": "A strict DTCG 2025.10 design-token resolver and project scanner that abstains and explains instead of guessing.",
   "license": "MIT",
   "author": "Aditya Prathapa",
   "repository": { "type": "git", "url": "git+https://github.com/apatureai/ui-dna.git" },

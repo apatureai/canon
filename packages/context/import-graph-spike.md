@@ -1,9 +1,8 @@
 # Design note: diff→route import-graph feasibility
 
-*Archive note: the bare `#N` markers below refer to issues in the original
-private tracker and cannot be resolved from the public repository. They are
-retained as provenance. The implementation this note gated is
-`packages/context/src/import-graph-routes.ts`.*
+*Note: the bare `#N` markers below refer to issues in an older tracker that is
+not part of this repository. They are retained as provenance. The implementation
+this note gated is `packages/context/src/import-graph-routes.ts`.*
 
 **Question (PRD §4.3):** before building the v1.5 import-graph diff→route path
 (#9), can a static import graph reliably walk from a changed component up to the
