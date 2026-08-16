@@ -99,7 +99,9 @@ describe("a truncated walk can never pass --strict", () => {
       expect(banner).toBeGreaterThanOrEqual(0);
       expect(banner).toBeLessThan(firstCount);
 
-      // Every count that a truncated walk under-reports carries the qualifier.
+      // A sample of the counts a truncated walk under-reports. The full rule -
+      // EVERY count heading carries the qualifier, derived from the output
+      // rather than from a list - is pinned in `cli-truncated-report.test.ts`.
       for (const heading of ["sources (", "resolved tokens (", "conflicts (", "token diagnostics ("]) {
         const line = lines.find((l) => l.startsWith(heading));
         expect(line, heading).toBeDefined();

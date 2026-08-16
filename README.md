@@ -346,9 +346,13 @@ walk truncated - THIS SCAN DID NOT FINISH (5000 files walked)
   --strict exits 2 on a truncated walk for exactly this reason.
 ```
 
-before any number, with every under-reported count tagged `[INCOMPLETE: ...]`. `--json` carries the
-same fact as `truncated` plus a `truncationReasons` array. Raise the bound (`--max-files 50000`) and
-run again; if the gate then passes, it passed on a walk that finished.
+before any number, with every count tagged `[INCOMPLETE: ...]` - all of them, because every count in
+the report comes from the same bounded walk. No parenthetical states an absence either. A finished
+walk prints `drift hints (0)` / `(none)`; a truncated one prints "none among the sources reached
+before the walk was truncated ... this is NOT 'this repository has no drift'", because "(none)" is a
+conclusion a walk that stopped early did not earn. `--json` carries the same fact as `truncated` plus
+a `truncationReasons` array. Raise the bound (`--max-files 50000`) and run again; if the gate then
+passes, it passed on a walk that finished.
 
 **Which files are read.** `*.css` anywhere (a file whose PostCSS parse finds a real `@theme` at-rule
 is also read as Tailwind v4); `tokens.json`, `design-tokens.json`, `*.tokens.json` anywhere;

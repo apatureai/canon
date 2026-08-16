@@ -127,6 +127,18 @@ const isEmptyCss = (source: ScannedSource): boolean =>
  */
 const INCOMPLETE = "  [INCOMPLETE: the walk was truncated, so this count is a lower bound]";
 
+/**
+ * Every count in this report is derived from the same bounded walk, so a
+ * truncated walk makes every one of them a lower bound - not the four that
+ * happened to get the tag first. Headings go through this one function so a new
+ * section cannot be added without the qualifier coming with it, and
+ * `cli-truncated-report.test.ts` re-derives the set of headings from the output
+ * rather than from a list, so an untagged one fails the suite.
+ */
+function countHeading(label: string, truncated: boolean): string {
+  return truncated ? `${label}${INCOMPLETE}` : label;
+}
+
 /** The `ui-dna context` report: sources found, facts resolved, disagreements kept. */
 export function formatContextReport(input: ContextReportInput): string {
   const lines: string[] = [];
@@ -147,7 +159,7 @@ export function formatContextReport(input: ContextReportInput): string {
   lines.push("");
 
   lines.push(
-    `sources (${input.sources.length} of ${input.filesWalked} files walked)${input.truncated ? INCOMPLETE : ""}`,
+    countHeading(`sources (${input.sources.length} of ${input.filesWalked} files walked)`, input.truncated),
   );
   if (input.sources.length === 0 && input.truncated) {
     // The walk stopped early, so "no candidate file exists" is a claim this run
@@ -191,9 +203,19 @@ export function formatContextReport(input: ContextReportInput): string {
 
   const counts = tokenCountsByGroup(input.tokens);
   const total = counts.reduce((sum, entry) => sum + entry.count, 0);
-  lines.push(`resolved tokens (${total})${input.truncated ? INCOMPLETE : ""}`);
+  lines.push(countHeading(`resolved tokens (${total})`, input.truncated));
   for (const { group, count } of counts) lines.push(`  ${pad(group, 12)}  ${count}`);
-  if (total === 0 && input.sources.length > 0) {
+  if (total === 0 && input.sources.length > 0 && input.truncated) {
+    // Same zero, weaker claim. "none declared" is a statement about the
+    // repository; a walk that stopped early can only speak for the files it
+    // opened, so scope the sentence to those and say what is still unknown.
+    lines.push("  (none declared by the sources reached before the walk was truncated. Files past the");
+    lines.push("   bound were never opened, so this is NOT 'this repository declares no tokens'. Of the");
+    lines.push("   sources listed above, none was a declaration site: ui-dna reads a :root/html/.dark/");
+    lines.push("   [data-theme] custom-property block, a Tailwind v4 @theme block, a DTCG or Style");
+    lines.push("   Dictionary token file, or a Tailwind v3 config with --exec-tailwind-config, and it");
+    lines.push("   does not infer a scale from utility classes or from rendered output.)");
+  } else if (total === 0 && input.sources.length > 0) {
     // The files were read; they declared nothing. Say what "declared" means here
     // rather than leaving a bare 0 that reads like a failed scan. Only a
     // DECLARATION site counts: utility classes and rendered output are not one.
@@ -205,11 +227,18 @@ export function formatContextReport(input: ContextReportInput): string {
   }
   lines.push("");
 
-  lines.push(`identity facts (${input.identityStated})`);
-  lines.push(`component libraries (${input.componentLibraries.length})${input.componentLibraries.length > 0 ? `  ${input.componentLibraries.join(", ")}` : ""}`);
+  // Identity comes from a root .designreview.yml and component libraries from a
+  // root package.json. Neither is guaranteed to be reached: the walk sorts every
+  // entry in a directory together, so a directory that sorts earlier can exhaust
+  // the budget before a root file is ever opened. Both counts are lower bounds.
+  lines.push(countHeading(`identity facts (${input.identityStated})`, input.truncated));
+  const libraryList = input.componentLibraries.length > 0 ? `  ${input.componentLibraries.join(", ")}` : "";
+  lines.push(
+    countHeading(`component libraries (${input.componentLibraries.length})${libraryList}`, input.truncated),
+  );
   lines.push("");
 
-  lines.push(`conflicts (${input.conflicts.length})${input.truncated ? INCOMPLETE : ""}`);
+  lines.push(countHeading(`conflicts (${input.conflicts.length})`, input.truncated));
   if (input.conflicts.length === 0 && input.truncated) {
     // The old text asserted a property of the whole repository off a walk that
     // stopped early. Two sources it never opened can still disagree.
@@ -226,13 +255,23 @@ export function formatContextReport(input: ContextReportInput): string {
   }
   lines.push("");
 
-  lines.push(`drift hints (${input.driftHints.length})`);
-  if (input.driftHints.length === 0) lines.push("  (none)");
+  lines.push(countHeading(`drift hints (${input.driftHints.length})`, input.truncated));
+  if (input.driftHints.length === 0 && input.truncated) {
+    // A bare "(none)" is the worst line in a truncated report: it states a
+    // conclusion the walk did not earn. Drift hints are computed from conflicts,
+    // and conflicts here are only the ones found before the bound was hit.
+    lines.push("  (none among the sources reached before the walk was truncated. Hints are computed");
+    lines.push("   from conflicts, and a disagreement the walk never reached produces no hint, so");
+    lines.push("   this is NOT 'this repository has no drift'.)");
+  } else if (input.driftHints.length === 0) lines.push("  (none)");
   else for (const hint of input.driftHints) lines.push(`  ${hint.message}`);
   lines.push("");
 
-  lines.push(`token diagnostics (${input.diagnostics.length})${input.truncated ? INCOMPLETE : ""}`);
-  if (input.diagnostics.length === 0) lines.push("  (none)");
+  lines.push(countHeading(`token diagnostics (${input.diagnostics.length})`, input.truncated));
+  if (input.diagnostics.length === 0 && input.truncated) {
+    lines.push("  (none in the token files read before the walk was truncated. Token files past the");
+    lines.push("   bound were never parsed, so this is NOT 'every token file here resolves cleanly'.)");
+  } else if (input.diagnostics.length === 0) lines.push("  (none)");
   else {
     for (const entry of input.diagnostics) {
       lines.push(`  ${entry.source}  ${entry.diagnostic.code}  ${entry.diagnostic.path || "(document)"}  ${entry.diagnostic.message}`);
@@ -241,7 +280,7 @@ export function formatContextReport(input: ContextReportInput): string {
 
   if (input.skipped.length > 0) {
     lines.push("");
-    lines.push(`skipped files (${input.skipped.length})`);
+    lines.push(countHeading(`skipped files (${input.skipped.length})`, input.truncated));
     for (const entry of input.skipped) lines.push(`  ${entry}`);
   }
   if (input.truncated) {
@@ -261,6 +300,16 @@ export function formatContextReport(input: ContextReportInput): string {
   if (input.outFile) {
     lines.push("");
     lines.push(`wrote draft genome  ${input.outFile}`);
+    if (input.truncated) {
+      // The file on disk carries no truncation marker: `DnaMetadata` has no
+      // field for one, and adding it would change the content hash of every
+      // genome ever written. So the fact is stated here, at the moment of
+      // writing, rather than left for a later reader to infer from nothing.
+      lines.push("  This genome was extracted by the truncated walk above. Its tokens, identity and");
+      lines.push("  components are what that partial walk found, not what the repository declares,");
+      lines.push("  and the file itself does not record that. Re-extract with a raised bound before");
+      lines.push("  signing it off.");
+    }
   }
   return lines.join("\n");
 }
