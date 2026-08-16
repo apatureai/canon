@@ -54,7 +54,9 @@ context options
                           bounds failure, not privilege. Off by default.
   --max-depth <n>         directory depth bound (default 8)
   --max-files <n>         file count bound (default 5000)
-  --strict                exit 2 when any conflict or diagnostic was raised
+  --strict                exit 2 when any conflict or diagnostic was raised, or
+                          when a bound truncated the walk (an unfinished scan
+                          reports lower bounds, so it can never pass a gate)
 
 general
   -h, --help              print this help
@@ -247,6 +249,7 @@ async function runContext(args: ParsedArgs, io: CliIo): Promise<number> {
           diagnostics: scan.diagnostics,
           skipped: scan.skipped,
           truncated: scan.truncated,
+          truncationReasons: scan.truncationReasons,
           contextBlock,
           snapshot: genome.snapshot,
         },
@@ -267,12 +270,25 @@ async function runContext(args: ParsedArgs, io: CliIo): Promise<number> {
         diagnostics: scan.diagnostics,
         skipped: scan.skipped,
         truncated: scan.truncated,
+        truncationReasons: scan.truncationReasons,
         contextBlock,
         identityStated,
         componentLibraries: genome.snapshot.components.map((component) => component.name),
         outFile,
       }),
     );
+  }
+
+  // A gate that passes because the walk ran out of budget is not a gate. A
+  // truncated scan reports lower bounds, so "0 conflicts, 0 diagnostics" is
+  // "none found before I stopped looking" and cannot stand in for "clean".
+  if (args.strict && scan.truncated) {
+    io.err(
+      `--strict: the walk did not finish (${scan.truncationReasons.join("; ")}), so this report ` +
+        `is a lower bound over ${scan.filesWalked} file${scan.filesWalked === 1 ? "" : "s"}, not a clean result. ` +
+        "Raise --max-files / --max-depth and run again.",
+    );
+    return EXIT_STRICT;
   }
 
   const clean = genome.conflicts.length === 0 && scan.diagnostics.length === 0;

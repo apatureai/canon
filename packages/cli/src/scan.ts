@@ -73,8 +73,19 @@ export interface ScanResult {
   components: ComponentConvention[];
   /** Files the walk refused: unreadable, unparseable, or over the size ceiling. */
   skipped: string[];
-  /** True when a bound (depth/file count) truncated the walk. */
+  /**
+   * True when a bound (depth/file count) stopped the walk before the end of the
+   * tree. Every count in a truncated result is a LOWER BOUND: "0 conflicts"
+   * means "none among the files that were reached", which is not the same claim
+   * as "none in this repository". Callers that gate on this report (`--strict`)
+   * must treat truncation as a failure to finish, never as a clean result.
+   */
   truncated: boolean;
+  /**
+   * Which bounds actually stopped the walk, in the order they were first hit,
+   * each with the value in force. Empty exactly when `truncated` is false.
+   */
+  truncationReasons: string[];
 }
 
 export interface ScanOptions {
@@ -156,12 +167,13 @@ function posix(path: string): string {
 
 interface WalkState {
   files: string[];
-  truncated: boolean;
+  /** Insertion-ordered so the report lists bounds in the order they were hit. */
+  truncationReasons: Set<string>;
 }
 
 function walk(dir: string, root: string, depth: number, state: WalkState, options: Required<Pick<ScanOptions, "maxDepth" | "maxFiles">>): void {
   if (depth > options.maxDepth) {
-    state.truncated = true;
+    state.truncationReasons.add(`depth bound (--max-depth ${options.maxDepth}) reached`);
     return;
   }
   let entries;
@@ -172,7 +184,7 @@ function walk(dir: string, root: string, depth: number, state: WalkState, option
   }
   for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     if (state.files.length >= options.maxFiles) {
-      state.truncated = true;
+      state.truncationReasons.add(`file-count bound (--max-files ${options.maxFiles}) reached`);
       return;
     }
     const full = join(dir, entry.name);
@@ -197,7 +209,7 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
   const maxFiles = options.maxFiles ?? DEFAULT_MAX_FILES;
   const maxFileBytes = options.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES;
 
-  const state: WalkState = { files: [], truncated: false };
+  const state: WalkState = { files: [], truncationReasons: new Set() };
   walk(root, root, 0, state, { maxDepth, maxFiles });
 
   const sources: ScannedSource[] = [];
@@ -373,6 +385,7 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
     identity,
     components,
     skipped,
-    truncated: state.truncated,
+    truncated: state.truncationReasons.size > 0,
+    truncationReasons: [...state.truncationReasons],
   };
 }

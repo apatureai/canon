@@ -80,6 +80,7 @@ export interface ContextReportInput {
   diagnostics: ScanDiagnostic[];
   skipped: string[];
   truncated: boolean;
+  truncationReasons: string[];
   contextBlock: ContextBlock;
   identityStated: number;
   componentLibraries: string[];
@@ -120,14 +121,43 @@ const EMPTY_CSS_ROWS_SHOWN = 8;
 const isEmptyCss = (source: ScannedSource): boolean =>
   source.kind === "css-custom-properties" && source.tokens === 0;
 
+/**
+ * The one-line qualifier appended to every count in a truncated report, so a
+ * reader never has to scroll to learn that a zero means "not found yet".
+ */
+const INCOMPLETE = "  [INCOMPLETE: the walk was truncated, so this count is a lower bound]";
+
 /** The `ui-dna context` report: sources found, facts resolved, disagreements kept. */
 export function formatContextReport(input: ContextReportInput): string {
   const lines: string[] = [];
   lines.push(`ui-dna context - ${input.root}`);
+
+  // The banner goes FIRST, not in a footnote. A truncated walk producing
+  // "conflicts (0)" is the failure this report exists to prevent: it reads as a
+  // clean check when the check never finished.
+  if (input.truncated) {
+    lines.push("");
+    lines.push(`walk truncated - THIS SCAN DID NOT FINISH (${input.filesWalked} files walked)`);
+    for (const reason of input.truncationReasons) lines.push(`  ${reason}`);
+    lines.push("  Every count below is a LOWER BOUND over the part of the tree that was reached.");
+    lines.push('  "conflicts (0)" here means "none found before the walk stopped", NOT "none exist".');
+    lines.push("  Raise --max-files / --max-depth and run again before treating this as a result.");
+    lines.push("  --strict exits 2 on a truncated walk for exactly this reason.");
+  }
   lines.push("");
 
-  lines.push(`sources (${input.sources.length} of ${input.filesWalked} files walked)`);
-  if (input.sources.length === 0) {
+  lines.push(
+    `sources (${input.sources.length} of ${input.filesWalked} files walked)${input.truncated ? INCOMPLETE : ""}`,
+  );
+  if (input.sources.length === 0 && input.truncated) {
+    // The walk stopped early, so "no candidate file exists" is a claim this run
+    // is not entitled to make. Say what actually happened instead.
+    lines.push(
+      `  (none reached: the walk stopped after ${input.filesWalked} file${input.filesWalked === 1 ? "" : "s"} without`,
+    );
+    lines.push("   finding a candidate. Files past the bound were never opened, so this is not evidence");
+    lines.push("   that the repository declares no design system. Raise --max-files / --max-depth.)");
+  } else if (input.sources.length === 0) {
     // Say only what the walk actually established. Every candidate file that was
     // opened is listed above with its token count, so an empty table means the
     // walk found no candidate file at all - not that a file yielded nothing.
@@ -161,7 +191,7 @@ export function formatContextReport(input: ContextReportInput): string {
 
   const counts = tokenCountsByGroup(input.tokens);
   const total = counts.reduce((sum, entry) => sum + entry.count, 0);
-  lines.push(`resolved tokens (${total})`);
+  lines.push(`resolved tokens (${total})${input.truncated ? INCOMPLETE : ""}`);
   for (const { group, count } of counts) lines.push(`  ${pad(group, 12)}  ${count}`);
   if (total === 0 && input.sources.length > 0) {
     // The files were read; they declared nothing. Say what "declared" means here
@@ -179,8 +209,13 @@ export function formatContextReport(input: ContextReportInput): string {
   lines.push(`component libraries (${input.componentLibraries.length})${input.componentLibraries.length > 0 ? `  ${input.componentLibraries.join(", ")}` : ""}`);
   lines.push("");
 
-  lines.push(`conflicts (${input.conflicts.length})`);
-  if (input.conflicts.length === 0) {
+  lines.push(`conflicts (${input.conflicts.length})${input.truncated ? INCOMPLETE : ""}`);
+  if (input.conflicts.length === 0 && input.truncated) {
+    // The old text asserted a property of the whole repository off a walk that
+    // stopped early. Two sources it never opened can still disagree.
+    lines.push("  (none among the sources reached before the walk was truncated. Sources past the");
+    lines.push("   bound were never compared, so this is NOT 'no two sources disagree'.)");
+  } else if (input.conflicts.length === 0) {
     lines.push("  (none: no two sources declared the same token with different values)");
   } else {
     for (const conflict of input.conflicts) {
@@ -196,7 +231,7 @@ export function formatContextReport(input: ContextReportInput): string {
   else for (const hint of input.driftHints) lines.push(`  ${hint.message}`);
   lines.push("");
 
-  lines.push(`token diagnostics (${input.diagnostics.length})`);
+  lines.push(`token diagnostics (${input.diagnostics.length})${input.truncated ? INCOMPLETE : ""}`);
   if (input.diagnostics.length === 0) lines.push("  (none)");
   else {
     for (const entry of input.diagnostics) {
@@ -211,7 +246,9 @@ export function formatContextReport(input: ContextReportInput): string {
   }
   if (input.truncated) {
     lines.push("");
-    lines.push("walk truncated by a depth or file-count bound; raise --max-files / --max-depth to see the rest");
+    lines.push(`walk truncated - this scan did not finish (${input.filesWalked} files walked)`);
+    for (const reason of input.truncationReasons) lines.push(`  ${reason}`);
+    lines.push("  Raise --max-files / --max-depth to see the rest. Under --strict this is exit 2.");
   }
 
   lines.push("");

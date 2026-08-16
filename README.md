@@ -298,7 +298,9 @@ The report explains its own zero, so nobody has to find this section to interpre
 candidate file the walk opened is listed with the reason it contributed nothing, and the
 `(none declared. ...)` note prints whenever files were read but no token was declared.
 `sources (0 of N files walked)` is a different statement: no candidate file was found at all, which
-usually means the path is wrong, and that case prints its own message instead.
+usually means the path is wrong, and that case prints its own message instead. And if the walk was
+truncated, that message says so too: `(none reached: the walk stopped after N files without finding
+a candidate.)`, because a bounded walk is not entitled to claim the repository declares nothing.
 
 ## Usage
 
@@ -324,9 +326,29 @@ block.
 | `--exec-tailwind-config` | Evaluate `tailwind.config.*` files in a worker thread. Off by default. |
 | `--max-depth <n>` | Directory depth bound. Default 8. |
 | `--max-files <n>` | File count bound. Default 5000. |
-| `--strict` | Exit 2 when any conflict or diagnostic was raised. |
+| `--strict` | Exit 2 when any conflict or diagnostic was raised, **or when a bound truncated the walk**. |
 
 Exit codes: `0` success, `1` usage or IO failure, `2` `--strict` and the report was not clean.
+
+**A truncated walk is never clean.** `--max-files` and `--max-depth` bound the walk so a large
+repository degrades instead of running away, but a walk that stopped early has only searched part of
+the tree. Its counts are lower bounds: `conflicts (0)` then means "none found before I stopped
+looking", not "no two sources disagree". `--strict` used to exit 0 in exactly that case, so any
+repository past the default 5,000-file bound got a green CI gate over conflicts the scan never
+reached. It now exits 2 and prints the bound it hit, and the report leads with
+
+```
+walk truncated - THIS SCAN DID NOT FINISH (5000 files walked)
+  file-count bound (--max-files 5000) reached
+  Every count below is a LOWER BOUND over the part of the tree that was reached.
+  "conflicts (0)" here means "none found before the walk stopped", NOT "none exist".
+  Raise --max-files / --max-depth and run again before treating this as a result.
+  --strict exits 2 on a truncated walk for exactly this reason.
+```
+
+before any number, with every under-reported count tagged `[INCOMPLETE: ...]`. `--json` carries the
+same fact as `truncated` plus a `truncationReasons` array. Raise the bound (`--max-files 50000`) and
+run again; if the gate then passes, it passed on a walk that finished.
 
 **Which files are read.** `*.css` anywhere (a file whose PostCSS parse finds a real `@theme` at-rule
 is also read as Tailwind v4); `tokens.json`, `design-tokens.json`, `*.tokens.json` anywhere;
