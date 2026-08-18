@@ -62,9 +62,9 @@ function instructionFor(entry: DriftEntry): string {
     case "value_mismatch":
       return `Replace the off-token value "${entry.code}" with the ${token} design token ("${entry.design}").`;
     case "missing_in_code":
-      return `Adopt the ${token} design token ("${entry.design}") — it is defined in the design system but unused in the code.`;
+      return `Adopt the ${token} design token ("${entry.design}"): it is defined in the design system but unused in the code.`;
     case "undocumented_in_design":
-      return `${token} ("${entry.code}") is not sanctioned by the design system — replace it with a design token, or add it to the design tokens if it is intentional.`;
+      return `${token} ("${entry.code}") is not sanctioned by the design system. Replace it with a design token, or add it to the design tokens if it is intentional.`;
   }
 }
 

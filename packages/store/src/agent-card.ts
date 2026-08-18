@@ -184,7 +184,7 @@ export function assertReadOnlyCard(card: ApatureAgentCardV1): ApatureAgentCardV1
   if (!card.safety.no_model_calls) throw new UnsafeAgentCardError("ui-dna card must declare no_model_calls");
   for (const cap of card.capabilities) {
     if (cap.access !== "read_only") {
-      throw new UnsafeAgentCardError(`capability "${cap.intent}" must be read_only — ui-dna advertises no write path`);
+      throw new UnsafeAgentCardError(`capability "${cap.intent}" must be read_only: ui-dna advertises no write path`);
     }
   }
   return card;

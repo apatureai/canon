@@ -27,7 +27,7 @@ const KIND_MARK = {
 } as const;
 
 function renderEntry(r: DriftRemediation): string {
-  return `- ${KIND_MARK[r.kind]} — \`${r.group}.${r.name}\`: ${r.instruction}`;
+  return `- ${KIND_MARK[r.kind]} \`${r.group}.${r.name}\`: ${r.instruction}`;
 }
 
 /**
@@ -44,17 +44,17 @@ export function renderDriftComment(result: DriftGateNodeResult): string {
   );
 
   if (remediation.blocking.length > 0) {
-    lines.push("### Introduced — must fix");
+    lines.push("### Introduced: must fix");
     for (const r of remediation.blocking) lines.push(renderEntry(r));
     lines.push("");
   }
   if (remediation.advisory.length > 0) {
-    lines.push("### Introduced — advisory");
+    lines.push("### Introduced: advisory");
     for (const r of remediation.advisory) lines.push(renderEntry(r));
     lines.push("");
   }
   if (persistingCount > 0) {
-    lines.push(`_${persistingCount} pre-existing drift(s) not introduced by this change — not gated._`, "");
+    lines.push(`_${persistingCount} pre-existing drift(s) not introduced by this change, so not gated._`, "");
   }
   if (resolvedCount > 0) lines.push(`✓ Resolved **${resolvedCount}** drift(s).`, "");
 

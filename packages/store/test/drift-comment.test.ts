@@ -35,7 +35,7 @@ describe("renderDriftComment", () => {
     const md = comment([], [mismatch("brand", "#3B82F6")]);
     expect(md).toContain("`color.brand`");
     expect(md).toContain("#3B82F6");
-    expect(md).toContain("Introduced — must fix");
+    expect(md).toContain("Introduced: must fix");
   });
 
   it("counts pre-existing drift without gating it", () => {
