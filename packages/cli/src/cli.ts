@@ -54,9 +54,11 @@ context options
                           bounds failure, not privilege. Off by default.
   --max-depth <n>         directory depth bound (default 8)
   --max-files <n>         file count bound (default 5000)
-  --strict                exit 2 when any conflict or diagnostic was raised, or
-                          when a bound truncated the walk (an unfinished scan
-                          reports lower bounds, so it can never pass a gate)
+  --strict                exit 2 when any conflict or diagnostic was raised,
+                          when a bound truncated the walk, or when a candidate
+                          design source could not be read (a scan that did not
+                          examine everything reports lower bounds, so it can
+                          never pass a gate)
 
 general
   -h, --help              print this help
@@ -287,6 +289,21 @@ async function runContext(args: ParsedArgs, io: CliIo): Promise<number> {
       `--strict: the walk did not finish (${scan.truncationReasons.join("; ")}), so this report ` +
         `is a lower bound over ${scan.filesWalked} file${scan.filesWalked === 1 ? "" : "s"}, not a clean result. ` +
         "Raise --max-files / --max-depth and run again.",
+    );
+    return EXIT_STRICT;
+  }
+
+  // The same argument, one hole further in. A candidate design source the walk
+  // found and could not parse was never handed to a resolver, so it raised no
+  // diagnostic and joined no conflict. "conflicts (0), token diagnostics (0)"
+  // then means "none among the files I could read", and a repository whose only
+  // token file was malformed used to pass this gate with a clean bill of health.
+  if (args.strict && scan.skipped.length > 0) {
+    const count = scan.skipped.length;
+    io.err(
+      `--strict: ${count} candidate design source${count === 1 ? "" : "s"} could not be read ` +
+        `(${scan.skipped.join("; ")}), so this report is a lower bound over the sources that were ` +
+        "parsed, not a clean result. Fix or exclude them and run again.",
     );
     return EXIT_STRICT;
   }

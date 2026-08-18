@@ -38,17 +38,26 @@ const CONFLICTING_B = JSON.stringify({
  * files, so a low enough `--max-files` provably reaches none of the four. Every
  * count in the report is then a lower bound, including the three that used to
  * hide it.
+ *
+ * `refusedSource` adds a malformed token file that sorts first, so the report
+ * always has a `skipped files` section for the heading rule below to cover. It
+ * is off for the runs that assert what a FINISHED, complete scan prints,
+ * because a refused source is itself an incompleteness (see
+ * `cli-refused-source.test.ts`) and would tag those reports for a second,
+ * unrelated reason.
  */
-function everythingBehindFiller(filler: number): { root: string; cleanup: () => void } {
+function everythingBehindFiller(
+  filler: number,
+  { refusedSource = true }: { refusedSource?: boolean } = {},
+): { root: string; cleanup: () => void } {
   const files: Record<string, string> = {
     "zzz/a.tokens.json": CONFLICTING_A,
     "zzz/b.tokens.json": CONFLICTING_B,
     "package.json": JSON.stringify({ name: "x", dependencies: { "@radix-ui/react-dialog": "1.0.0" } }),
     ".designreview.yml": "brand:\n  tone: calm\n  audience: developers\n",
   };
-  // Sorts first inside `.aaa/`, so every run reaches it and the report always
-  // has a `skipped files` section for the heading rule below to cover.
-  files[".aaa/00-broken.tokens.json"] = "{ not json";
+  // Sorts first inside `.aaa/`, so every run that wants it reaches it.
+  if (refusedSource) files[".aaa/00-broken.tokens.json"] = "{ not json";
   for (let i = 0; i < filler; i += 1) {
     files[`.aaa/f${String(i).padStart(5, "0")}.txt`] = "x";
   }
@@ -104,7 +113,7 @@ describe("a truncated report tags every count it under-reports", () => {
     // The mirror image: a qualifier printed unconditionally would satisfy the
     // test above while telling every reader of a complete scan that their
     // result is a lower bound. It is a claim about THIS run, not decoration.
-    const tree = everythingBehindFiller(40);
+    const tree = everythingBehindFiller(40, { refusedSource: false });
     try {
       const result = await runCapture(["context", tree.root, "--max-files", "1000"]);
       expect(result.stdout).not.toContain("[INCOMPLETE:");
@@ -118,7 +127,7 @@ describe("a truncated report tags every count it under-reports", () => {
   });
 
   it("never prints a bare (none) on a truncated walk", async () => {
-    const tree = everythingBehindFiller(40);
+    const tree = everythingBehindFiller(40, { refusedSource: false });
     try {
       const truncated = await runCapture(["context", tree.root, "--max-files", "20"]);
       // "(none)" is a conclusion. A walk that stopped early is entitled to

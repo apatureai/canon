@@ -326,7 +326,7 @@ block.
 | `--exec-tailwind-config` | Evaluate `tailwind.config.*` files in a worker thread. Off by default. |
 | `--max-depth <n>` | Directory depth bound. Default 8. |
 | `--max-files <n>` | File count bound. Default 5000. |
-| `--strict` | Exit 2 when any conflict or diagnostic was raised, **or when a bound truncated the walk**. |
+| `--strict` | Exit 2 when any conflict or diagnostic was raised, **when a bound truncated the walk, or when a candidate design source could not be read**. |
 
 Exit codes: `0` success, `1` usage or IO failure, `2` `--strict` and the report was not clean.
 
@@ -354,12 +354,36 @@ conclusion a walk that stopped early did not earn. `--json` carries the same fac
 a `truncationReasons` array. Raise the bound (`--max-files 50000`) and run again; if the gate then
 passes, it passed on a walk that finished.
 
+**A refused source is never clean either.** A bound is one way to leave part of a design system
+unexamined. The other is a candidate file the walk reached, opened and could not parse: a malformed
+`tokens.json`, a stylesheet with an unclosed brace, a file over the 2 MiB ceiling. Nothing in
+`skipped` ever reaches a resolver, so it raises no diagnostic and joins no conflict, and the same
+false green followed: a repository whose only token file was malformed printed `token diagnostics
+(0)` / `(none)` and passed `--strict`. It now takes the same treatment as a truncated walk. The
+report leads with
+
+```
+scan incomplete - 1 candidate design source could not be read
+  Each one is listed under "skipped files" below. They were found and never
+  parsed, so every count below is a LOWER BOUND over the sources that could be
+  read: "conflicts (0)" means "none among the files I could parse", NOT "none exist".
+  Fix or exclude them and run again before treating this as a result.
+  --strict exits 2 on a refused source for exactly this reason.
+```
+
+every count carries `[INCOMPLETE: ...]` (except `skipped files` itself, which is exactly the
+refusals and not a lower bound), no parenthetical states an absence, and `--strict` exits 2 naming
+each file and why. `--json` carries the list as `skipped`, which a machine consumer has to check
+alongside `truncated`. Note that this is stricter than it used to be: a repository with one
+unparseable stylesheet anywhere in it now fails a `--strict` gate that previously passed.
+
 **Which files are read.** `*.css` anywhere (a file whose PostCSS parse finds a real `@theme` at-rule
 is also read as Tailwind v4); `tokens.json`, `design-tokens.json`, `*.tokens.json` anywhere;
 `tailwind.config.{js,cjs,mjs,ts,mts,cts}` anywhere; `package.json` and `.designreview.yml` at the
 scan root only. `node_modules`, `.git`, `dist`, `build`, `out`, `coverage`, `.next`, `.nuxt`,
-`.turbo`, `.cache`, `vendor` and `tmp` are never entered. Files over 2 MiB and unparseable files are
-listed as `skipped`, never guessed at.
+`.turbo`, `.cache`, `vendor` and `tmp` are never entered. Files over 2 MiB and unparseable files
+(CSS and JSON alike) are listed as `skipped`, never guessed at, and never taken as evidence of what
+the repository declares.
 
 There are three equivalent ways to invoke the CLI. `node packages/cli/dist/bin.js` and
 `pnpm ui-dna` need no setup. Nothing is published to npm yet (see [Roadmap](#roadmap)), so if you

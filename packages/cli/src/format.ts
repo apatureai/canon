@@ -128,20 +128,55 @@ const isEmptyCss = (source: ScannedSource): boolean =>
 const INCOMPLETE = "  [INCOMPLETE: the walk was truncated, so this count is a lower bound]";
 
 /**
- * Every count in this report is derived from the same bounded walk, so a
- * truncated walk makes every one of them a lower bound - not the four that
- * happened to get the tag first. Headings go through this one function so a new
- * section cannot be added without the qualifier coming with it, and
- * `cli-truncated-report.test.ts` re-derives the set of headings from the output
- * rather than from a list, so an untagged one fails the suite.
+ * The same qualifier for the other hole in a walk. A bound stops the walk
+ * before the end of the tree; a refused file is a candidate design source the
+ * walk did reach, opened, and could not parse. Both leave part of the design
+ * system unexamined, so both make every count a lower bound. This one used to
+ * print nothing at all: a repository whose only token file was malformed
+ * reported "token diagnostics (0) (none)" and passed --strict.
  */
-function countHeading(label: string, truncated: boolean): string {
-  return truncated ? `${label}${INCOMPLETE}` : label;
+const INCOMPLETE_REFUSED =
+  "  [INCOMPLETE: a design source could not be read, so this count is a lower bound]";
+
+/**
+ * Every count in this report is derived from the same bounded walk, so a walk
+ * that did not examine everything makes every one of them a lower bound - not
+ * the four that happened to get the tag first. Headings go through this one
+ * function so a new section cannot be added without the qualifier coming with
+ * it, and `cli-truncated-report.test.ts` re-derives the set of headings from
+ * the output rather than from a list, so an untagged one fails the suite.
+ *
+ * Truncation is the broader failure (files past the bound were never opened at
+ * all), so it names itself when both hold.
+ */
+function countHeading(label: string, input: ContextReportInput): string {
+  if (input.truncated) return `${label}${INCOMPLETE}`;
+  if (input.skipped.length > 0) return `${label}${INCOMPLETE_REFUSED}`;
+  return label;
+}
+
+/** "1 candidate design source was" / "3 candidate design sources were". */
+function refusedPhrase(refused: number): string {
+  return refused === 1 ? "1 candidate design source was" : `${refused} candidate design sources were`;
+}
+
+/**
+ * The wording for an absence a refused source makes unsafe, built the same way
+ * as the truncated wording: scope the sentence to what was actually examined,
+ * then state out loud the stronger claim this run is NOT making.
+ */
+function refusedAbsence(scoped: string, notClaim: string, refused: number): string[] {
+  return [
+    `  (${scoped}. ${refusedPhrase(refused)} found`,
+    '   and never parsed - see "skipped files" below - so this is NOT',
+    `   ${notClaim}.)`,
+  ];
 }
 
 /** The `ui-dna context` report: sources found, facts resolved, disagreements kept. */
 export function formatContextReport(input: ContextReportInput): string {
   const lines: string[] = [];
+  const refused = input.skipped.length;
   lines.push(`ui-dna context - ${input.root}`);
 
   // The banner goes FIRST, not in a footnote. A truncated walk producing
@@ -155,11 +190,23 @@ export function formatContextReport(input: ContextReportInput): string {
     lines.push('  "conflicts (0)" here means "none found before the walk stopped", NOT "none exist".');
     lines.push("  Raise --max-files / --max-depth and run again before treating this as a result.");
     lines.push("  --strict exits 2 on a truncated walk for exactly this reason.");
+  } else if (refused > 0) {
+    // Same failure, different hole. The walk finished, but a design source it
+    // reached was never parsed, so it cannot speak for what that file declares.
+    lines.push("");
+    lines.push(
+      `scan incomplete - ${refused} candidate design source${refused === 1 ? "" : "s"} could not be read`,
+    );
+    lines.push('  Each one is listed under "skipped files" below. They were found and never');
+    lines.push("  parsed, so every count below is a LOWER BOUND over the sources that could be");
+    lines.push('  read: "conflicts (0)" means "none among the files I could parse", NOT "none exist".');
+    lines.push("  Fix or exclude them and run again before treating this as a result.");
+    lines.push("  --strict exits 2 on a refused source for exactly this reason.");
   }
   lines.push("");
 
   lines.push(
-    countHeading(`sources (${input.sources.length} of ${input.filesWalked} files walked)`, input.truncated),
+    countHeading(`sources (${input.sources.length} of ${input.filesWalked} files walked)`, input),
   );
   if (input.sources.length === 0 && input.truncated) {
     // The walk stopped early, so "no candidate file exists" is a claim this run
@@ -169,6 +216,17 @@ export function formatContextReport(input: ContextReportInput): string {
     );
     lines.push("   finding a candidate. Files past the bound were never opened, so this is not evidence");
     lines.push("   that the repository declares no design system. Raise --max-files / --max-depth.)");
+  } else if (input.sources.length === 0 && refused > 0) {
+    // The old line here was flatly false, and it sent the reader the wrong way:
+    // it said none of the walked files was a candidate and told them to check
+    // the path, when a candidate had been found and refused. Nothing but a
+    // candidate can land in `skipped`, so zero sources plus a refusal means
+    // every candidate this walk found went unparsed.
+    lines.push(
+      `  (none usable: walked ${input.filesWalked} file${input.filesWalked === 1 ? "" : "s"}, and every candidate design source among them`,
+    );
+    lines.push('   was refused unread - see "skipped files" below. Nothing here was ever parsed, so');
+    lines.push('   this is NOT "this repository declares no design system".)');
   } else if (input.sources.length === 0) {
     // Say only what the walk actually established. Every candidate file that was
     // opened is listed above with its token count, so an empty table means the
@@ -203,7 +261,7 @@ export function formatContextReport(input: ContextReportInput): string {
 
   const counts = tokenCountsByGroup(input.tokens);
   const total = counts.reduce((sum, entry) => sum + entry.count, 0);
-  lines.push(countHeading(`resolved tokens (${total})`, input.truncated));
+  lines.push(countHeading(`resolved tokens (${total})`, input));
   for (const { group, count } of counts) lines.push(`  ${pad(group, 12)}  ${count}`);
   if (total === 0 && input.sources.length > 0 && input.truncated) {
     // Same zero, weaker claim. "none declared" is a statement about the
@@ -215,6 +273,14 @@ export function formatContextReport(input: ContextReportInput): string {
     lines.push("   [data-theme] custom-property block, a Tailwind v4 @theme block, a DTCG or Style");
     lines.push("   Dictionary token file, or a Tailwind v3 config with --exec-tailwind-config, and it");
     lines.push("   does not infer a scale from utility classes or from rendered output.)");
+  } else if (total === 0 && input.sources.length > 0 && refused > 0) {
+    lines.push(
+      ...refusedAbsence(
+        "none declared by the sources that could be read",
+        "'this repository declares no tokens'",
+        refused,
+      ),
+    );
   } else if (total === 0 && input.sources.length > 0) {
     // The files were read; they declared nothing. Say what "declared" means here
     // rather than leaving a bare 0 that reads like a failed scan. Only a
@@ -231,19 +297,23 @@ export function formatContextReport(input: ContextReportInput): string {
   // root package.json. Neither is guaranteed to be reached: the walk sorts every
   // entry in a directory together, so a directory that sorts earlier can exhaust
   // the budget before a root file is ever opened. Both counts are lower bounds.
-  lines.push(countHeading(`identity facts (${input.identityStated})`, input.truncated));
+  lines.push(countHeading(`identity facts (${input.identityStated})`, input));
   const libraryList = input.componentLibraries.length > 0 ? `  ${input.componentLibraries.join(", ")}` : "";
   lines.push(
-    countHeading(`component libraries (${input.componentLibraries.length})${libraryList}`, input.truncated),
+    countHeading(`component libraries (${input.componentLibraries.length})${libraryList}`, input),
   );
   lines.push("");
 
-  lines.push(countHeading(`conflicts (${input.conflicts.length})`, input.truncated));
+  lines.push(countHeading(`conflicts (${input.conflicts.length})`, input));
   if (input.conflicts.length === 0 && input.truncated) {
     // The old text asserted a property of the whole repository off a walk that
     // stopped early. Two sources it never opened can still disagree.
     lines.push("  (none among the sources reached before the walk was truncated. Sources past the");
     lines.push("   bound were never compared, so this is NOT 'no two sources disagree'.)");
+  } else if (input.conflicts.length === 0 && refused > 0) {
+    lines.push(
+      ...refusedAbsence("none among the sources that could be read", "'no two sources disagree'", refused),
+    );
   } else if (input.conflicts.length === 0) {
     lines.push("  (none: no two sources declared the same token with different values)");
   } else {
@@ -255,7 +325,7 @@ export function formatContextReport(input: ContextReportInput): string {
   }
   lines.push("");
 
-  lines.push(countHeading(`drift hints (${input.driftHints.length})`, input.truncated));
+  lines.push(countHeading(`drift hints (${input.driftHints.length})`, input));
   if (input.driftHints.length === 0 && input.truncated) {
     // A bare "(none)" is the worst line in a truncated report: it states a
     // conclusion the walk did not earn. Drift hints are computed from conflicts,
@@ -263,14 +333,34 @@ export function formatContextReport(input: ContextReportInput): string {
     lines.push("  (none among the sources reached before the walk was truncated. Hints are computed");
     lines.push("   from conflicts, and a disagreement the walk never reached produces no hint, so");
     lines.push("   this is NOT 'this repository has no drift'.)");
+  } else if (input.driftHints.length === 0 && refused > 0) {
+    lines.push(
+      ...refusedAbsence(
+        "none among the sources that could be read",
+        "'this repository has no drift'",
+        refused,
+      ),
+    );
   } else if (input.driftHints.length === 0) lines.push("  (none)");
   else for (const hint of input.driftHints) lines.push(`  ${hint.message}`);
   lines.push("");
 
-  lines.push(countHeading(`token diagnostics (${input.diagnostics.length})`, input.truncated));
+  lines.push(countHeading(`token diagnostics (${input.diagnostics.length})`, input));
   if (input.diagnostics.length === 0 && input.truncated) {
     lines.push("  (none in the token files read before the walk was truncated. Token files past the");
     lines.push("   bound were never parsed, so this is NOT 'every token file here resolves cleanly'.)");
+  } else if (input.diagnostics.length === 0 && refused > 0) {
+    // The sharpest case: a repository whose only token file is malformed used to
+    // print "token diagnostics (0)" and "(none)", which reads as "every token
+    // file here resolves cleanly" about a file that never got as far as the
+    // resolver.
+    lines.push(
+      ...refusedAbsence(
+        "none in the token files that could be read",
+        "'every token file here resolves cleanly'",
+        refused,
+      ),
+    );
   } else if (input.diagnostics.length === 0) lines.push("  (none)");
   else {
     for (const entry of input.diagnostics) {
@@ -280,7 +370,14 @@ export function formatContextReport(input: ContextReportInput): string {
 
   if (input.skipped.length > 0) {
     lines.push("");
-    lines.push(countHeading(`skipped files (${input.skipped.length})`, input.truncated));
+    // The one count a refusal does NOT make a lower bound: it IS the refusals,
+    // and the walk knows exactly how many it made. A truncated walk is a
+    // different matter - it could have refused more files past the bound.
+    lines.push(
+      input.truncated
+        ? `skipped files (${input.skipped.length})${INCOMPLETE}`
+        : `skipped files (${input.skipped.length})`,
+    );
     for (const entry of input.skipped) lines.push(`  ${entry}`);
   }
   if (input.truncated) {
