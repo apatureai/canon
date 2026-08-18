@@ -165,6 +165,22 @@ function posix(path: string): string {
   return sep === "/" ? path : path.split(sep).join("/");
 }
 
+/**
+ * The short reason out of a PostCSS parse failure. PostCSS labels its message
+ * `<css input>` because the extractors are handed a string and never a path;
+ * the walk knows the real path and prints it, so that placeholder would only
+ * point the reader at a file that does not exist.
+ */
+function cssParseMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "reason" in error) {
+    const { reason, line } = error as { reason?: unknown; line?: unknown };
+    if (typeof reason === "string") {
+      return typeof line === "number" ? `${reason} at line ${line}` : reason;
+    }
+  }
+  return error instanceof Error ? error.message : String(error);
+}
+
 interface WalkState {
   files: string[];
   /** Insertion-ordered so the report lists bounds in the order they were hit. */
@@ -240,25 +256,37 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
     if (file.endsWith(".css")) {
       const css = read(file);
       if (css === null) continue;
-      let claimed = false;
-      // The text test is only a cheap filter to skip a PostCSS parse. Whether a
-      // `@theme` BLOCK exists is decided by the parser: the string also occurs
-      // in comments, and "@theme block" is a claim about the reader's file.
-      if (css.includes("@theme")) {
-        const { tokens, hasTheme } = extractTailwindV4Tokens(css);
-        if (hasTheme) {
-          const facts = toContributions(tokens, file);
-          contributions.push(...facts);
-          sources.push({
-            path: file,
-            kind: "tailwind-v4-theme",
-            tokens: facts.length,
-            note: facts.length > 0 ? "@theme block" : "@theme block declaring no canonical tokens",
-          });
-          claimed = true;
-        }
+      // The extractors are pure PostCSS parses, and PostCSS THROWS on malformed
+      // CSS. Parsing outside the walk let one unclosed brace anywhere in a tree
+      // abort the whole scan with `failed: <css input>:2:1: Unclosed block` -
+      // no report at all, and not even the name of the offending file. A
+      // stylesheet we cannot parse is a stylesheet we did not read, which is
+      // the same situation as an unparseable JSON document: record it as
+      // skipped and keep walking.
+      let theme: ReturnType<typeof extractTailwindV4Tokens> | null = null;
+      let cssTokens;
+      try {
+        // The text test is only a cheap filter to skip a PostCSS parse. Whether a
+        // `@theme` BLOCK exists is decided by the parser: the string also occurs
+        // in comments, and "@theme block" is a claim about the reader's file.
+        if (css.includes("@theme")) theme = extractTailwindV4Tokens(css);
+        cssTokens = extractCssTokens(css);
+      } catch (error) {
+        skipped.push(`${file} (unparseable CSS: ${cssParseMessage(error)})`);
+        continue;
       }
-      const cssTokens = extractCssTokens(css);
+      let claimed = false;
+      if (theme?.hasTheme) {
+        const facts = toContributions(theme.tokens, file);
+        contributions.push(...facts);
+        sources.push({
+          path: file,
+          kind: "tailwind-v4-theme",
+          tokens: facts.length,
+          note: facts.length > 0 ? "@theme block" : "@theme block declaring no canonical tokens",
+        });
+        claimed = true;
+      }
       const cssFacts = toContributions(cssTokens, file);
       if (cssFacts.length > 0) {
         contributions.push(...cssFacts);

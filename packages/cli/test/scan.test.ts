@@ -197,6 +197,36 @@ describe("scanProject", () => {
     }
   });
 
+  it("skips a stylesheet PostCSS cannot parse instead of aborting the whole scan", async () => {
+    // The README promises that "unparseable files are listed as skipped, never
+    // guessed at". That held for JSON and not for CSS: the extractors are pure
+    // PostCSS parses that THROW, nothing caught them, and one unclosed brace
+    // anywhere in a tree took the entire command down with
+    // `failed: <css input>:2:1: Unclosed block` - no report, and not even the
+    // name of the file to go and fix.
+    const tree = makeTree({
+      "broken.css": ":root { --color-brand: #ffffff;\n.card { color: red;\n",
+      "theme-broken.css": "@theme { --color-brand: #ffffff;\n",
+      "good.css": ":root { --color-ink: #101010; }",
+    });
+    try {
+      const scan = await scanProject(tree.root);
+
+      // The rest of the tree still resolves: one bad file costs one bad file.
+      expect(scan.sources.map((source) => source.path)).toEqual(["good.css"]);
+      expect(scan.contributions.map((contribution) => contribution.name)).toEqual(["--color-ink"]);
+
+      // And the reader is told which files, and why, in the same vocabulary the
+      // walk already uses for an unparseable JSON document.
+      expect(scan.skipped).toEqual([
+        "broken.css (unparseable CSS: Unclosed block at line 2)",
+        "theme-broken.css (unparseable CSS: Unclosed block at line 1)",
+      ]);
+    } finally {
+      tree.cleanup();
+    }
+  });
+
   it("bounds the walk and reports that it truncated", async () => {
     const tree = makeTree({
       "a/b/c/deep.css": ":root { --color-deep: #101010; }",

@@ -94,6 +94,28 @@ describe("ui-dna context", () => {
     }
   });
 
+  it("still reports a project that contains one malformed stylesheet", async () => {
+    // One unclosed brace used to abort the command: PostCSS threw out of the
+    // extractor, `runCli`'s outer catch printed `failed: <css input>:2:1:
+    // Unclosed block`, and the exit code was 1 with no report and no filename.
+    // A file the walk cannot parse is one skipped file, not a dead scan.
+    const tree = makeTree({
+      "broken.css": ":root { --color-brand: #ffffff;\n.card { color: red;\n",
+      "good.css": ":root { --color-ink: #101010; }",
+    });
+    try {
+      const result = await runCapture(["context", tree.root]);
+      expect(result.code).toBe(EXIT_OK); // was EXIT_ERROR, with nothing on stdout
+      expect(result.stderr).not.toContain("failed:");
+      expect(result.stdout).toContain("sources (1 of 2 files walked)");
+      expect(result.stdout).toContain("resolved tokens (1)");
+      // Named, with the reason, so the reader knows which file to go and fix.
+      expect(result.stdout).toContain("broken.css (unparseable CSS: Unclosed block at line 2)");
+    } finally {
+      tree.cleanup();
+    }
+  });
+
   it("reports an empty tree without inventing a design system", async () => {
     const tree = makeTree({ "README.md": "# nothing to see" });
     try {
