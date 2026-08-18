@@ -65,10 +65,11 @@ produces a byte-identical snapshot and the same `sha256:` context hash on every 
 
 **A citable datapoint about the ecosystem.** `pnpm eval:dtcg-corpus` fetches 20 public token files
 from GitHub by immutable blob SHA and resolves them under the strict 2025.10 profile. Last run
-(2026-08-09, Node 24.14.0): **1,629 token-shaped nodes yielded 384 strict-profile tokens and 1,223
+(2026-08-18, Node 24.14.0): **1,629 token-shaped nodes yielded 384 strict-profile tokens and 1,223
 diagnostics**, so roughly 24% of what is out there in the wild satisfies the 2025.10 profile
 without complaint. Ten of the 20 files resolved zero tokens; exactly one resolved with zero
-diagnostics. Most of the rest use pre-2025 scalar `$value` shapes or split aliases across files.
+diagnostics. Every one of those five numbers is printed by the command and reproducible on your
+machine ([how](#development)). Most of the rest use pre-2025 scalar `$value` shapes or split aliases across files.
 That is compatibility evidence, not an accuracy score, and it is the number to argue with if you
 think the profile is too strict.
 
@@ -728,13 +729,20 @@ $ pnpm eval:dtcg-corpus
 {
   "files": 20,
   "deterministic": true,
-  "p95Ms": 3.494,
-  "peakHeapMiB": 14.76,
+  "p95Ms": 1.885,
+  "peakHeapMiB": 14.87,
   "rawTokens": 1629,
   "resolvedTokens": 384,
-  "diagnostics": 1223
+  "diagnostics": 1223,
+  "filesResolvingZeroTokens": 10,
+  "filesWithZeroDiagnostics": 1
 }
 ```
+
+Every number quoted from this corpus above is in that output, and all of them except `p95Ms` and
+`peakHeapMiB` are properties of the files rather than of the machine: they must come out identical
+on yours, because the blobs are pinned by SHA and the script asserts each file against its recorded
+per-file expectation. The two timing numbers will not match, and are not meant to.
 
 If `node packages/cli/dist/bin.js` reports that it cannot find the module, `pnpm build` has not been
 run.

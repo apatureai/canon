@@ -61,6 +61,16 @@ if (!deterministic) throw new Error("Corpus output was not byte-deterministic.")
 if (p95Ms > manifest.ceilings.p95Ms) throw new Error(`p95 ${p95Ms.toFixed(3)}ms exceeds ${manifest.ceilings.p95Ms}ms.`);
 if (peakHeapMiB > manifest.ceilings.peakHeapMiB) throw new Error(`Peak heap ${peakHeapMiB.toFixed(2)}MiB exceeds ${manifest.ceilings.peakHeapMiB}MiB.`);
 
+// The README quotes the shape of the corpus, not only its totals: how many of
+// the 20 files resolved nothing at all, and how many resolved without a single
+// complaint. Those two numbers were checked (every row is asserted against its
+// recorded expectation above) but never printed, so a reader running this
+// command could reproduce the three totals and had to take the other two on
+// trust. Print them: a claim in the README should come out of the command the
+// README tells you to run.
+const filesResolvingZeroTokens = rows.filter((row) => row.resolvedTokens === 0).length;
+const filesWithZeroDiagnostics = rows.filter((row) => row.diagnostics === 0).length;
+
 process.stdout.write(`${JSON.stringify({
   files: rows.length,
   deterministic,
@@ -69,4 +79,6 @@ process.stdout.write(`${JSON.stringify({
   rawTokens: rows.reduce((sum, row) => sum + row.rawTokens, 0),
   resolvedTokens: rows.reduce((sum, row) => sum + row.resolvedTokens, 0),
   diagnostics: rows.reduce((sum, row) => sum + row.diagnostics, 0),
+  filesResolvingZeroTokens,
+  filesWithZeroDiagnostics,
 }, null, 2)}\n`);
