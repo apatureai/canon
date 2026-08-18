@@ -78,10 +78,10 @@ think the profile is too strict.
 | Tool | Floor | Check | Notes |
 |---|---|---|---|
 | Node | `>=24` | `node -v` | `.node-version` pins 24. Type stripping and `worker_threads` are both used. |
-| pnpm | 9.15.0 | `pnpm -v` | `corepack enable pnpm`, or `npm i -g pnpm@9.15.0`. |
+| pnpm | 9.15.0 | `pnpm -v` | `packageManager` pins 9.15.0, so `corepack enable pnpm` gets you exactly that. `npm i -g pnpm@9.15.0` also works, and so does a newer pnpm: the lockfile installs `--frozen-lockfile` clean on 10.x. |
 
-Verified on macOS 14 (Darwin 24.6.0) with Node 24.14.0. CI runs the same commands on
-`ubuntu-latest`. Windows is untested (see [Roadmap](#roadmap)).
+Verified on macOS 14 (Darwin 24.6.0) with Node 24.14.0 and pnpm 10.34.3. CI runs the same commands
+on `ubuntu-latest`. Windows is untested (see [Roadmap](#roadmap)).
 
 No credentials, no network, no browser, no model. `pnpm-lock.yaml` is committed, so
 `--frozen-lockfile` reproduces the tree this was verified on.
@@ -612,8 +612,8 @@ A loud, confidently wrong verdict is worse than an abstention, so it returns a t
 
 ## Status
 
-Verified on 2026-08-09, Node 24.14.0, pnpm 9.15.0: lint clean, typecheck clean,
-**473 tests across 54 files passing** in about 2 seconds, all offline.
+Verified on 2026-08-18, Node 24.14.0, pnpm 10.34.3: lint clean, typecheck clean,
+**498 tests across 57 files passing** in about 5 seconds, all offline.
 
 | Area | Status |
 |---|---|
@@ -705,8 +705,8 @@ provenance, not instructions.
 
 ```console
 $ pnpm test
- Test Files  54 passed (54)
-      Tests  473 passed (473)
+ Test Files  57 passed (57)
+      Tests  498 passed (498)
 ```
 
 ```bash
