@@ -9,6 +9,13 @@ publishes them together.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-24
+
+First release published to npm. The six public packages (`@apatureai/canon`,
+`@apatureai/canon-schema`, `@apatureai/canon-context`, `@apatureai/canon-reconcile`,
+`@apatureai/canon-render`, `@apatureai/canon-store`) ship to the registry from this
+version onward; `@apatureai/canon-eval` remains private and unpublished.
+
 ### Added
 
 - **Downstream consumer exporters.** `ui-dna export <genome.json> --target
@@ -76,5 +83,6 @@ browser, calls a model, or edits code, and needs no credentials or network.
 - **Library surfaces** — versioning, the sign-off state machine, the authority
   log, and the design-code drift gate.
 
-[Unreleased]: https://github.com/apatureai/canon/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/apatureai/canon/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/apatureai/canon/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/apatureai/canon/releases/tag/v0.1.0
