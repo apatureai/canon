@@ -1,4 +1,4 @@
-import { fact, type DnaTokens, type VisualDistributions } from "@uidna/schema";
+import { fact, type DnaTokens, type VisualDistributions } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { canonicalTokenValue, clampDelta, reconcileTokens } from "../src/index.js";
 

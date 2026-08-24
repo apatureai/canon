@@ -1,5 +1,5 @@
 {
-  "name": "@uidna/eval",
+  "name": "@apatureai/canon-eval",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
   "files": ["dist"],
   "scripts": { "test": "vitest run" },
   "dependencies": {
-    "@uidna/reconcile": "workspace:*",
-    "@uidna/schema": "workspace:*"
+    "@apatureai/canon-reconcile": "workspace:*",
+    "@apatureai/canon-schema": "workspace:*"
   }
 }

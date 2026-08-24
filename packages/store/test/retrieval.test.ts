@@ -7,7 +7,7 @@ import {
   retrieveRawGenomeSlice,
   STORE_VERSION,
 } from "../src/index.js";
-import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
+import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 
 /** An approved genome with tokens across groups, components, multi-route anchors, and an exception. */

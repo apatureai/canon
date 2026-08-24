@@ -1,4 +1,4 @@
-import type { Conflict, Provenance } from "@uidna/schema";
+import type { Conflict, Provenance } from "@apatureai/canon-schema";
 
 /**
  * Drift hints (#21, PRD §4/§10). Promote the `Conflict`s recorded during

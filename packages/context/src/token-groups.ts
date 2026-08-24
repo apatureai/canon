@@ -1,4 +1,4 @@
-import type { DnaTokens } from "@uidna/schema";
+import type { DnaTokens } from "@apatureai/canon-schema";
 
 /**
  * Shared classification of an extracted token onto the canonical `DnaTokens`

@@ -1,5 +1,5 @@
 {
-  "name": "@uidna/store",
+  "name": "@apatureai/canon-store",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -14,8 +14,8 @@
   "files": ["dist"],
   "scripts": { "prepack": "tsc -b", "test": "vitest run" },
   "dependencies": {
-    "@uidna/context": "workspace:*",
-    "@uidna/reconcile": "workspace:*",
-    "@uidna/schema": "workspace:*"
+    "@apatureai/canon-context": "workspace:*",
+    "@apatureai/canon-reconcile": "workspace:*",
+    "@apatureai/canon-schema": "workspace:*"
   }
 }

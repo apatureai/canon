@@ -1,4 +1,4 @@
-import { fact } from "@uidna/schema";
+import { fact } from "@apatureai/canon-schema";
 import {
   emptyDistributions,
   emptyTokens,

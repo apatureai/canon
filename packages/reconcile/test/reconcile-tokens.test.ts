@@ -1,4 +1,4 @@
-import { emptyDraft, fact, validateSnapshot, type DnaTokens, type VisualDistributions } from "@uidna/schema";
+import { emptyDraft, fact, validateSnapshot, type DnaTokens, type VisualDistributions } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { reconcileTokens } from "../src/index.js";
 

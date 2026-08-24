@@ -16,6 +16,6 @@ export type {
 export { fact, emptyDraft, isApproved, validateSnapshot } from "./validate.js";
 export type { ValidationResult } from "./validate.js";
 // #97: the single shared colour canonicalizer (RFC-ish #rrggbbaa) used by both
-// the drift gate (@uidna/store) and reconciliation (@uidna/reconcile) so they
+// the drift gate (@apatureai/canon-store) and reconciliation (@apatureai/canon-reconcile) so they
 // agree on "same colour?".
 export { canonicalColor } from "./color-value.js";

@@ -4,19 +4,19 @@
  *
  *   node examples/library-example.ts
  *
- * The `@uidna/*` specifiers resolve here because the repository root declares
+ * The `@apatureai/*` specifiers resolve here because the repository root declares
  * the workspace packages as dependencies. Outside this repository the packages
- * were never published to npm, so rewrite each `@uidna/x` to a path into
+ * were never published to npm, so rewrite each `@apatureai/x` to a path into
  * `packages/x/dist` (or vendor the source you want).
  */
-import { emptyDraft } from "@uidna/schema";
-import { extractCssTokens } from "@uidna/context";
-import { computeVisualDistributions, sampleCaptureEvidence } from "@uidna/render";
-import { reconcileTokens, computeDriftHints } from "@uidna/reconcile";
+import { emptyDraft } from "@apatureai/canon-schema";
+import { extractCssTokens } from "@apatureai/canon-context";
+import { computeVisualDistributions, sampleCaptureEvidence } from "@apatureai/canon-render";
+import { reconcileTokens, computeDriftHints } from "@apatureai/canon-reconcile";
 import {
   inMemorySnapshotStore, commitSnapshot, requestReview, approveSnapshot, getSnapshot,
   projectVerdictDnaProfile,
-} from "@uidna/store";
+} from "@apatureai/canon-store";
 
 const draft = emptyDraft("acme", "web", "extractor@1");
 draft.tokens = extractCssTokens(":root { --color-brand: #0a0a0a; --spacing-gap: 8px; }");

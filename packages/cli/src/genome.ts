@@ -1,6 +1,6 @@
-import type { Conflict, DnaSnapshot, DnaTokens, Fact } from "@uidna/schema";
-import { emptyDraft } from "@uidna/schema";
-import { reconcileField } from "@uidna/reconcile";
+import type { Conflict, DnaSnapshot, DnaTokens, Fact } from "@apatureai/canon-schema";
+import { emptyDraft } from "@apatureai/canon-schema";
+import { reconcileField } from "@apatureai/canon-reconcile";
 import type { ScanResult, TokenContribution } from "./scan.js";
 
 /**

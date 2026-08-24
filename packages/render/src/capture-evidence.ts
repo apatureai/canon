@@ -1,4 +1,4 @@
-import type { Provenance } from "@uidna/schema";
+import type { Provenance } from "@apatureai/canon-schema";
 
 /**
  * `CaptureEvidence` is the typed INPUT PORT by which ui-dna consumes
@@ -12,7 +12,7 @@ import type { Provenance } from "@uidna/schema";
  * The shapes mirror the engine surfaces named in issue #15 (cross-repo, not
  * reimplemented here): DOM geometry map (engine #18), 3 viewports @ DSF 2
  * (#11), a11y tree + computed-style (#19), downscale/tiling (#16/#17), phash
- * stability (#15). They are additive to and consistent with `@uidna/schema`
+ * stability (#15). They are additive to and consistent with `@apatureai/canon-schema`
  * (e.g. screenshot `ref` matches `RenderedAnchor.ref`; bytes are NOT stored).
  */
 
@@ -79,7 +79,7 @@ export interface RouteCapture {
   viewport: Viewport;
   /**
    * Object-storage reference to the screenshot/crop (bytes are NOT stored here,
-   * mirroring `@uidna/schema` `RenderedAnchor.ref`).
+   * mirroring `@apatureai/canon-schema` `RenderedAnchor.ref`).
    */
   screenshotRef: string;
   /** DOM geometry map for this route@viewport (engine #18). */

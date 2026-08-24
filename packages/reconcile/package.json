@@ -1,5 +1,5 @@
 {
-  "name": "@uidna/reconcile",
+  "name": "@apatureai/canon-reconcile",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -14,7 +14,7 @@
   "files": ["dist"],
   "scripts": { "prepack": "tsc -b", "test": "vitest run" },
   "dependencies": {
-    "@uidna/render": "workspace:*",
-    "@uidna/schema": "workspace:*"
+    "@apatureai/canon-render": "workspace:*",
+    "@apatureai/canon-schema": "workspace:*"
   }
 }

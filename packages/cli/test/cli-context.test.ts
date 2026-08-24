@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { validateSnapshot, type DnaSnapshot } from "@uidna/schema";
+import { validateSnapshot, type DnaSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { EXIT_ERROR, EXIT_OK, EXIT_STRICT } from "../src/index.js";
 import { makeTree, REPO_ROOT, runCapture } from "./helpers.js";

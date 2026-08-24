@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION } from "@uidna/schema";
+import { SCHEMA_VERSION } from "@apatureai/canon-schema";
 import { createHash } from "node:crypto";
 import { STORE_VERSION } from "./version-identity.js";
 
@@ -12,7 +12,7 @@ import { STORE_VERSION } from "./version-identity.js";
  * under the static-registry model it advertises the EXISTING contracts:
  *   - genome snapshot read  → `getSnapshot` / `SnapshotResponse` (read-api.ts)
  *   - genome-slice grounding → `retrieveGenomeSlice` / `GenomeSlice` (retrieval.ts)
- * and it stamps the same `@uidna/schema` + `@uidna/store` versions those
+ * and it stamps the same `@apatureai/canon-schema` + `@apatureai/canon-store` versions those
  * contracts already speak. It carries ZERO new capability.
  *
  * Status is `draft-unapproved`: no card was ever approved for registration, so
@@ -39,9 +39,9 @@ export interface CardCapability {
   /** Named intent type, e.g. `genome.snapshot.read`. */
   intent: string;
   description: string;
-  /** Input contract type advertised (an existing `@uidna` contract). */
+  /** Input contract type advertised (an existing `@apatureai` contract). */
   input: string;
-  /** Output contract type advertised (an existing `@uidna` contract). */
+  /** Output contract type advertised (an existing `@apatureai` contract). */
   output: string;
   /** ui-dna A2A composition is strictly read-only. */
   access: "read_only";

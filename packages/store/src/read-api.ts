@@ -1,4 +1,4 @@
-import { isApproved, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
+import { isApproved, SCHEMA_VERSION, type DnaSnapshot } from "@apatureai/canon-schema";
 import { createHash } from "node:crypto";
 import { STORE_VERSION } from "./version-identity.js";
 import { serializeGenomeContent } from "./version-identity.js";
@@ -15,13 +15,13 @@ import { authorizeRead, type AuthorityStatus } from "./authority.js";
  * Read semantics: latest APPROVED snapshot by default, or a pinned immutable
  * `dnaVersion` for reproducibility. Unapproved drafts/in_review snapshots are
  * NEVER served downstream (the `isApproved` gate). Read-only; served from the
- * `@uidna/store` immutable versions. The wire shape is pinned by a golden
+ * `@apatureai/canon-store` immutable versions. The wire shape is pinned by a golden
  * fixture so downstream byte-compat is enforced.
  */
 
 /** Version-negotiation header so consumers pin the contract they read. */
 export interface ContractVersion {
-  /** Additive-only within this `@uidna/schema` SCHEMA_VERSION. */
+  /** Additive-only within this `@apatureai/canon-schema` SCHEMA_VERSION. */
   schemaVersion: string;
   /** Store/read-contract format version. */
   storeVersion: string;

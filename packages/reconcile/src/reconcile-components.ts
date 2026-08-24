@@ -1,5 +1,5 @@
-import type { Conflict, ComponentConvention } from "@uidna/schema";
-import type { CaptureEvidence, GeometryNode } from "@uidna/render";
+import type { Conflict, ComponentConvention } from "@apatureai/canon-schema";
+import type { CaptureEvidence, GeometryNode } from "@apatureai/canon-render";
 import {
   AGREEMENT_REINFORCE,
   clampConfidence,
@@ -19,7 +19,7 @@ import {
  *
  * Usage is detected by matching the library's DOM signature (selector/role
  * fragments) against the CaptureEvidence geometry. Pure + deterministic; output
- * validates against `@uidna/schema`.
+ * validates against `@apatureai/canon-schema`.
  */
 export interface ReconcileComponentsResult {
   components: ComponentConvention[];

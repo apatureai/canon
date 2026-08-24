@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import resolveConfig from "tailwindcss-v3/resolveConfig.js";
 
 /**
- * Worker entry for the Tailwind v3 `ConfigLoader` port (`@uidna/context`).
+ * Worker entry for the Tailwind v3 `ConfigLoader` port (`@apatureai/canon-context`).
  *
  * A `tailwind.config.{js,cjs,mjs,ts}` is EXECUTABLE code, so it is evaluated in
  * a worker thread rather than in the CLI's own thread: the parent keeps a

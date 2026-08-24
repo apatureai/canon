@@ -4,7 +4,7 @@
  * resolved `Fact`'s `confidence` is a probability claim: "I'm 0.8 sure this is
  * the right value." Calibration measures whether that claim holds: is a
  * 0.8-confidence fact correct ~80% of the time. Without it the precedence ladder
- * (the 0.5 to 0.9 weights in `@uidna/reconcile/thresholds`) is guessed constants.
+ * (the 0.5 to 0.9 weights in `@apatureai/canon-reconcile/thresholds`) is guessed constants.
  *
  * Pure + deterministic: same labeled predictions → same metrics. No IO, no model.
  */

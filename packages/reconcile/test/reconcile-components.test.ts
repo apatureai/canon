@@ -1,5 +1,5 @@
-import { emptyDraft, validateSnapshot, type ComponentConvention } from "@uidna/schema";
-import { sampleCaptureEvidence, type CaptureEvidence, type GeometryNode } from "@uidna/render";
+import { emptyDraft, validateSnapshot, type ComponentConvention } from "@apatureai/canon-schema";
+import { sampleCaptureEvidence, type CaptureEvidence, type GeometryNode } from "@apatureai/canon-render";
 import { describe, expect, it } from "vitest";
 import { reconcileComponents } from "../src/index.js";
 

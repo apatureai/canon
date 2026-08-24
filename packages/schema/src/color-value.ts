@@ -1,7 +1,7 @@
 /**
  * Canonical colour value: the single shared colour canonicalizer used across
- * ui-dna (issue #97). Both the design↔code drift gate (`@uidna/store`, for strict
- * value equality) and token reconciliation (`@uidna/reconcile`, for matching a
+ * ui-dna (issue #97). Both the design↔code drift gate (`@apatureai/canon-store`, for strict
+ * value equality) and token reconciliation (`@apatureai/canon-reconcile`, for matching a
  * rendered colour to a declared token) need "are these two colour strings the
  * same colour?", and they must agree. It therefore lives here, in the leaf package
  * both depend on, rather than as two divergent copies.

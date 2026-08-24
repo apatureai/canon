@@ -1,4 +1,4 @@
-import { canonicalColor, type DnaTokens, type Fact, type VisualDistributions } from "@uidna/schema";
+import { canonicalColor, type DnaTokens, type Fact, type VisualDistributions } from "@apatureai/canon-schema";
 import { clampConfidence } from "./thresholds.js";
 
 /**
@@ -96,7 +96,7 @@ const ROOT_FONT_PX = 16;
 
 /**
  * A TOTAL colour key for matching a rendered colour to a declared token. Uses the
- * shared canonicalizer (`@uidna/schema` `canonicalColor`, #97) so hex, shorthand,
+ * shared canonicalizer (`@apatureai/canon-schema` `canonicalColor`, #97) so hex, shorthand,
  * case, AND `rgb()/rgba()` all collapse to one `#rrggbbaa` key, so `#fff` /
  * `#ffffff` / `rgb(255,255,255)` are one observation, not a false disagreement /
  * dead token. Anything the shared canonicalizer does not recognize (named

@@ -1,5 +1,5 @@
-import { emptyDraft } from "@uidna/schema";
-import type { DriftHint } from "@uidna/reconcile";
+import { emptyDraft } from "@apatureai/canon-schema";
+import type { DriftHint } from "@apatureai/canon-reconcile";
 import { describe, expect, it } from "vitest";
 import {
   addException,

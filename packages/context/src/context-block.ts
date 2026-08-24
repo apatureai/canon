@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { DnaSnapshot } from "@uidna/schema";
+import type { DnaSnapshot } from "@apatureai/canon-schema";
 
 /**
  * Deterministic context-block assembly + content-hash cache invalidation

@@ -1,4 +1,4 @@
-import type { VisualDistributions } from "@uidna/schema";
+import type { VisualDistributions } from "@apatureai/canon-schema";
 import type { CaptureEvidence, ComputedStyleFact, GeometryNode } from "./capture-evidence.js";
 
 /**
@@ -7,7 +7,7 @@ import type { CaptureEvidence, ComputedStyleFact, GeometryNode } from "./capture
  * `VisualDistributions`, the "rendered reality" half the reconciler (UD3)
  * weighs against the code-inferred tokens (UD1). Pure + deterministic: identical
  * evidence in → byte-identical distributions out (sorted and rounded, so no float
- * churn). Consumes only the `@uidna/render` port; no IO.
+ * churn). Consumes only the `@apatureai/canon-render` port; no IO.
  *
  * Signal sources within the evidence:
  * - spacing intervals  ← vertical gaps between sibling geometry rects

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import type { ComponentConvention, DnaTokens, Fact, ProductIdentity } from "@uidna/schema";
-import type { ConfigLoader, TokenDiagnostic } from "@uidna/context";
+import type { ComponentConvention, DnaTokens, Fact, ProductIdentity } from "@apatureai/canon-schema";
+import type { ConfigLoader, TokenDiagnostic } from "@apatureai/canon-context";
 import {
   extractBrandIdentity,
   extractComponentConventions,
@@ -9,11 +9,11 @@ import {
   extractTailwindV3TokensFromFile,
   extractTailwindV4Tokens,
   extractTokensJsonWithDiagnostics,
-} from "@uidna/context";
+} from "@apatureai/canon-context";
 
 /**
  * Filesystem discovery for the `ui-dna context` command. This module, and only
- * this module, knows that a design system lives in files. `@uidna/context`
+ * this module, knows that a design system lives in files. `@apatureai/canon-context`
  * stays a set of pure string→facts extractors; everything here is "which bytes
  * do we hand it, and what do we call the source afterwards".
  *

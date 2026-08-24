@@ -10,9 +10,9 @@ import { describe, expect, it } from "vitest";
 import {
   reviewDesignSourceDrift,
   reviewDesignSourceDriftDelta,
-} from "@uidna/store";
-import { extractTokensJson } from "@uidna/context";
-import type { DnaTokens } from "@uidna/schema";
+} from "@apatureai/canon-store";
+import { extractTokensJson } from "@apatureai/canon-context";
+import type { DnaTokens } from "@apatureai/canon-schema";
 
 /** DTCG 2025.10 color `$value` is a structured object, not a bare hex string. */
 function colorValue(hex: string) {

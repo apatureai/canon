@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { canonicalize } from "@uidna/context";
-import type { ApprovalState, DnaSnapshot } from "@uidna/schema";
+import { canonicalize } from "@apatureai/canon-context";
+import type { ApprovalState, DnaSnapshot } from "@apatureai/canon-schema";
 
 /**
  * Content-addressed `dnaVersion` identity (#22, PRD §7). The version of a

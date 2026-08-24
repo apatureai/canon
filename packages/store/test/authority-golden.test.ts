@@ -8,7 +8,7 @@
  * fails here even if its internal expectations stay self-consistent.
  *
  * Regenerate with `packages/store/scripts/generate-authority-golden.mjs` after
- * building `@uidna/store`; never hand-edit the fixture.
+ * building `@apatureai/canon-store`; never hand-edit the fixture.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

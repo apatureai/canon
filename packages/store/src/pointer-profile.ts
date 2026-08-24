@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { canonicalize } from "@uidna/context";
-import { isApproved, validateSnapshot, type DnaSnapshot, type Fact, type Provenance } from "@uidna/schema";
+import { canonicalize } from "@apatureai/canon-context";
+import { isApproved, validateSnapshot, type DnaSnapshot, type Fact, type Provenance } from "@apatureai/canon-schema";
 import { getSnapshot } from "./read-api.js";
 import type { SnapshotStore } from "./store.js";
 

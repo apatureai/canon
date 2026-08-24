@@ -5,15 +5,15 @@ import {
   projectPointerLocalCheckProfile,
   projectVerdictDnaProfile,
   requestReview,
-} from "@uidna/store";
-import { validateSnapshot, type DnaSnapshot } from "@uidna/schema";
+} from "@apatureai/canon-store";
+import { validateSnapshot, type DnaSnapshot } from "@apatureai/canon-schema";
 
 /**
  * The publish layer: promote a draft genome to an approved immutable version,
  * then PROJECT that approved version into a downstream consumer's read contract.
  *
  * This is the filesystem entry point for the two workflows the libraries own
- * but the CLI never exposed: the sign-off/promotion path (`@uidna/store`'s
+ * but the CLI never exposed: the sign-off/promotion path (`@apatureai/canon-store`'s
  * draft -> in_review -> approved lifecycle) and the consumer projections
  * (Verdict, Lattice, Pointer). Both stay pure here; `cli.ts` owns the disk.
  */

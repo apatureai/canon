@@ -1,4 +1,4 @@
-import type { ConfigLoader } from "@uidna/context";
+import type { ConfigLoader } from "@apatureai/canon-context";
 import { describe, expect, it } from "vitest";
 import { scanProject } from "../src/index.js";
 import { makeTree } from "./helpers.js";

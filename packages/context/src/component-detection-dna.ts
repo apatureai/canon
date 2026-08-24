@@ -1,4 +1,4 @@
-import type { ComponentConvention } from "@uidna/schema";
+import type { ComponentConvention } from "@apatureai/canon-schema";
 import { detectComponentLibraries, type PackageJsonLike } from "./component-detection.js";
 
 /**

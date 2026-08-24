@@ -1,4 +1,4 @@
-import type { Provenance } from "@uidna/schema";
+import type { Provenance } from "@apatureai/canon-schema";
 
 /**
  * Reconciliation thresholds. ALL tunables in one place so #28 can calibrate

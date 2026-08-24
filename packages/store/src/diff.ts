@@ -1,4 +1,4 @@
-import type { DnaSnapshot, Fact, Provenance } from "@uidna/schema";
+import type { DnaSnapshot, Fact, Provenance } from "@apatureai/canon-schema";
 import { serializeGenomeContent } from "./version-identity.js";
 
 /**

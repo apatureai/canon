@@ -6,7 +6,7 @@
  * design system defines `color.brand.primary = #2563EB`. Off-token."
  *
  * It composes the pieces that already exist rather than re-deriving them:
- *   - `extractTokensJsonWithDiagnostics` (@uidna/context) parses the DTCG export
+ *   - `extractTokensJsonWithDiagnostics` (@apatureai/canon-context) parses the DTCG export
  *     into a `DnaTokens` design genome, with per-token diagnostics;
  *   - `computeDesignCodeDrift` computes asymmetric design-authoritative drift;
  *   - `evaluateDriftGate` applies the neutral block/warn/pass gate;
@@ -24,12 +24,12 @@
  * Pure and deterministic: a plain function of the export + genome + policy.
  */
 
-import type { DnaTokens } from "@uidna/schema";
+import type { DnaTokens } from "@apatureai/canon-schema";
 import {
   extractTokensJsonWithDiagnostics,
   type TokenDiagnostic,
   type TokenDiagnosticCode,
-} from "@uidna/context";
+} from "@apatureai/canon-context";
 import {
   computeDesignCodeDrift,
   evaluateDriftGate,

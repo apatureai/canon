@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, resolve } from "node:path";
-import { buildContextBlock, resolveTokensJson } from "@uidna/context";
-import { computeDriftHints } from "@uidna/reconcile";
-import { validateSnapshot } from "@uidna/schema";
-import type { DnaSnapshot } from "@uidna/schema";
+import { buildContextBlock, resolveTokensJson } from "@apatureai/canon-context";
+import { computeDriftHints } from "@apatureai/canon-reconcile";
+import { validateSnapshot } from "@apatureai/canon-schema";
+import type { DnaSnapshot } from "@apatureai/canon-schema";
 import { buildGenome } from "./genome.js";
 import { formatContextReport, formatTokensReport } from "./format.js";
 import { approveGenome, EXPORT_TARGETS, isExportTarget, projectForTarget } from "./publish.js";

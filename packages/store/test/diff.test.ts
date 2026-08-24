@@ -1,4 +1,4 @@
-import { emptyDraft, fact, type DnaSnapshot } from "@uidna/schema";
+import { emptyDraft, fact, type DnaSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { diffSnapshots } from "../src/index.js";
 
