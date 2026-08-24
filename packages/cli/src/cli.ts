@@ -3,8 +3,10 @@ import { basename, dirname, isAbsolute, resolve } from "node:path";
 import { buildContextBlock, resolveTokensJson } from "@uidna/context";
 import { computeDriftHints } from "@uidna/reconcile";
 import { validateSnapshot } from "@uidna/schema";
+import type { DnaSnapshot } from "@uidna/schema";
 import { buildGenome } from "./genome.js";
 import { formatContextReport, formatTokensReport } from "./format.js";
+import { approveGenome, EXPORT_TARGETS, isExportTarget, projectForTarget } from "./publish.js";
 import { scanProject } from "./scan.js";
 import { createWorkerConfigLoader } from "./tailwind-config-loader.js";
 
@@ -39,6 +41,10 @@ const USAGE = `ui-dna - read a codebase's design system out of its own files
 usage
   ui-dna tokens <file.json> [options]     resolve a DTCG 2025.10 token file
   ui-dna context <directory> [options]    build a design-system context block
+  ui-dna approve <genome.json> [options]  promote a draft genome to approved
+  ui-dna export <genome.json> --target <consumer> [options]
+                                          project an approved genome into a
+                                          downstream consumer's read contract
 
 tokens options
   --json                  print the resolution as JSON instead of a report
@@ -60,13 +66,27 @@ context options
                           examine everything reports lower bounds, so it can
                           never pass a gate)
 
+approve options
+  --out <file>            write the approved DnaSnapshot as JSON
+                          Sign-off confirms the resolved genome as-is and stamps
+                          it with its content-addressed immutable dnaVersion.
+
+export options
+  --target <consumer>     which downstream contract to project into, one of:
+                          ${EXPORT_TARGETS.join(", ")} (required)
+  --out <file>            write the projected profile as JSON
+                          The genome must be approved (run "approve" first);
+                          drafts and in-review genomes are refused.
+
 general
   -h, --help              print this help
   -v, --version           print the version
 
 examples
   ui-dna tokens examples/sample-tokens.json
-  ui-dna context examples/sample-project --out out/genome.json`;
+  ui-dna context examples/sample-project --out out/genome.json
+  ui-dna approve out/genome.json --out out/approved.json
+  ui-dna export out/approved.json --target verdict --out out/verdict.json`;
 
 interface ParsedArgs {
   command: string | null;
@@ -75,6 +95,7 @@ interface ParsedArgs {
   strict: boolean;
   out: string | null;
   repo: string | null;
+  exportTarget: string | null;
   execTailwindConfig: boolean;
   maxDepth: number | null;
   maxFiles: number | null;
@@ -92,6 +113,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     strict: false,
     out: null,
     repo: null,
+    exportTarget: null,
     execTailwindConfig: false,
     maxDepth: null,
     maxFiles: null,
@@ -134,6 +156,10 @@ function parseArgs(argv: string[]): ParsedArgs {
         break;
       case "--repo":
         parsed.repo = takeValue(arg, argv[index + 1]);
+        index += 1;
+        break;
+      case "--target":
+        parsed.exportTarget = takeValue(arg, argv[index + 1]);
         index += 1;
         break;
       case "--max-depth":
@@ -312,6 +338,81 @@ async function runContext(args: ParsedArgs, io: CliIo): Promise<number> {
   return args.strict && !clean ? EXIT_STRICT : EXIT_OK;
 }
 
+/** Read and parse a genome JSON file into a DnaSnapshot, or return an error message. */
+function readGenome(args: ParsedArgs, io: CliIo): { snapshot: DnaSnapshot } | { error: string } {
+  const path = absolute(io.cwd, args.target as string);
+  let raw: string;
+  try {
+    raw = readFileSync(path, "utf8");
+  } catch {
+    return { error: `cannot read ${args.target}` };
+  }
+  try {
+    return { snapshot: JSON.parse(raw) as DnaSnapshot };
+  } catch (error) {
+    return { error: `${args.target} is not valid JSON: ${error instanceof Error ? error.message : String(error)}` };
+  }
+}
+
+/** Serialize a JSON payload to `--out` (when given) or stdout. */
+function emit(payload: unknown, args: ParsedArgs, io: CliIo): number {
+  const text = `${JSON.stringify(payload, null, 2)}\n`;
+  if (args.out === null) {
+    io.out(text.trimEnd());
+    return EXIT_OK;
+  }
+  const target = absolute(io.cwd, args.out);
+  try {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, text, "utf8");
+  } catch (error) {
+    io.err(`cannot write ${args.out}: ${error instanceof Error ? error.message : String(error)}`);
+    return EXIT_ERROR;
+  }
+  return EXIT_OK;
+}
+
+async function runApprove(args: ParsedArgs, io: CliIo): Promise<number> {
+  if (args.target === null) throw new UsageError("approve needs a path to a genome file");
+  const read = readGenome(args, io);
+  if ("error" in read) {
+    io.err(read.error);
+    return EXIT_ERROR;
+  }
+  let approved: DnaSnapshot;
+  try {
+    approved = await approveGenome(read.snapshot);
+  } catch (error) {
+    io.err(`cannot approve ${args.target}: ${error instanceof Error ? error.message : String(error)}`);
+    return EXIT_ERROR;
+  }
+  return emit(approved, args, io);
+}
+
+async function runExport(args: ParsedArgs, io: CliIo): Promise<number> {
+  if (args.target === null) throw new UsageError("export needs a path to a genome file");
+  const consumer = args.exportTarget;
+  if (consumer === null) {
+    throw new UsageError(`export needs --target <consumer>, one of: ${EXPORT_TARGETS.join(", ")}`);
+  }
+  if (!isExportTarget(consumer)) {
+    throw new UsageError(`unknown --target "${consumer}", expected one of: ${EXPORT_TARGETS.join(", ")}`);
+  }
+  const read = readGenome(args, io);
+  if ("error" in read) {
+    io.err(read.error);
+    return EXIT_ERROR;
+  }
+  let profile: unknown;
+  try {
+    profile = projectForTarget(read.snapshot, consumer);
+  } catch (error) {
+    io.err(`cannot export ${args.target} to ${consumer}: ${error instanceof Error ? error.message : String(error)}`);
+    return EXIT_ERROR;
+  }
+  return emit(profile, args, io);
+}
+
 /** Run one invocation. Returns the process exit code; never calls process.exit. */
 export async function runCli(argv: string[], io: CliIo): Promise<number> {
   let args: ParsedArgs;
@@ -338,6 +439,10 @@ export async function runCli(argv: string[], io: CliIo): Promise<number> {
         return runTokens(args, io);
       case "context":
         return await runContext(args, io);
+      case "approve":
+        return await runApprove(args, io);
+      case "export":
+        return await runExport(args, io);
       default:
         io.err(`unknown command "${args.command}"`);
         io.err(USAGE);

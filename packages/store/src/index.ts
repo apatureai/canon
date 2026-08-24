@@ -16,7 +16,7 @@ export {
   approveSnapshot,
 } from "./sign-off.js";
 export type { ContractVersion, SnapshotResponse, GetSnapshotOptions, AuthorityStatusResolver } from "./read-api.js";
-export { getSnapshot } from "./read-api.js";
+export { getSnapshot, computeSnapshotContentDigest } from "./read-api.js";
 export type {
   AuthorityStatus,
   RevocationReason,
@@ -78,6 +78,40 @@ export {
   projectPointerLocalCheckProfile,
   getPointerLocalCheckProfile,
 } from "./pointer-profile.js";
+export type { FlatToken } from "./consumer-tokens.js";
+export { flattenTokens } from "./consumer-tokens.js";
+export type {
+  VerdictApprovalState,
+  VerdictItem,
+  VerdictSnapshot,
+  VerdictDnaProfile,
+  GetVerdictProfileOptions,
+} from "./verdict-profile.js";
+export {
+  VERDICT_DNA_PROFILE_VERSION,
+  UnsupportedVerdictProfileVersionError,
+  UnapprovedVerdictProfileError,
+  InvalidVerdictProfileSourceError,
+  serializeVerdictDnaProfile,
+  computeVerdictDnaProfileDigest,
+  projectVerdictDnaProfile,
+  getVerdictDnaProfile,
+} from "./verdict-profile.js";
+export type {
+  LatticeState,
+  LatticeToken,
+  LatticeDnaProfile,
+  GetLatticeProfileOptions,
+} from "./lattice-profile.js";
+export {
+  LATTICE_PROJECTION_SCHEMA_VERSION,
+  UnsupportedLatticeProfileVersionError,
+  UnapprovedLatticeProfileError,
+  InvalidLatticeProfileSourceError,
+  serializeLatticeDnaProfile,
+  projectLatticeDnaProfile,
+  getLatticeDnaProfile,
+} from "./lattice-profile.js";
 export type { ChangeKind, FieldChange, SnapshotDiff } from "./diff.js";
 export { diffSnapshots } from "./diff.js";
 export type {

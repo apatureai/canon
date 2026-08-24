@@ -17,6 +17,7 @@
     "@uidna/context": "workspace:*",
     "@uidna/reconcile": "workspace:*",
     "@uidna/schema": "workspace:*",
+    "@uidna/store": "workspace:*",
     "tailwindcss-v3": "npm:tailwindcss@^3.4.19"
   }
 }

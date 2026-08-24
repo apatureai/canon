@@ -1,0 +1,29 @@
+{
+  "projectionSchemaVersion": "1",
+  "repo": "apatureai/canon",
+  "dnaVersion": "dna_golden_v1",
+  "dnaContentDigest": "sha256:28056cdcde5a8ff4de8e6dc4a4a4f3d31c40a3c7bd3ff83a3f2b6a299a0b443c",
+  "state": "approved",
+  "tokens": {
+    "tokens.color.--brand": {
+      "value": "#ABCDEF",
+      "category": "color",
+      "confidence": 1
+    },
+    "tokens.color.semantic.brand": {
+      "value": "#aabbcc",
+      "category": "color",
+      "confidence": 0.8
+    },
+    "tokens.spacing.--space-2": {
+      "value": "8px",
+      "category": "spacing",
+      "confidence": 0.7
+    },
+    "tokens.radii.--radius-sm": {
+      "value": "4px",
+      "category": "radius",
+      "confidence": 0.6
+    }
+  }
+}
