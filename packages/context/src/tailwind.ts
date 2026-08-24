@@ -13,7 +13,7 @@ import type { TokenMap } from "./tokens.js";
  * returns a plain config object, so **no untrusted code is ever executed in
  * tests**. The pure resolve + flatten is fully testable with a config object.
  *
- * Ported from verdict's proven `@engine/context`.
+ * Ported from verdict's proven `@apatureai/verdict-context`.
  */
 
 const CATEGORIES = [

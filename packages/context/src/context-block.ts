@@ -10,7 +10,7 @@ import type { DnaSnapshot } from "@apatureai/canon-schema";
  * downstream snapshot is recomputed only when the repo's tokens/brand/components
  * actually change.
  *
- * Ported from verdict's proven `@engine/context` context-block builder
+ * Ported from verdict's proven `@apatureai/verdict-context` context-block builder
  * and adapted to serialize the canonical `DnaSnapshot`
  * content. Bump `CONTEXT_VERSION` when the serialization format changes; it is
  * part of the hashed payload, so a format change busts every cache entry.
