@@ -1,6 +1,6 @@
 {
   "name": "@apatureai/canon-monorepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "A strict DTCG 2025.10 design-token resolver and project scanner that abstains and explains instead of guessing.",

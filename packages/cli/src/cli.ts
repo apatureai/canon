@@ -21,7 +21,7 @@ import { createWorkerConfigLoader } from "./tailwind-config-loader.js";
  * the same entry point the terminal does).
  */
 
-export const CLI_VERSION = "0.1.0";
+export const CLI_VERSION = "0.1.1";
 /** Stamped into `metadata.extractionVersion`; excluded from the content hash. */
 export const EXTRACTION_VERSION = `ui-dna-cli@${CLI_VERSION}`;
 

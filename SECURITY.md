@@ -2,12 +2,11 @@
 
 ## Supported versions
 
-`ui-dna` is tagged at `v0.1.0`, but nothing is published to a registry: every workspace package is
-still `private: true`, so the only install path is clone and build. **The supported version is the
-current `main` branch.** The `v0.1.0` tag is a point you can cite and diff against, not a
-maintained release line: fixes land on `main` and are not backported to the tag. If you are running
-a fork or a vendored copy, rebase onto `main` to pick them up. Once packages are published, this
-section will name the supported release lines.
+The public `@apatureai/*` packages are published to npm starting at `v0.1.1`. **The supported
+release line is the latest published version (currently `0.1.1`), plus the current `main`
+branch.** Older tags are points you can cite and diff against, not maintained release lines:
+fixes land on `main` and ship in the next version rather than being backported. If you are
+running a fork or a vendored copy, rebase onto `main` to pick them up.
 
 ## Reporting a vulnerability
 
