@@ -401,6 +401,62 @@ ln -s "$PWD/packages/cli/dist/bin.js" ~/.local/bin/ui-dna
 
 `dist/` is gitignored, so neither step dirties the tree.
 
+### `ui-dna approve <genome.json>`
+
+`context --out` writes a **draft** snapshot. Nothing downstream will read a draft:
+the store, the read contract, and every consumer projection gate on approval, so
+a genome is only usable once a human has signed it off. `approve` runs that
+transition (draft → in_review → approved) and stamps the snapshot with its
+content-addressed immutable `dnaVersion`.
+
+| Flag | Effect |
+|---|---|
+| `--out <file>` | Write the approved `DnaSnapshot` as JSON. Parent directories are created. Without it, the snapshot prints to stdout. |
+
+```console
+$ node packages/cli/dist/bin.js approve out/genome.json --out out/approved.json
+$ node -e "const m=require('./out/approved.json').metadata; console.log(m.approvalState, m.dnaVersion)"
+approved abdcf749b0caacc3e97f7b8aafab4382c62c21f3010614f636111cf54c8490c6
+```
+
+Sign-off with no per-field decisions confirms the resolved genome as-is; the
+per-field accept/edit review lives in the `@uidna/store` library
+(`applyReviewDecisions`). Re-approving an already-approved genome is refused — a
+new genome is a new version, not a re-approval. The `dnaVersion` is deterministic:
+the same resolved content yields the same version on every machine.
+
+### `ui-dna export <genome.json> --target <consumer>`
+
+Canon's internal `DnaSnapshot` is not the shape any consumer reads. `export`
+**projects** an approved genome into one downstream consumer's read contract.
+The genome must be approved (run `approve` first); drafts are refused.
+
+| Flag | Effect |
+|---|---|
+| `--target <consumer>` | Required. One of `verdict`, `lattice`, `pointer`. |
+| `--out <file>` | Write the projected profile as JSON. Parent directories are created. Without it, the profile prints to stdout. |
+
+```console
+$ node packages/cli/dist/bin.js export out/approved.json --target verdict --out out/verdict.json
+$ node packages/cli/dist/bin.js export out/approved.json --target lattice --out out/lattice.json
+```
+
+- **`verdict`** — a `snapshot` object carrying `dna_version`, `approval_state`,
+  and a flat `items` list (`{ field_id, kind, value, confidence, provenance }`)
+  Verdict loads as rules.
+- **`lattice`** — `projectionSchemaVersion`, a `dnaContentDigest` to verify
+  before mirroring, a `state`, and a `tokens` map keyed by field id
+  (`{ value, category, confidence }`).
+- **`pointer`** — the Pointer local-check read profile (color tokens, spacing/
+  radius/type scales, and WCAG policy defaults).
+
+Each projection keeps the approval gate, validates the snapshot, checks the repo
+and version match, and stamps a content digest, so a consumer can verify the
+bytes it received. The same projections are available as library functions
+(`projectVerdictDnaProfile`, `projectLatticeDnaProfile`,
+`projectPointerLocalCheckProfile`) and as store-served reads
+(`getVerdictDnaProfile`, `getLatticeDnaProfile`, `getPointerLocalCheckProfile`).
+
 ### The confidence ladder
 
 Every extracted fact is a `Fact<T>`: `{ value, confidence, provenance }`. The defaults, in
@@ -461,6 +517,7 @@ $ node examples/library-example.ts
 ]
 before approval: null
 after approval:  { schemaVersion: '1', storeVersion: '2' } sha256:ef69d6a
+verdict profile: approved 7 items
 ```
 
 ```ts
@@ -470,6 +527,7 @@ import { computeVisualDistributions, sampleCaptureEvidence } from "@uidna/render
 import { reconcileTokens, computeDriftHints } from "@uidna/reconcile";
 import {
   inMemorySnapshotStore, commitSnapshot, requestReview, approveSnapshot, getSnapshot,
+  projectVerdictDnaProfile,
 } from "@uidna/store";
 
 const draft = emptyDraft("acme", "web", "extractor@1");
@@ -490,6 +548,10 @@ await approveSnapshot(store, requestReview(stored.snapshot));   // new immutable
 
 const served = await getSnapshot(store, "acme/web");
 console.log("after approval: ", served?.contract, served?.contentDigest.slice(0, 14));
+
+// Project the approved genome into a downstream consumer's read contract.
+const verdict = projectVerdictDnaProfile(served!.snapshot, served!.repo, served!.dnaVersion);
+console.log("verdict profile:", verdict.snapshot.approval_state, verdict.snapshot.items.length, "items");
 ```
 
 **Where the `@uidna/*` specifiers resolve.** Inside this repository they resolve everywhere,
@@ -614,8 +676,8 @@ A loud, confidently wrong verdict is worse than an abstention, so it returns a t
 
 ## Status
 
-Verified on 2026-08-18, Node 24.14.0, pnpm 10.34.3: lint clean, typecheck clean,
-**498 tests across 57 files passing** in about 5 seconds, all offline.
+Verified on 2026-08-24, Node 24.14.0, pnpm 10.34.3: lint clean, typecheck clean,
+**519 tests across 60 files passing** in about 5 seconds, all offline.
 
 | Area | Status |
 |---|---|
@@ -628,7 +690,8 @@ Verified on 2026-08-18, Node 24.14.0, pnpm 10.34.3: lint clean, typecheck clean,
 | Rendered-evidence capture | **Not implemented.** See roadmap. |
 | Snapshot persistence | **Not implemented.** In-memory only. See roadmap. |
 | Sign-off UI | **Not implemented.** Sign-off is a headless JSON document. See roadmap. |
-| npm packages | **Not published yet.** Clone and build, or vendor. See roadmap. |
+| Consumer projections (`ui-dna export`) | **Works.** Verdict, Lattice, and Pointer read contracts, gated on approval. |
+| npm packages | **Publish-ready, not yet published.** Public manifests + a tagged release workflow; the maintainer adds `NPM_TOKEN` and pushes a tag. Until then, clone and build. |
 
 ## Roadmap
 
@@ -656,9 +719,13 @@ so a new backend has a ready-made conformance suite.
 `ui-dna review` subcommand that walks the low-confidence and conflicting facts in a terminal and
 emits that JSON would be a complete, high-value contribution with no new dependencies.
 
-**4. Publish the packages to npm.** All seven are versioned `0.1.0` but still `private: true`. This
-needs a changelog and a release workflow, plus a decision about which packages are public API
-(`@uidna/cli` and `@uidna/schema` at minimum). Until then the install path is clone and build.
+**4. Publish the packages to npm.** The packages are now publish-ready — the six runtime packages
+(`@uidna/cli`, `@uidna/schema`, `@uidna/context`, `@uidna/reconcile`, `@uidna/render`, `@uidna/store`)
+are `private: false` with `publishConfig.access: public` and a `prepack` build, and
+[`.github/workflows/release.yml`](.github/workflows/release.yml) publishes them with provenance on a
+`v*` tag. Two steps remain, both the maintainer's: add an `NPM_TOKEN` secret (see
+[Releasing](#releasing)), and decide whether `@uidna/eval` (kept private today as an internal harness)
+should also ship. Until a tag is pushed the install path is clone and build.
 
 **5. Serve the read contract.** `getSnapshot` is a function call. An HTTP or MCP server exposing the
 versioned read contract and `retrieveGenomeSlice` would let other tools consume approved snapshots
@@ -707,8 +774,8 @@ provenance, not instructions.
 
 ```console
 $ pnpm test
- Test Files  57 passed (57)
-      Tests  498 passed (498)
+ Test Files  60 passed (60)
+      Tests  519 passed (519)
 ```
 
 ```bash
@@ -750,6 +817,30 @@ If `node packages/cli/dist/bin.js` reports that it cannot find the module, `pnpm
 run.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions, layout and how pull requests are reviewed.
+
+## Releasing
+
+Releases publish the six public `@uidna/*` packages to npm together, keyed off a version tag.
+[`CHANGELOG.md`](CHANGELOG.md) records what each version contains.
+
+**One-time maintainer setup.** Create an npm **automation** token with publish rights on the
+`@uidna` scope (npmjs.com → Access Tokens → Generate → *Automation*), then add it to the repo as an
+Actions secret named `NPM_TOKEN` (Settings → Secrets and variables → Actions). Nothing else reads the
+token; lint, typecheck, test and build all run without it.
+
+**Cutting a release.**
+
+1. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z]` heading and set the same
+   `version` in every package's `package.json` (they are versioned together).
+2. Commit, then tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. [`.github/workflows/release.yml`](.github/workflows/release.yml) runs on the tag: it verifies the
+   tag matches `@uidna/cli`'s version, runs the full gate (lint · typecheck · test · build), and
+   publishes every non-private package with `pnpm -r publish --access public` and npm build
+   provenance (`id-token: write`). `@uidna/eval` is `private: true` and is skipped.
+
+`pnpm` rewrites each `workspace:*` dependency range to the concrete version in the published
+tarballs; a direct `npm publish` would not, so publish through the workflow (or `pnpm publish`), not
+`npm`.
 
 ## Related repositories
 

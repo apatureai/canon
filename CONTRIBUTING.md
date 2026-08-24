@@ -25,7 +25,7 @@ pnpm clean       # tsc -b --clean
 ```
 
 Lint, typecheck and test are exactly what CI runs (`.github/workflows/ci.yml`). Last verified run on
-Node 24.14.0 and pnpm 10.34.3: lint clean, typecheck clean, 498 tests across 57 files in about five
+Node 24.14.0 and pnpm 10.34.3: lint clean, typecheck clean, 519 tests across 60 files in about five
 seconds. If something fails right after a clean clone, suspect your Node or pnpm version first.
 
 Run a subset while iterating:
@@ -108,6 +108,8 @@ transcripts and `packages/cli/test` run against, so changing one means updating 
 - Run `pnpm lint && pnpm typecheck && pnpm test` before pushing. CI runs the same three.
 - If your change alters CLI output, update the affected README transcript by pasting **real** output
   from your machine, not by hand-editing the old block.
+- For a user-facing change (a new flag, a new command, a behaviour change), add a line under
+  `[Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
 - Describe what you changed and why in plain prose. Commit messages here carry no attribution
   trailers; please match that.
 - Reviews are done by the maintainer, usually within a few days. Expect questions about determinism
@@ -115,6 +117,14 @@ transcripts and `packages/cli/test` run against, so changing one means updating 
 
 Bare `#N` markers in some older source comments refer to an issue tracker that is not part of this
 repository. Treat them as historical provenance, not as instructions.
+
+## Releasing
+
+Publishing is the maintainer's job and is documented in the README under
+[Releasing](README.md#releasing): the six public `@uidna/*` packages ship together, keyed off a
+`vX.Y.Z` tag, via `.github/workflows/release.yml`. Contributors do not publish; you only move your
+change from `[Unreleased]` intent into the changelog. The one-time `NPM_TOKEN` secret and the
+tag-and-push steps live in that section.
 
 ## License
 

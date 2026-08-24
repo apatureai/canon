@@ -5,6 +5,7 @@
   "references": [
     { "path": "../schema" },
     { "path": "../context" },
-    { "path": "../reconcile" }
+    { "path": "../reconcile" },
+    { "path": "../store" }
   ]
 }

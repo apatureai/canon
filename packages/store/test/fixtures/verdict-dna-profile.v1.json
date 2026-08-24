@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1",
+  "profileVersion": "1",
+  "repo": "apatureai/canon",
+  "snapshot": {
+    "dna_version": "dna_golden_v1",
+    "approval_state": "approved",
+    "items": [
+      {
+        "field_id": "tokens.color.--brand",
+        "kind": "color",
+        "value": "#ABCDEF",
+        "confidence": 1,
+        "provenance": "human"
+      },
+      {
+        "field_id": "tokens.color.semantic.brand",
+        "kind": "color",
+        "value": "#aabbcc",
+        "confidence": 0.8,
+        "provenance": "config"
+      },
+      {
+        "field_id": "tokens.spacing.--space-2",
+        "kind": "spacing",
+        "value": "8px",
+        "confidence": 0.7,
+        "provenance": "code"
+      },
+      {
+        "field_id": "tokens.radii.--radius-sm",
+        "kind": "radius",
+        "value": "4px",
+        "confidence": 0.6,
+        "provenance": "code"
+      }
+    ]
+  },
+  "contentDigest": "sha256:313167e9be9ea040724584916aa673f2b25cf0c5fcdadc11b960c388ddf162a8"
+}

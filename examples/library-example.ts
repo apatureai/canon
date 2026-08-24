@@ -15,6 +15,7 @@ import { computeVisualDistributions, sampleCaptureEvidence } from "@uidna/render
 import { reconcileTokens, computeDriftHints } from "@uidna/reconcile";
 import {
   inMemorySnapshotStore, commitSnapshot, requestReview, approveSnapshot, getSnapshot,
+  projectVerdictDnaProfile,
 } from "@uidna/store";
 
 const draft = emptyDraft("acme", "web", "extractor@1");
@@ -37,3 +38,10 @@ const served = await getSnapshot(store, "acme/web");
 console.log("after approval: ", served?.contract, served?.contentDigest.slice(0, 14));
 // served: { contract: { schemaVersion: "1", storeVersion: "2" },
 //           repo, dnaVersion, contentDigest: "sha256:…", snapshot }
+
+// Project the approved genome into a downstream consumer's read contract. The
+// same shape `ui-dna export --target verdict` writes: a snapshot object with an
+// approval_state and one item per token. Only approved DNA projects.
+const verdict = projectVerdictDnaProfile(served!.snapshot, served!.repo, served!.dnaVersion);
+console.log("verdict profile:", verdict.snapshot.approval_state, verdict.snapshot.items.length, "items");
+// verdict profile: approved 7 items

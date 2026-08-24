@@ -57,6 +57,9 @@ importers:
       '@uidna/schema':
         specifier: workspace:*
         version: link:../schema
+      '@uidna/store':
+        specifier: workspace:*
+        version: link:../store
       tailwindcss-v3:
         specifier: npm:tailwindcss@^3.4.19
         version: tailwindcss@3.4.19(yaml@2.9.0)
