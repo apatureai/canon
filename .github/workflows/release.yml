@@ -1,9 +1,9 @@
 name: Release
 
-# Publishes the public @uidna/* packages to npm when a version tag is pushed.
+# Publishes the public @apatureai/* packages to npm when a version tag is pushed.
 #
 # MAINTAINER SETUP (required once, or publishing fails at the last step):
-#   1. Create an npm automation token with publish rights on the @uidna scope
+#   1. Create an npm automation token with publish rights on the @apatureai scope
 #      (npmjs.com -> Access Tokens -> Generate -> "Automation").
 #   2. Add it to this repo as a secret named NPM_TOKEN
 #      (Settings -> Secrets and variables -> Actions -> New repository secret).
@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   publish:
-    name: publish @uidna/* to npm
+    name: publish @apatureai/* to npm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,13 +51,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # The tag must name the version being published, so a mistagged push never
-      # ships the wrong bytes. Compares the tag (v1.2.3) to @uidna/cli's version.
+      # ships the wrong bytes. Compares the tag (v1.2.3) to @apatureai/canon's version.
       - name: Verify tag matches package version
         run: |
           tag="${GITHUB_REF_NAME#v}"
           pkg="$(node -p "require('./packages/cli/package.json').version")"
           if [ "$tag" != "$pkg" ]; then
-            echo "::error::tag $GITHUB_REF_NAME does not match @uidna/cli version $pkg"
+            echo "::error::tag $GITHUB_REF_NAME does not match @apatureai/canon version $pkg"
             exit 1
           fi
           echo "Releasing v$pkg"
@@ -74,7 +74,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # Publishes every non-private workspace package (@uidna/eval is private and
+      # Publishes every non-private workspace package (@apatureai/canon-eval is private and
       # is skipped). pnpm rewrites each workspace:* range to the concrete version.
       # A version already on the registry fails the step rather than republishing.
       - name: Publish

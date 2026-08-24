@@ -1,4 +1,4 @@
-import type { DnaTokens, VisualDistributions } from "@uidna/schema";
+import type { DnaTokens, VisualDistributions } from "@apatureai/canon-schema";
 
 /**
  * A labeled reconciliation fixture (#28, PRD §9): the inputs to token

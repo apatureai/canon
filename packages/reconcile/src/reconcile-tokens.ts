@@ -1,4 +1,4 @@
-import type { Conflict, DnaTokens, Fact, VisualDistributions } from "@uidna/schema";
+import type { Conflict, DnaTokens, Fact, VisualDistributions } from "@apatureai/canon-schema";
 import {
   canonicalTokenValue,
   pixelsFactsFromDistributions,
@@ -23,7 +23,7 @@ import { clampDelta, DISAGREEMENT_DEGRADE, MIN_DEGRADED_CONFIDENCE } from "./thr
  * Then any strong rendered value with NO declared token is surfaced as a real
  * `pixels` candidate Fact (never silently dropped) for sign-off.
  *
- * Pure + deterministic. Output validates against `@uidna/schema`.
+ * Pure + deterministic. Output validates against `@apatureai/canon-schema`.
  */
 export interface ReconcileTokensResult {
   tokens: DnaTokens;

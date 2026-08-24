@@ -1,4 +1,4 @@
-import type { RenderedAnchor } from "@uidna/schema";
+import type { RenderedAnchor } from "@apatureai/canon-schema";
 import type { CaptureEvidence, RouteCapture } from "./capture-evidence.js";
 
 /**
@@ -6,7 +6,7 @@ import type { CaptureEvidence, RouteCapture } from "./capture-evidence.js";
  * screenshot crops that best demonstrate canonical patterns from already-
  * captured evidence and emit them as `RenderedAnchor[]`, each carrying an
  * object-storage `ref` (bytes are NOT inlined), the `route`, a `description`,
- * and `pixels` provenance. This is selection over the `@uidna/render` port, NOT
+ * and `pixels` provenance. This is selection over the `@apatureai/canon-render` port, NOT
  * capture; no IO here.
  *
  * The customer controls which routes may become canonical anchors (PRD §8), via

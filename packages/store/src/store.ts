@@ -1,4 +1,4 @@
-import type { DnaSnapshot } from "@uidna/schema";
+import type { DnaSnapshot } from "@apatureai/canon-schema";
 import { computeDnaVersion } from "./version-identity.js";
 
 /**

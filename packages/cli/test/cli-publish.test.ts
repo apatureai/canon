@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { isApproved, type DnaSnapshot } from "@uidna/schema";
+import { isApproved, type DnaSnapshot } from "@apatureai/canon-schema";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { EXIT_ERROR, EXIT_OK } from "../src/index.js";
 import { runCapture } from "./helpers.js";

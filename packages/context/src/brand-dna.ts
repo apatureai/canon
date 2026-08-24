@@ -1,5 +1,5 @@
-import type { ProductIdentity } from "@uidna/schema";
-import { fact } from "@uidna/schema";
+import type { ProductIdentity } from "@apatureai/canon-schema";
+import { fact } from "@apatureai/canon-schema";
 import { extractBrandBlock } from "./brand.js";
 
 /**

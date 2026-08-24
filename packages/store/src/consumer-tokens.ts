@@ -1,4 +1,4 @@
-import type { DnaSnapshot, DnaTokens, Fact, Provenance } from "@uidna/schema";
+import type { DnaSnapshot, DnaTokens, Fact, Provenance } from "@apatureai/canon-schema";
 
 /**
  * Shared token flattening for the downstream consumer projections

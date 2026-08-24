@@ -1,4 +1,4 @@
-import { fact } from "@uidna/schema";
+import { fact } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { reconcileField } from "../src/index.js";
 

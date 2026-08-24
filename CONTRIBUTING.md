@@ -67,13 +67,13 @@ Seven workspace packages under `packages/`, wired with TypeScript project refere
 
 | Package | What it owns |
 | --- | --- |
-| `@uidna/schema` | The canonical schema: tokens, components, distributions, anchors, exceptions, per-field confidence and provenance, version metadata, approval state. Everything else depends on it. |
-| `@uidna/context` | Static extraction: CSS custom properties, Tailwind v3 (`resolveConfig`) and v4 (`@theme` via PostCSS), DTCG `tokens.json`, brand config, changed-file to route mapping. Emits schema facts with confidence and provenance. |
-| `@uidna/render` | The rendered-evidence *input port*. This repo never runs a browser; captured DOM geometry, screenshot refs and hashes arrive through this seam as data. |
-| `@uidna/reconcile` | Merges code/config/pixel evidence for one logical field into a single resolved fact plus a recorded conflict trail. |
-| `@uidna/store` | Immutable, content-addressed snapshots per repo; sign-off workflow; the authority and revocation log; the versioned downstream read contract; the design-to-code drift gate. |
-| `@uidna/eval` | Measures the precedence ladder instead of assuming it: reconciliation precision/recall and confidence calibration (ECE, Brier) over labeled fixtures, with a CI floor. |
-| `@uidna/cli` | The `ui-dna` command line. The only package that reads the filesystem; every other package takes strings and returns facts. Keep it that way when adding an extractor: parse in `context`, read the bytes here. |
+| `@apatureai/canon-schema` | The canonical schema: tokens, components, distributions, anchors, exceptions, per-field confidence and provenance, version metadata, approval state. Everything else depends on it. |
+| `@apatureai/canon-context` | Static extraction: CSS custom properties, Tailwind v3 (`resolveConfig`) and v4 (`@theme` via PostCSS), DTCG `tokens.json`, brand config, changed-file to route mapping. Emits schema facts with confidence and provenance. |
+| `@apatureai/canon-render` | The rendered-evidence *input port*. This repo never runs a browser; captured DOM geometry, screenshot refs and hashes arrive through this seam as data. |
+| `@apatureai/canon-reconcile` | Merges code/config/pixel evidence for one logical field into a single resolved fact plus a recorded conflict trail. |
+| `@apatureai/canon-store` | Immutable, content-addressed snapshots per repo; sign-off workflow; the authority and revocation log; the versioned downstream read contract; the design-to-code drift gate. |
+| `@apatureai/canon-eval` | Measures the precedence ladder instead of assuming it: reconciliation precision/recall and confidence calibration (ECE, Brier) over labeled fixtures, with a CI floor. |
+| `@apatureai/canon` | The `ui-dna` command line. The only package that reads the filesystem; every other package takes strings and returns facts. Keep it that way when adding an extractor: parse in `context`, read the bytes here. |
 
 Tests live in each package's `test/` directory next to `src/`. A hard rule the codebase follows
 throughout: **tests never call a model, launch a browser, or hit the network.** Everything runs
@@ -121,7 +121,7 @@ repository. Treat them as historical provenance, not as instructions.
 ## Releasing
 
 Publishing is the maintainer's job and is documented in the README under
-[Releasing](README.md#releasing): the six public `@uidna/*` packages ship together, keyed off a
+[Releasing](README.md#releasing): the six public `@apatureai/*` packages ship together, keyed off a
 `vX.Y.Z` tag, via `.github/workflows/release.yml`. Contributors do not publish; you only move your
 change from `[Unreleased]` intent into the changelog. The one-time `NPM_TOKEN` secret and the
 tag-and-push steps live in that section.

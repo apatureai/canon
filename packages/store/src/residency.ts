@@ -1,4 +1,4 @@
-import type { DnaSnapshot, Fact, ProductIdentity, RenderedAnchor } from "@uidna/schema";
+import type { DnaSnapshot, Fact, ProductIdentity, RenderedAnchor } from "@apatureai/canon-schema";
 import { computeSnapshotContentDigest, getSnapshot, type SnapshotResponse } from "./read-api.js";
 import type { SnapshotStore } from "./store.js";
 

@@ -1,5 +1,5 @@
 {
-  "name": "@uidna/monorepo",
+  "name": "@apatureai/canon-monorepo",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -21,11 +21,11 @@
     "eval:dtcg-corpus": "pnpm typecheck && node scripts/dtcg-corpus-benchmark.mjs"
   },
   "dependencies": {
-    "@uidna/context": "workspace:*",
-    "@uidna/reconcile": "workspace:*",
-    "@uidna/render": "workspace:*",
-    "@uidna/schema": "workspace:*",
-    "@uidna/store": "workspace:*"
+    "@apatureai/canon-context": "workspace:*",
+    "@apatureai/canon-reconcile": "workspace:*",
+    "@apatureai/canon-render": "workspace:*",
+    "@apatureai/canon-schema": "workspace:*",
+    "@apatureai/canon-store": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

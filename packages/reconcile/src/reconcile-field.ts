@@ -1,4 +1,4 @@
-import type { Conflict, Fact, Provenance } from "@uidna/schema";
+import type { Conflict, Fact, Provenance } from "@apatureai/canon-schema";
 import {
   AGREEMENT_REINFORCE,
   clampConfidence,

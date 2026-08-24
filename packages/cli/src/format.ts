@@ -1,7 +1,7 @@
-import type { Conflict, DnaTokens, Fact } from "@uidna/schema";
-import type { ContextBlock, TokensJsonResolution } from "@uidna/context";
-import { projectTokenValue } from "@uidna/context";
-import type { DriftHint } from "@uidna/reconcile";
+import type { Conflict, DnaTokens, Fact } from "@apatureai/canon-schema";
+import type { ContextBlock, TokensJsonResolution } from "@apatureai/canon-context";
+import { projectTokenValue } from "@apatureai/canon-context";
+import type { DriftHint } from "@apatureai/canon-reconcile";
 import type { ScanDiagnostic, ScannedSource } from "./scan.js";
 import { tokenCountsByGroup } from "./genome.js";
 

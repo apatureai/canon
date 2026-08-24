@@ -6,7 +6,7 @@ import type {
   Fact,
   ProductIdentity,
   RenderedAnchor,
-} from "@uidna/schema";
+} from "@apatureai/canon-schema";
 import { getSnapshot, type ContractVersion } from "./read-api.js";
 import { scrubSnapshot } from "./residency.js";
 import type { SnapshotStore } from "./store.js";

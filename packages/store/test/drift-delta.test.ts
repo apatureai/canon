@@ -12,7 +12,7 @@ import {
   DESIGN_CODE_DRIFT_VERSION,
   type DesignCodeDrift,
   type DriftEntry,
-} from "@uidna/store";
+} from "@apatureai/canon-store";
 
 function drift(entries: DriftEntry[]): DesignCodeDrift {
   return {

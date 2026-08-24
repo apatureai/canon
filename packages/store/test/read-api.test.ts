@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { extractTokensJson } from "@uidna/context";
-import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@uidna/schema";
+import { extractTokensJson } from "@apatureai/canon-context";
+import { emptyDraft, fact, SCHEMA_VERSION, type DnaSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import {
   approveSnapshot,

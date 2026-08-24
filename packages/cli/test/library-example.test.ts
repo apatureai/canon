@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
  *
  * The test lives in the CLI package because that is where this repo keeps the
  * things a reader RUNS; the example itself belongs to no package. Under vitest
- * the `@uidna/*` specifiers resolve to package sources (see `vitest.config.ts`),
+ * the `@apatureai/*` specifiers resolve to package sources (see `vitest.config.ts`),
  * so this asserts the example's behaviour without requiring a build. That the
  * same specifiers also resolve from the repository root at runtime is a fact
  * about `package.json` + `pnpm-lock.yaml`, which `--frozen-lockfile` checks.

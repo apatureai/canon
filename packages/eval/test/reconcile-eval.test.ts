@@ -5,7 +5,7 @@ import {
   type ReconcileGate,
 } from "../src/index.js";
 import { LABELED_FIXTURES } from "./fixtures/reconcile-labeled.js";
-import { fact } from "@uidna/schema";
+import { fact } from "@apatureai/canon-schema";
 import { emptyDistributions, emptyTokens } from "../src/index.js";
 import { describe, expect, it } from "vitest";
 

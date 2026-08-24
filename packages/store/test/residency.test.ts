@@ -9,7 +9,7 @@ import {
   type AccessLogEvent,
   type ResidencyPolicy,
 } from "../src/index.js";
-import { emptyDraft, fact, type DnaSnapshot } from "@uidna/schema";
+import { emptyDraft, fact, type DnaSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 
 /** An approved genome carrying a planted secret + PII and multi-route anchors. */

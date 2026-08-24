@@ -1,4 +1,4 @@
-import { emptyDraft, validateSnapshot } from "@uidna/schema";
+import { emptyDraft, validateSnapshot } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import { extractComponentConventions } from "../src/index.js";
 

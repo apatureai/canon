@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { SCHEMA_VERSION } from "@uidna/schema";
+import { SCHEMA_VERSION } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import {
   AGENT_CARD_VERSION,
@@ -30,7 +30,7 @@ describe("ui-dna ApatureAgentCardV1", () => {
 
   it("advertises the EXISTING read + grounding contracts — no new genome wire path", () => {
     const outputs = buildUiDnaAgentCard().capabilities.map((c) => c.output);
-    // Both outputs are existing @uidna/store contract types, not new ones.
+    // Both outputs are existing @apatureai/canon-store contract types, not new ones.
     expect(outputs).toEqual(["SnapshotResponse", "GenomeSlice"]);
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalColor } from "@uidna/schema";
+import { canonicalColor } from "@apatureai/canon-schema";
 
 /**
  * Shared colour canonicalizer (#97): the one `canonicalColor` both the drift

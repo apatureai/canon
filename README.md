@@ -4,7 +4,7 @@
 
 > Part of the [Apature stack](https://github.com/apatureai) — automated design review for rendered UI. The [org profile](https://github.com/apatureai/.github/blob/main/profile/README.md) maps how the pieces compose.
 
-> Previously published as `ui-dna`. The npm package scope is still `@uidna/*` and the CLI is still `ui-dna`; only the repository was renamed.
+> The repository was renamed from `ui-dna` to `canon`. The npm packages are published under the `@apatureai/*` scope; the CLI binary is still `ui-dna`.
 
 **A strict DTCG 2025.10 design-token resolver, and a scanner that reads a project's declared design
 system out of its own files. It abstains and explains instead of guessing.**
@@ -59,7 +59,7 @@ value by provenance precedence (`human > config > code > pixels`) and computes c
 *separately*: agreement between independent sources reinforces it, disagreement keeps the winning
 value but degrades its confidence in proportion to the dissent, and every candidate that lost is
 still in the report. Every weight lives in one file (`packages/reconcile/src/thresholds.ts`) so
-`@uidna/eval` can measure the ladder against labeled fixtures instead of leaving it as taste.
+`@apatureai/canon-eval` can measure the ladder against labeled fixtures instead of leaving it as taste.
 
 **Determinism is a hard constraint.** Serialization sorts keys and arrays recursively and contains
 no timestamps; caches invalidate by content hash, never by wall clock. The same repository state
@@ -420,7 +420,7 @@ approved abdcf749b0caacc3e97f7b8aafab4382c62c21f3010614f636111cf54c8490c6
 ```
 
 Sign-off with no per-field decisions confirms the resolved genome as-is; the
-per-field accept/edit review lives in the `@uidna/store` library
+per-field accept/edit review lives in the `@apatureai/canon-store` library
 (`applyReviewDecisions`). Re-approving an already-approved genome is refused — a
 new genome is a new version, not a re-approval. The `dnaVersion` is deterministic:
 the same resolved content yields the same version on every machine.
@@ -505,7 +505,7 @@ examples and the required failure taxonomy.
 
 The packages are workspace packages that are not on npm yet, so the consumption path today is clone,
 build, import, or vendor the source you want. Every extractor takes a **string**, not a path;
-`@uidna/cli` is the only package that reads a disk.
+`@apatureai/canon` is the only package that reads a disk.
 
 The block below is `examples/library-example.ts`, checked in and runnable once `pnpm build` has run.
 It goes extract, reconcile, drift, version, sign off, serve, in one file:
@@ -521,14 +521,14 @@ verdict profile: approved 7 items
 ```
 
 ```ts
-import { emptyDraft } from "@uidna/schema";
-import { extractCssTokens } from "@uidna/context";
-import { computeVisualDistributions, sampleCaptureEvidence } from "@uidna/render";
-import { reconcileTokens, computeDriftHints } from "@uidna/reconcile";
+import { emptyDraft } from "@apatureai/canon-schema";
+import { extractCssTokens } from "@apatureai/canon-context";
+import { computeVisualDistributions, sampleCaptureEvidence } from "@apatureai/canon-render";
+import { reconcileTokens, computeDriftHints } from "@apatureai/canon-reconcile";
 import {
   inMemorySnapshotStore, commitSnapshot, requestReview, approveSnapshot, getSnapshot,
   projectVerdictDnaProfile,
-} from "@uidna/store";
+} from "@apatureai/canon-store";
 
 const draft = emptyDraft("acme", "web", "extractor@1");
 draft.tokens = extractCssTokens(":root { --color-brand: #0a0a0a; --spacing-gap: 8px; }");
@@ -554,10 +554,10 @@ const verdict = projectVerdictDnaProfile(served!.snapshot, served!.repo, served!
 console.log("verdict profile:", verdict.snapshot.approval_state, verdict.snapshot.items.length, "items");
 ```
 
-**Where the `@uidna/*` specifiers resolve.** Inside this repository they resolve everywhere,
+**Where the `@apatureai/*` specifiers resolve.** Inside this repository they resolve everywhere,
 including the root, because the root `package.json` declares the workspace packages as dependencies.
 They resolve to `packages/<name>/dist`, so `pnpm build` is a prerequisite. Outside this repository
-they do not resolve yet: copy the file into your own project and rewrite each `@uidna/x` to a path
+they do not resolve yet: copy the file into your own project and rewrite each `@apatureai/x` to a path
 into the built package, for example
 `import { emptyDraft } from "/abs/path/to/ui-dna/packages/schema/dist/index.js";`.
 
@@ -567,24 +567,24 @@ rot into a snippet that no longer runs.
 ## How it works
 
 ```
-  repo sources (read by @uidna/cli)          rendered evidence (supplied by you)
+  repo sources (read by @apatureai/canon)          rendered evidence (supplied by you)
   tailwind.config / @theme                   DOM geometry, computed styles
   CSS custom properties                      a11y facts, screenshot refs, phash
   tokens.json (DTCG)                                  |
   package.json, .designreview.yml                     |
          |                                            |
          v                                            v
-   @uidna/context                                @uidna/render
+   @apatureai/canon-context                                @apatureai/canon-render
    Fact<T> @ code|config|human                   Fact<T> @ pixels
    confidence 0.5-0.9                            VisualDistributions, RenderedAnchor[]
          +---------------+----------------------------+
                          v
-                  @uidna/reconcile
+                  @apatureai/canon-reconcile
          value by precedence, confidence by agreement
          resolved DnaTokens + Conflict[] -> DriftHint[]
                          |
                          v
-                    @uidna/store
+                    @apatureai/canon-store
      content-addressed version -> draft -> in_review -> approved
      append-only authority log (effective | superseded | revoked)
                          |
@@ -601,25 +601,25 @@ Dependencies flow strictly downward.
 
 ```
 packages/
-  schema/      @uidna/schema     the contract every other package speaks
-  context/     @uidna/context    static extraction from repo sources
-  render/      @uidna/render     the rendered-evidence input port
-  reconcile/   @uidna/reconcile  merge code/config/pixels into resolved facts
-  store/       @uidna/store      versioning, sign-off, authority, read contract, drift gate
-  eval/        @uidna/eval       measures whether reconciliation is any good
-  cli/         @uidna/cli        the filesystem entry point (`ui-dna`)
+  schema/      @apatureai/canon-schema     the contract every other package speaks
+  context/     @apatureai/canon-context    static extraction from repo sources
+  render/      @apatureai/canon-render     the rendered-evidence input port
+  reconcile/   @apatureai/canon-reconcile  merge code/config/pixels into resolved facts
+  store/       @apatureai/canon-store      versioning, sign-off, authority, read contract, drift gate
+  eval/        @apatureai/canon-eval       measures whether reconciliation is any good
+  cli/         @apatureai/canon            the filesystem entry point (`ui-dna`)
 examples/      sample-tokens.json, sample-project/, utility-only-project/, library-example.ts
 scripts/       dtcg-corpus-benchmark.mjs, the one network-touching script
 ```
 
-**`@uidna/schema`** holds `DnaSnapshot` and its parts: product identity, tokens (color, typography,
+**`@apatureai/canon-schema`** holds `DnaSnapshot` and its parts: product identity, tokens (color, typography,
 spacing, radii, shadows, breakpoints, motion), component conventions, visual distributions, rendered
 anchors, exceptions, metadata. `Fact<T>` carries `{ value, confidence, provenance }`; `Conflict`
 records a reconciliation disagreement. Plus `fact()`, `emptyDraft()`, `isApproved()`,
 `validateSnapshot()` and a shared color canonicalizer so the drift gate and the reconciler agree on
 what "the same color" means. `SCHEMA_VERSION = "1"`; evolution is additive-only within a version.
 
-**`@uidna/context`** holds the pure extractors, each split into a source-format parser plus a thin
+**`@apatureai/canon-context`** holds the pure extractors, each split into a source-format parser plus a thin
 `*-dna.ts` that maps its output onto schema facts: Tailwind v3 via Tailwind's own `resolveConfig`
 behind an injected `ConfigLoader` port, Tailwind v4 `@theme` via PostCSS, CSS custom properties
 including theme-scoped blocks, DTCG and Style Dictionary token files, component-library detection,
@@ -627,15 +627,15 @@ the `.designreview.yml` brand block, and changed-file to route mapping for Next.
 routers with an import-graph pass that falls back deterministically when resolution coverage is
 below threshold. Also `buildContextBlock`, the deterministic content-hash serializer.
 
-**`@uidna/render`** defines the `CaptureEvidence` port (viewports, DOM geometry rects,
+**`@apatureai/canon-render`** defines the `CaptureEvidence` port (viewports, DOM geometry rects,
 computed-style and a11y facts, screenshot object-storage refs, perceptual hashes), a validator, a
 fixture capture source, `computeVisualDistributions` and `selectAnchors`. Screenshot *bytes* are
 never stored, only refs.
 
-**`@uidna/reconcile`** contains `reconcileField`, `reconcileTokens` (declared tokens by observed
+**`@apatureai/canon-reconcile`** contains `reconcileField`, `reconcileTokens` (declared tokens by observed
 distributions), `reconcileComponents`, `computeDriftHints`, and `thresholds.ts`.
 
-**`@uidna/store`** is the largest package. Content-addressed immutable versions over an injected
+**`@apatureai/canon-store`** is the largest package. Content-addressed immutable versions over an injected
 `SnapshotStore` port; the draft to in_review to approved state machine, where approval applies
 headless JSON `ReviewDecisions` and promotes confirmed facts to confidence 1.0 with provenance
 `human`; route exceptions; `diffSnapshots`; the versioned `getSnapshot` read contract, which never
@@ -646,11 +646,11 @@ base-vs-head delta, remediation projection, routing node and PR-comment renderer
 provenance enforcement, which can only ever *remove* blocking authority from a verdict; and two
 named projections (an A2A capability card and a local-check profile).
 
-**`@uidna/eval`** runs reconciliation over labeled fixtures and reports resolved-fact
+**`@apatureai/canon-eval`** runs reconciliation over labeled fixtures and reports resolved-fact
 precision/recall, conflict-detection recall, and confidence calibration (ECE, Brier, reliability
 bins), with a gate that can fail CI on a floor.
 
-**`@uidna/cli`** covers argument parsing, the bounded directory walk (`scan.ts`), the merge into a
+**`@apatureai/canon`** covers argument parsing, the bounded directory walk (`scan.ts`), the merge into a
 draft snapshot (`genome.ts`), terminal rendering (`format.ts`), and the worker-backed `ConfigLoader`
 (`tailwind-config-loader.ts`, which spawns `packages/cli/worker/tailwind-config-worker.mjs`).
 `runCli` returns an exit code rather than calling `process.exit`, so the tests drive the same entry
@@ -720,11 +720,11 @@ so a new backend has a ready-made conformance suite.
 emits that JSON would be a complete, high-value contribution with no new dependencies.
 
 **4. Publish the packages to npm.** The packages are now publish-ready — the six runtime packages
-(`@uidna/cli`, `@uidna/schema`, `@uidna/context`, `@uidna/reconcile`, `@uidna/render`, `@uidna/store`)
+(`@apatureai/canon`, `@apatureai/canon-schema`, `@apatureai/canon-context`, `@apatureai/canon-reconcile`, `@apatureai/canon-render`, `@apatureai/canon-store`)
 are `private: false` with `publishConfig.access: public` and a `prepack` build, and
 [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes them with provenance on a
 `v*` tag. Two steps remain, both the maintainer's: add an `NPM_TOKEN` secret (see
-[Releasing](#releasing)), and decide whether `@uidna/eval` (kept private today as an internal harness)
+[Releasing](#releasing)), and decide whether `@apatureai/canon-eval` (kept private today as an internal harness)
 should also ship. Until a tag is pushed the install path is clone and build.
 
 **5. Serve the read contract.** `getSnapshot` is a function call. An HTTP or MCP server exposing the
@@ -736,7 +736,7 @@ implement rather than invent.
 **6. DTCG Resolver Module support.** Sets, modifiers, `resolutionOrder`, filesystem and remote
 sources currently return `unsupported_resolver_module`; external `$ref` returns
 `unsupported_external_reference`. Enabling them needs an injected, sandboxed, allowlisted loader
-(the codebase never reads the filesystem outside `@uidna/cli`, and that rule should hold) plus a
+(the codebase never reads the filesystem outside `@apatureai/canon`, and that rule should hold) plus a
 versioned profile change so callers can tell which profile resolved their document.
 
 **7. More extractors.** Component-library detection covers shadcn/ui, Radix, MUI, Chakra and Mantine
@@ -752,7 +752,7 @@ different problem (it needs a confidence story that does not pollute the declare
 needs a design proposal before code.
 
 **9. Calibrate the thresholds on real repositories.** `packages/reconcile/src/thresholds.ts` holds
-reasoned defaults, and `@uidna/eval` measures precision, recall and calibration (ECE, Brier) against
+reasoned defaults, and `@apatureai/canon-eval` measures precision, recall and calibration (ECE, Brier) against
 hand-labeled fixtures, not production data. Labeled fixtures drawn from real open-source repos would
 turn the weights from taste into measurement. This is the highest-leverage contribution for anyone
 who cares about whether the confidence numbers mean anything.
@@ -820,11 +820,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions, layout and how pull requ
 
 ## Releasing
 
-Releases publish the six public `@uidna/*` packages to npm together, keyed off a version tag.
+Releases publish the six public `@apatureai/*` packages to npm together, keyed off a version tag.
 [`CHANGELOG.md`](CHANGELOG.md) records what each version contains.
 
 **One-time maintainer setup.** Create an npm **automation** token with publish rights on the
-`@uidna` scope (npmjs.com → Access Tokens → Generate → *Automation*), then add it to the repo as an
+`@apatureai` scope (npmjs.com → Access Tokens → Generate → *Automation*), then add it to the repo as an
 Actions secret named `NPM_TOKEN` (Settings → Secrets and variables → Actions). Nothing else reads the
 token; lint, typecheck, test and build all run without it.
 
@@ -834,9 +834,9 @@ token; lint, typecheck, test and build all run without it.
    `version` in every package's `package.json` (they are versioned together).
 2. Commit, then tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 3. [`.github/workflows/release.yml`](.github/workflows/release.yml) runs on the tag: it verifies the
-   tag matches `@uidna/cli`'s version, runs the full gate (lint · typecheck · test · build), and
+   tag matches `@apatureai/canon`'s version, runs the full gate (lint · typecheck · test · build), and
    publishes every non-private package with `pnpm -r publish --access public` and npm build
-   provenance (`id-token: write`). `@uidna/eval` is `private: true` and is skipped.
+   provenance (`id-token: write`). `@apatureai/canon-eval` is `private: true` and is skipped.
 
 `pnpm` rewrites each `workspace:*` dependency range to the concrete version in the published
 tarballs; a direct `npm publish` would not, so publish through the workflow (or `pnpm publish`), not

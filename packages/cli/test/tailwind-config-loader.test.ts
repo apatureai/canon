@@ -1,4 +1,4 @@
-import { extractTailwindV3TokensFromFile } from "@uidna/context";
+import { extractTailwindV3TokensFromFile } from "@apatureai/canon-context";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createWorkerConfigLoader } from "../src/index.js";

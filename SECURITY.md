@@ -45,17 +45,17 @@ the deliberate behaviour of `--exec-tailwind-config` described below.
 
 A set of pure TypeScript libraries that turn a front-end project's declared design information into
 a versioned JSON snapshot (schema types, static token and brand extractors, evidence reconciliation,
-an in-memory snapshot store, an eval harness), plus one command line (`@uidna/cli`) that reads files
+an in-memory snapshot store, an eval harness), plus one command line (`@apatureai/canon`) that reads files
 from disk and feeds them to those libraries.
 
 The honest risk surface:
 
 - **I/O is confined to one package.** Nothing in
-  `@uidna/{schema,context,render,reconcile,store,eval}` reads the filesystem, opens a network
+  `@apatureai/{canon-schema,canon-context,canon-render,canon-reconcile,canon-store,canon-eval}` reads the filesystem, opens a network
   connection, spawns a child process, or reads environment variables or credentials: callers pass
-  content in as strings and plain objects and get values back. `@uidna/cli` reads files (bounded by
+  content in as strings and plain objects and get values back. `@apatureai/canon` reads files (bounded by
   depth, file count and a 2 MiB per-file ceiling) and writes only where `--out` points. There is no
-  server and no daemon, and rendered evidence arrives through the `@uidna/render` input port as data
+  server and no daemon, and rendered evidence arrives through the `@apatureai/canon-render` input port as data
   some other system captured.
 - **It parses untrusted input by design.** CSS and CSS custom properties, DTCG `tokens.json`, YAML
   config, and resolved Tailwind theme objects, all of it typically originating from somebody else's

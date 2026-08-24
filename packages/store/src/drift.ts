@@ -1,4 +1,4 @@
-import { canonicalColor, type DnaTokens } from "@uidna/schema";
+import { canonicalColor, type DnaTokens } from "@apatureai/canon-schema";
 
 /**
  * Design↔code drift (PRD §5/§7; the DTCG "single source of truth so design and

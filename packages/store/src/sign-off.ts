@@ -1,5 +1,5 @@
-import type { ApprovalState, ComponentConvention, DnaSnapshot, Fact, ProductIdentity } from "@uidna/schema";
-import { fact } from "@uidna/schema";
+import type { ApprovalState, ComponentConvention, DnaSnapshot, Fact, ProductIdentity } from "@apatureai/canon-schema";
+import { fact } from "@apatureai/canon-schema";
 import { commitSnapshot, type CommitResult, type SnapshotStore } from "./store.js";
 
 /**
@@ -9,7 +9,7 @@ import { commitSnapshot, type CommitResult, type SnapshotStore } from "./store.j
  * ladder (#18) reserves for sign-off. Structured review is headless (a plain
  * JSON `ReviewDecisions`), not UI-coupled; no customer code is written.
  *
- * Approval produces a NEW immutable version via `@uidna/store`; an approved
+ * Approval produces a NEW immutable version via `@apatureai/canon-store`; an approved
  * snapshot is never mutated in place.
  */
 

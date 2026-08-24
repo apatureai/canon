@@ -5,8 +5,8 @@
  * The primitive behind the design-system drift gate.
  */
 import { describe, expect, it } from "vitest";
-import { fact, type DnaTokens } from "@uidna/schema";
-import { computeDesignCodeDrift, driftFromEntries } from "@uidna/store";
+import { fact, type DnaTokens } from "@apatureai/canon-schema";
+import { computeDesignCodeDrift, driftFromEntries } from "@apatureai/canon-store";
 
 const emptyTokens = (): DnaTokens => ({
   color: {}, typography: {}, spacing: {}, radii: {}, shadows: {}, breakpoints: {}, motion: {},
@@ -75,7 +75,7 @@ describe("computeDesignCodeDrift (#drift gate)", () => {
   });
 });
 
-import { evaluateDriftGate, DEFAULT_DRIFT_GATE_POLICY, computeDesignCodeDrift as drift2 } from "@uidna/store";
+import { evaluateDriftGate, DEFAULT_DRIFT_GATE_POLICY, computeDesignCodeDrift as drift2 } from "@apatureai/canon-store";
 
 describe("evaluateDriftGate — the neutral gate over drift", () => {
   const mk = (designColors: Record<string, string>, codeColors: Record<string, string>) =>

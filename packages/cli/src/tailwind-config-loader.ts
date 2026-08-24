@@ -1,8 +1,8 @@
 import { Worker } from "node:worker_threads";
-import type { ConfigLoader } from "@uidna/context";
+import type { ConfigLoader } from "@apatureai/canon-context";
 
 /**
- * The production implementation of `@uidna/context`'s `ConfigLoader` port.
+ * The production implementation of `@apatureai/canon-context`'s `ConfigLoader` port.
  *
  * `resolveTailwindV3FromFile(path, loader)` is pure and testable precisely
  * because the one dangerous step (evaluating a `tailwind.config.{js,cjs,mjs,ts}`)

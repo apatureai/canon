@@ -1,4 +1,4 @@
-import { emptyDraft, fact, isApproved } from "@uidna/schema";
+import { emptyDraft, fact, isApproved } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import {
   applyReviewDecisions,

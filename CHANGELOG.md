@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-Versions are shared across every `@uidna/*` workspace package; a release tags and
+Versions are shared across every `@apatureai/*` workspace package; a release tags and
 publishes them together.
 
 ## [Unreleased]
@@ -16,15 +16,15 @@ publishes them together.
   consumer's read contract: Verdict's `snapshot`/`items` rule shape, Lattice's
   `projectionSchemaVersion`/`dnaContentDigest`/`state`/`tokens` view, and the
   existing Pointer local-check profile. Backed by pure `projectVerdictDnaProfile`
-  and `projectLatticeDnaProfile` in `@uidna/store`, each with an approval gate,
+  and `projectLatticeDnaProfile` in `@apatureai/canon-store`, each with an approval gate,
   snapshot validation, repo/version matching, and a content digest.
 - **CLI approval path.** `ui-dna approve <genome.json>` promotes a draft genome
   through the sign-off transition (draft → in_review → approved) and stamps its
   content-addressed immutable `dnaVersion`, so a draft scan can become approved
   DNA without writing code against the library.
-- **npm publish readiness.** The six runtime packages (`@uidna/cli`, `schema`,
+- **npm publish readiness.** The six runtime packages (`@apatureai/canon`, `schema`,
   `context`, `reconcile`, `render`, `store`) are now publishable: `private:false`,
-  `publishConfig.access: public`, and a `prepack` build. `@uidna/eval` stays
+  `publishConfig.access: public`, and a `prepack` build. `@apatureai/canon-eval` stays
   private as an internal harness.
 - **Release workflow.** `.github/workflows/release.yml` publishes the public
   packages to npm on a `v*` tag, with build provenance, gated on lint/typecheck/
@@ -35,6 +35,12 @@ publishes them together.
 
 ### Changed
 
+- **Packages renamed to the `@apatureai/*` scope.** `@uidna/cli` → `@apatureai/canon`,
+  `@uidna/schema` → `@apatureai/canon-schema`, `@uidna/context` → `@apatureai/canon-context`,
+  `@uidna/reconcile` → `@apatureai/canon-reconcile`, `@uidna/render` → `@apatureai/canon-render`,
+  `@uidna/store` → `@apatureai/canon-store`, and the private `@uidna/eval` →
+  `@apatureai/canon-eval`. The CLI binary name is unchanged (`ui-dna`). Nothing had been
+  published to npm yet, so this is a name change only.
 - `--strict` no longer reports a clean result from a walk it could not finish:
   a truncated walk (hit `--max-files`/`--max-depth`) or an unreadable candidate
   design source now exits non-zero, because a scan that did not examine

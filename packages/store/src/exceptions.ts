@@ -1,5 +1,5 @@
-import type { DnaException, DnaSnapshot } from "@uidna/schema";
-import type { DriftHint } from "@uidna/reconcile";
+import type { DnaException, DnaSnapshot } from "@apatureai/canon-schema";
+import type { DriftHint } from "@apatureai/canon-reconcile";
 
 /**
  * Exceptions handling (#24, PRD §4/§5): first-class `DnaException`s, the routes/

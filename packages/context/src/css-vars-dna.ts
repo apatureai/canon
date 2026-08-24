@@ -1,5 +1,5 @@
-import type { DnaTokens, Fact } from "@uidna/schema";
-import { fact } from "@uidna/schema";
+import type { DnaTokens, Fact } from "@apatureai/canon-schema";
+import { fact } from "@apatureai/canon-schema";
 import { extractCssCustomProperties } from "./css-vars.js";
 import { classifyTokenName, emptyTokens } from "./token-groups.js";
 

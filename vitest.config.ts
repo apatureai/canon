@@ -6,13 +6,13 @@ const fromRoot = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 export default defineConfig({
   resolve: {
     alias: {
-      "@uidna/schema": fromRoot("./packages/schema/src/index.ts"),
-      "@uidna/context": fromRoot("./packages/context/src/index.ts"),
-      "@uidna/render": fromRoot("./packages/render/src/index.ts"),
-      "@uidna/reconcile": fromRoot("./packages/reconcile/src/index.ts"),
-      "@uidna/store": fromRoot("./packages/store/src/index.ts"),
-      "@uidna/eval": fromRoot("./packages/eval/src/index.ts"),
-      "@uidna/cli": fromRoot("./packages/cli/src/index.ts"),
+      "@apatureai/canon-schema": fromRoot("./packages/schema/src/index.ts"),
+      "@apatureai/canon-context": fromRoot("./packages/context/src/index.ts"),
+      "@apatureai/canon-render": fromRoot("./packages/render/src/index.ts"),
+      "@apatureai/canon-reconcile": fromRoot("./packages/reconcile/src/index.ts"),
+      "@apatureai/canon-store": fromRoot("./packages/store/src/index.ts"),
+      "@apatureai/canon-eval": fromRoot("./packages/eval/src/index.ts"),
+      "@apatureai/canon": fromRoot("./packages/cli/src/index.ts"),
     },
   },
   test: {

@@ -1,5 +1,5 @@
-import type { Conflict, DnaTokens, Fact } from "@uidna/schema";
-import { reconcileTokens } from "@uidna/reconcile";
+import type { Conflict, DnaTokens, Fact } from "@apatureai/canon-schema";
+import { reconcileTokens } from "@apatureai/canon-reconcile";
 import { calibrationReport, type CalibrationReport, type ConfidencePoint } from "./calibration.js";
 import type { FieldLabel, LabeledReconcileFixture } from "./labeled-fixture.js";
 

@@ -16,9 +16,9 @@ import {
   DEFAULT_PROVENANCE_POLICY,
   type DesignSourceProvenance,
   type DesignSourceProvenancePolicy,
-} from "@uidna/store";
-import { extractTokensJson } from "@uidna/context";
-import type { DnaTokens } from "@uidna/schema";
+} from "@apatureai/canon-store";
+import { extractTokensJson } from "@apatureai/canon-context";
+import type { DnaTokens } from "@apatureai/canon-schema";
 
 function colorValue(hex: string) {
   return { colorSpace: "srgb", components: [0, 0, 0], alpha: 1, hex };

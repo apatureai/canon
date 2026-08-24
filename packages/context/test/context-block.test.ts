@@ -1,4 +1,4 @@
-import { emptyDraft, fact } from "@uidna/schema";
+import { emptyDraft, fact } from "@apatureai/canon-schema";
 import { describe, expect, it } from "vitest";
 import {
   buildContextBlock,

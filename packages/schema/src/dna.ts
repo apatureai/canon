@@ -29,7 +29,7 @@ export interface Fact<T> {
  * disagreed on one logical field, and the reconciler kept the higher-trust
  * value while surfacing the disagreement for sign-off / drift. The trail is the
  * moat: downstream can show "code says X, pixels say Y" instead of silently
- * picking one. Additive to the schema; produced by `@uidna/reconcile`.
+ * picking one. Additive to the schema; produced by `@apatureai/canon-reconcile`.
  */
 export interface Conflict {
   /** Logical field this conflict is about, e.g. "tokens.color.--brand". */

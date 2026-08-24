@@ -8,7 +8,7 @@ import {
   type DnaSnapshot,
 } from "../src/index.js";
 
-describe("@uidna/schema contract (#11)", () => {
+describe("@apatureai/canon-schema contract (#11)", () => {
   it("fact() stamps confidence (clamped) + provenance", () => {
     expect(fact("#0a0a0a", 0.8, "code")).toEqual({ value: "#0a0a0a", confidence: 0.8, provenance: "code" });
     expect(fact("x", 1.5, "human").confidence).toBe(1); // clamped high
