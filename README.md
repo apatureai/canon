@@ -2,6 +2,8 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/apatureai/canon/ci.yml?branch=main&label=CI)](https://github.com/apatureai/canon/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/apatureai/canon)](https://github.com/apatureai/canon/blob/main/LICENSE) [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://github.com/apatureai/canon/blob/main/.node-version)
 
+> Part of the [Apature stack](https://github.com/apatureai) — automated design review for rendered UI. The [org profile](https://github.com/apatureai/.github/blob/main/profile/README.md) maps how the pieces compose.
+
 > Previously published as `ui-dna`. The npm package scope is still `@uidna/*` and the CLI is still `ui-dna`; only the repository was renamed.
 
 **A strict DTCG 2025.10 design-token resolver, and a scanner that reads a project's declared design
