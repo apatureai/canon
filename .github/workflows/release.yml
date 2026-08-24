@@ -1,0 +1,84 @@
+name: Release
+
+# Publishes the public @uidna/* packages to npm when a version tag is pushed.
+#
+# MAINTAINER SETUP (required once, or publishing fails at the last step):
+#   1. Create an npm automation token with publish rights on the @uidna scope
+#      (npmjs.com -> Access Tokens -> Generate -> "Automation").
+#   2. Add it to this repo as a secret named NPM_TOKEN
+#      (Settings -> Secrets and variables -> Actions -> New repository secret).
+# No token is needed to LINT/TYPECHECK/TEST/BUILD; only the publish step reads it.
+#
+# Provenance: the publish runs with `id-token: write` and NPM_CONFIG_PROVENANCE,
+# so npm records a signed build-provenance attestation linking each tarball to
+# this workflow run. Provenance requires a public repo and a cloud CI id token.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+# Never cancel a release mid-publish.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # npm build provenance
+
+jobs:
+  publish:
+    name: publish @uidna/* to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+        with:
+          version: 9.15.0
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The tag must name the version being published, so a mistagged push never
+      # ships the wrong bytes. Compares the tag (v1.2.3) to @uidna/cli's version.
+      - name: Verify tag matches package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p "require('./packages/cli/package.json').version")"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match @uidna/cli version $pkg"
+            exit 1
+          fi
+          echo "Releasing v$pkg"
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      # Publishes every non-private workspace package (@uidna/eval is private and
+      # is skipped). pnpm rewrites each workspace:* range to the concrete version.
+      # A version already on the registry fails the step rather than republishing.
+      - name: Publish
+        run: pnpm -r publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"

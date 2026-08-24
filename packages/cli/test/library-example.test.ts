@@ -24,7 +24,7 @@ describe("examples/library-example.ts", () => {
       spy.mockRestore();
     }
 
-    expect(logged).toHaveLength(3);
+    expect(logged).toHaveLength(4);
     expect(logged[0]).toEqual([
       [
         'tokens.spacing.--spacing-gap: code declares "8px" but it is not observed in rendered reality (dead token)',
@@ -36,5 +36,10 @@ describe("examples/library-example.ts", () => {
     expect(label).toBe("after approval: ");
     expect(contract).toEqual({ schemaVersion: "1", storeVersion: "2" });
     expect(digest).toMatch(/^sha256:[0-9a-f]{7}$/);
+    // The approved genome projects into a downstream consumer's contract.
+    const [verdictLabel, approvalState, itemCount] = logged[3] as [string, string, number];
+    expect(verdictLabel).toBe("verdict profile:");
+    expect(approvalState).toBe("approved");
+    expect(itemCount).toBeGreaterThan(0);
   });
 });
