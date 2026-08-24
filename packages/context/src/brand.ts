@@ -8,7 +8,7 @@ import { isRecord } from "./internal.js";
  * (`extractBrandBlock` returns null), so downstream products never invent
  * brand-fit findings without a stated brand.
  *
- * Ported from verdict's proven `@engine/context` brand extractor
+ * Ported from verdict's proven `@apatureai/verdict-context` brand extractor
  * pure, deterministic, no IO.
  */
 export interface BrandBlock {

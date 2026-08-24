@@ -8,7 +8,7 @@ import type { TokenMap } from "./tokens.js";
  * `@media (prefers-color-scheme: ...)`. Component-scoped custom props on other
  * selectors are intentionally ignored; they are not design tokens.
  *
- * Ported from verdict's proven `@engine/context` css-vars extractor
+ * Ported from verdict's proven `@apatureai/verdict-context` css-vars extractor
  * pure, deterministic, no IO.
  */
 export interface CssCustomProperties {
