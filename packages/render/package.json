@@ -1,8 +1,9 @@
 {
   "name": "@uidna/render",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
+  "publishConfig": { "access": "public" },
   "description": "UI DNA rendered-evidence input port: the boundary-clean CaptureEvidence seam by which ui-dna CONSUMES verdict's captured artifacts (DOM geometry, screenshot refs, a11y/computed-style, phash). This repo never runs a browser — capture lives in the engine.",
   "license": "MIT",
   "author": "Aditya Prathapa",
@@ -11,7 +12,7 @@
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
   "files": ["dist"],
-  "scripts": { "test": "vitest run" },
+  "scripts": { "prepack": "tsc -b", "test": "vitest run" },
   "dependencies": {
     "@uidna/schema": "workspace:*"
   }
