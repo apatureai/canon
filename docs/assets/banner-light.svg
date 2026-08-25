@@ -1,14 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="260" viewBox="0 0 1200 260" role="img" aria-label="canon: the design system a repo actually declares">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"
+     role="img" aria-label="canon: the design system a repo actually declares">
   <!-- ground -->
-  <rect width="1200" height="260" fill="#FFFFFF"/>
-  <!-- wordmark -->
-  <text x="600" y="126" text-anchor="middle"
+  <rect width="1200" height="300" fill="#FFFFFF"/>
+
+  <!-- texture: fine dot grid, 24px pitch, 5% -->
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1.1" fill="#1B1F24"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="300" fill="url(#dots)" opacity="0.05" aria-hidden="true"/>
+
+  <!-- motif: ragged declared token swatches resolve through a funnel into one
+       ordered, aligned canon set -->
+  <g aria-hidden="true" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- input column: the mess a repo actually declares (ragged widths, tones, x-jitter) -->
+    <rect x="112" y="72"  width="52" height="16" rx="4" fill="#DCE2E8"/>
+    <rect x="118" y="98"  width="36" height="16" rx="4" fill="#C7CFD7"/>
+    <rect x="112" y="124" width="52" height="16" rx="4" fill="#96690F" opacity="0.35"/>
+    <rect x="122" y="150" width="28" height="16" rx="4" fill="#E4E9EE"/>
+    <rect x="116" y="176" width="44" height="16" rx="4" fill="#C7CFD7"/>
+    <rect x="112" y="202" width="52" height="16" rx="4" fill="#96690F" opacity="0.35"/>
+
+    <!-- funnel: outline only, resolving the column to a single throat -->
+    <path d="M 196 64 L 258 128" fill="none" stroke="#57606A" stroke-width="2"/>
+    <path d="M 196 236 L 258 172" fill="none" stroke="#57606A" stroke-width="2"/>
+    <path d="M 258 128 H 272" fill="none" stroke="#57606A" stroke-width="2"/>
+    <path d="M 258 172 H 272" fill="none" stroke="#57606A" stroke-width="2"/>
+
+    <!-- output: the canon — three identical swatches, same size, same spacing, aligned -->
+    <rect x="288" y="118" width="56" height="16" rx="4" fill="#96690F"/>
+    <rect x="288" y="142" width="56" height="16" rx="4" fill="#96690F"/>
+    <rect x="288" y="166" width="56" height="16" rx="4" fill="#96690F"/>
+  </g>
+
+  <!-- type -->
+  <text x="428" y="142"
         font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-        font-size="68" font-weight="600" letter-spacing="-1" fill="#1B1F24">canon</text>
-  <!-- accent rule: the single accent element -->
-  <rect x="564" y="152" width="72" height="3" rx="1.5" fill="#A3762B"/>
-  <!-- tagline -->
-  <text x="600" y="198" text-anchor="middle"
+        font-size="76" font-weight="600" letter-spacing="-1.5" fill="#1B1F24">canon</text>
+  <rect x="430" y="164" width="96" height="4" rx="2" fill="#96690F"/>
+  <text x="428" y="210"
         font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-        font-size="21" font-weight="400" letter-spacing="0.2" fill="#57606A">the design system a repo actually declares</text>
+        font-size="22" font-weight="400" letter-spacing="0.2" fill="#57606A">the design system a repo actually declares</text>
 </svg>
