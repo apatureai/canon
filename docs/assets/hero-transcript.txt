@@ -1,0 +1,36 @@
+ui-dna tokens - examples/sample-tokens.json
+profile        DTCG Format Module 2025.10
+               aliases=true $ref=same-document-only $extends=true
+
+resolved tokens (22)
+  color.brand               color       #2f6fed
+  color.brand-strong        color       #2153ba
+  color.focus-ring          color       #2f6fed  <- #/color/brand/$value
+  color.link                color       #2f6fed  <- color.brand
+  color.link-hover          color       #2f6fed  <- color.brand <- color.link
+  color.surface             color       #ffffff
+  color.text                color       #0a0a0a
+  component.base            dimension   4px  <- space
+  component.button-padding  dimension   16px  <- space <- space.gutter
+  component.gutter          dimension   16px  <- space
+  component.section         dimension   48px  <- space
+  font.sans                 fontFamily  ["Inter","system-ui","sans-serif"]
+  motion.fast               duration    120ms
+  motion.slow               duration    320ms
+  radius.card               dimension   12px
+  radius.control            dimension   6px
+  shadow.card               shadow      {"blur":{"unit":"px","value":3},"color":{"alpha":0.08,"colorS... (--json for the exact value)
+  space.base                dimension   4px
+  space.gutter              dimension   16px
+  space.section             dimension   48px
+  typography.size-body      dimension   16px
+  typography.size-heading   dimension   30px
+
+diagnostics (4)
+  invalid_value         broken.typo  A dimension must contain a finite numeric value and unit.
+  circular_reference    color.loop-a  Circular token alias: color.loop-a -> color.loop-b -> color.loop-a.
+  circular_reference    color.loop-b  Circular token alias: color.loop-b -> color.loop-a -> color.loop-b.
+  unresolved_reference  color.missing  Token alias does not resolve: {color.nowhere}.
+
+  A diagnostic means the token was ABSTAINED, not guessed: it is absent from the
+  resolved list above rather than promoted with its reference syntax as a value.
